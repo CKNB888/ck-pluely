@@ -3,12 +3,14 @@ import { UseSettingsReturn } from "@/types";
 import { Providers } from "./Providers";
 import { CustomProviders } from "./CustomProvider";
 
+import { t } from "@/i18n";
+
 export const AIProviders = (settings: UseSettingsReturn) => {
   return (
     <div id="ai-providers" className="space-y-3">
       <Header
-        title="AI Providers"
-        description="Select your preferred AI service provider to get started."
+        title={t("AI Providers")}
+        description={t("Select your preferred AI service provider to get started.")}
         isMainTitle
       />
 

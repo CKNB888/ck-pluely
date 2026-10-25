@@ -8,6 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components";
 
+import { t } from "@/i18n";
+
 export const Theme = () => {
   const { theme, transparency, setTheme, onSetTransparency } = useTheme();
   const { hasActiveLicense } = useApp();
@@ -15,12 +17,12 @@ export const Theme = () => {
   return (
     <div id="theme" className="relative space-y-3">
       <Header
-        title={`Theme Customization ${
-          hasActiveLicense
+        title={t("Theme Customization {{v0}}", {
+          v0: hasActiveLicense
             ? ""
-            : " (You need an active license to use this feature)"
-        }`}
-        description="Personalize your experience with custom theme and transparency settings"
+            : t(" (You need an active license to use this feature)")
+        })}
+        description={t("Personalize your experience with custom theme and transparency settings")}
         isMainTitle
       />
 
@@ -36,25 +38,19 @@ export const Theme = () => {
               <Label className="text-sm font-medium flex items-center gap-2">
                 {theme === "system" ? (
                   <>
-                    <MonitorIcon className="h-4 w-4" />
-                    System
-                  </>
+                    <MonitorIcon className="h-4 w-4" />{t("System")}</>
                 ) : theme === "light" ? (
                   <>
-                    <SunIcon className="h-4 w-4" />
-                    Light Mode
-                  </>
+                    <SunIcon className="h-4 w-4" />{t("Light Mode")}</>
                 ) : (
                   <>
-                    <MoonIcon className="h-4 w-4" />
-                    Dark Mode
-                  </>
+                    <MoonIcon className="h-4 w-4" />{t("Dark Mode")}</>
                 )}
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
                 {theme === "light"
-                  ? "Using light theme for better visibility in bright environments"
-                  : "Using dark theme for comfortable viewing in low light"}
+                  ? t("Using light theme for better visibility in bright environments")
+                  : t("Using dark theme for comfortable viewing in low light")}
               </p>
             </div>
           </div>
@@ -72,15 +68,9 @@ export const Theme = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>{t("Light")}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>{t("Dark")}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>{t("System")}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -93,8 +83,8 @@ export const Theme = () => {
         }`}
       >
         <Header
-          title="Window Transparency"
-          description="Adjust the transparency level of the application window"
+          title={t("Window Transparency")}
+          description={t("Adjust the transparency level of the application window")}
         />
         <div className="space-y-3">
           <div className="flex items-center gap-4 mt-4">
@@ -108,10 +98,9 @@ export const Theme = () => {
             />
           </div>
 
-          <p className="text-xs text-muted-foreground/70">
-            💡 Tip: Higher transparency lets you see through the window, perfect
-            for dark overlay. Changes apply immediately.
-          </p>
+          <p className="text-xs text-muted-foreground/70">{t(
+            "💡 Tip: Higher transparency lets you see through the window, perfect for dark overlay. Changes apply immediately."
+          )}</p>
         </div>
       </div>
     </div>

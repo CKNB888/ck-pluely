@@ -5,6 +5,8 @@ import { PluelyApiSetup, Usage } from "./components";
 import { PageLayout } from "@/layouts";
 import { useApp } from "@/contexts";
 
+import { t } from "@/i18n";
+
 const Dashboard = () => {
   const { hasActiveLicense } = useApp();
   const [activity, setActivity] = useState<any>(null);
@@ -48,8 +50,10 @@ const Dashboard = () => {
 
   return (
     <PageLayout
-      title="Dashboard"
-      description="Pluely license to unlock faster responses, quicker support and premium features."
+      title={t("Dashboard")}
+      description={t(
+        "Pluely license to unlock faster responses, quicker support and premium features."
+      )}
       rightSlot={!hasActiveLicense ? <GetLicense /> : null}
     >
       {/* Pluely API Setup */}

@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { getResponseSettings } from "@/lib";
 import { CheckCircle2 } from "lucide-react";
 
+import { t } from "@/i18n";
+
 export const ResponseLength = () => {
   const { hasActiveLicense } = useApp();
   const [selectedLength, setSelectedLength] = useState<string>("auto");
@@ -26,8 +28,10 @@ export const ResponseLength = () => {
   return (
     <div className="space-y-4">
       <Header
-        title="Response Length"
-        description="Control how detailed the AI responses should be. Changes apply to all new conversations and will influence how the AI structures responses"
+        title={t("Response Length")}
+        description={t(
+          "Control how detailed the AI responses should be. Changes apply to all new conversations and will influence how the AI structures responses"
+        )}
         isMainTitle
       />
 
@@ -44,10 +48,10 @@ export const ResponseLength = () => {
           >
             <div className="space-y-1">
               <h3 className="text-sm lg:text-md font-semibold">
-                {length.title}
+                {t(String(length.title))}
               </h3>
               <p className="text-[10px] lg:text-xs text-muted-foreground">
-                {length.description}
+                {t(String(length.description))}
               </p>
             </div>
             {selectedLength === length.id && (

@@ -11,6 +11,8 @@ import { getPlatform } from "@/lib";
 import { CursorType } from "@/lib/storage";
 import { MousePointer, MousePointer2, Pointer, TextCursor } from "lucide-react";
 
+import { t } from "@/i18n";
+
 interface CursorSelectionProps {
   className?: string;
 }
@@ -22,8 +24,8 @@ export const CursorSelection = ({ className }: CursorSelectionProps) => {
   return (
     <div id="cursor" className={`space-y-2 ${className}`}>
       <Header
-        title="Cursor"
-        description="Control pluely cursor visibility"
+        title={t("Cursor")}
+        description={t("Control pluely cursor visibility")}
         isMainTitle
         rightSlot={
           <Select
@@ -31,23 +33,17 @@ export const CursorSelection = ({ className }: CursorSelectionProps) => {
             onValueChange={(value) => setCursorType(value as CursorType)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a cursor type" />
+              <SelectValue placeholder={t("Select a cursor type")} />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
-              <SelectItem value="invisible" disabled={platform === "linux"}>
-                Invisible (<MousePointer2 className="size-3 px-0" />){" "}
+              <SelectItem value="invisible" disabled={platform === "linux"}>{t("Invisible (")}<MousePointer2 className="size-3 px-0" />){" "}
                 {platform === "linux" && (
-                  <span className="text-xs text-muted-foreground">
-                    Not supported on Linux
-                  </span>
+                  <span className="text-xs text-muted-foreground">{t("Not supported on Linux")}</span>
                 )}
               </SelectItem>
-              <SelectItem value="default">
-                Default (<MousePointer className="size-3" />)
+              <SelectItem value="default">{t("Default (")}<MousePointer className="size-3" />)
               </SelectItem>
-              <SelectItem value="auto">
-                Auto (
-                <MousePointer className="size-3" />/
+              <SelectItem value="auto">{t("Auto (")}<MousePointer className="size-3" />/
                 <TextCursor className="size-3" /> /
                 <Pointer className="size-3" />)
               </SelectItem>

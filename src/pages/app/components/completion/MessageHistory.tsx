@@ -9,6 +9,8 @@ import {
 } from "@/components";
 import { ChatMessage } from "@/types/completion";
 
+import { t } from "@/i18n";
+
 interface MessageHistoryProps {
   conversationHistory: ChatMessage[];
   currentConversationId: string | null;
@@ -29,7 +31,7 @@ export const MessageHistory = ({
         <Button
           size="icon"
           variant="outline"
-          aria-label="View Current Conversation"
+          aria-label={t("View Current Conversation")}
           className="relative cursor-pointer w-12 h-7 px-2 flex gap-1 items-center justify-center"
         >
           <div className="flex items-center justify-center text-xs font-medium">
@@ -47,12 +49,9 @@ export const MessageHistory = ({
         <div className="border-b border-input/50 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center flex-col">
-              <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Current Conversation
-              </h2>
+              <h2 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{t("Current Conversation")}</h2>
               <p className="text-xs text-muted-foreground">
-                {conversationHistory.length} messages in this conversation
-              </p>
+                {conversationHistory.length} {t("messages in this conversation")}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -62,9 +61,7 @@ export const MessageHistory = ({
                   setMessageHistoryOpen(false);
                 }}
                 className="text-xs"
-              >
-                New Chat
-              </Button>
+              >{t("New Chat")}</Button>
               <Button
                 size="sm"
                 variant="ghost"
@@ -96,7 +93,7 @@ export const MessageHistory = ({
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs font-medium text-muted-foreground uppercase">
-                      {message.role === "user" ? "You" : "AI"}
+                      {message.role === "user" ? t("You") : t("AI")}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {new Date(message.timestamp).toLocaleTimeString([], {

@@ -5,6 +5,8 @@ import { MessageCircleIcon, Search } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
+import { t } from "@/i18n";
+
 const Dashboard = () => {
   const conversations = useHistory();
   const navigate = useNavigate();
@@ -28,16 +30,16 @@ const Dashboard = () => {
 
   return (
     <PageLayout
-      title="All conversations"
-      description="View all your conversations"
+      title={t("All conversations")}
+      description={t("View all your conversations")}
     >
       <>
         {conversations.conversations.length === 0 ? (
           <Empty
             isLoading={conversations.isLoading}
             icon={MessageCircleIcon}
-            title="No conversations found"
-            description="Start a new conversation to get started"
+            title={t("No conversations found")}
+            description={t("Start a new conversation to get started")}
           />
         ) : (
           <div className="flex flex-col gap-6 pb-8">
@@ -45,7 +47,7 @@ const Dashboard = () => {
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search conversations..."
+                placeholder={t("Search conversations...")}
                 className="pl-9 focus-visible:ring-0 focus-visible:ring-offset-0"
                 value={conversations.search}
                 onChange={(e) => conversations.setSearch(e.target.value)}
@@ -75,12 +77,11 @@ const Dashboard = () => {
                       >
                         <div className="flex items-center justify-between">
                           <p className="line-clamp-1 text-sm mr-8">
-                            {doc.title}
+                            {t(String(doc.title))}
                           </p>
                           <div className="flex items-center gap-1">
                             <Badge variant="outline" className="text-xs">
-                              {doc.messages.length} messages
-                            </Badge>
+                              {doc.messages.length} {t("messages")}</Badge>
                             <Badge variant="outline" className="text-xs">
                               {moment(doc.updatedAt).format("hh:mm A")}
                             </Badge>

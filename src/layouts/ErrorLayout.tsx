@@ -1,15 +1,15 @@
 import { Button, Card, DragButton } from "@/components";
 import { RefreshCcwIcon, SparklesIcon } from "lucide-react";
 
+import { t } from "@/i18n";
+
 export const ErrorLayout = ({ isCompact }: { isCompact?: boolean }) => {
   return isCompact ? (
     <Card className="flex flex-row w-screen h-screen items-center justify-between p-4">
       <div className="flex size-8 items-center justify-center rounded-xl bg-foreground">
         <SparklesIcon className="size-5 text-background" />
       </div>
-      <p className="text-sm md:text-xl">
-        Oops! Something went wrong. Click reload to restart the app.
-      </p>
+      <p className="text-sm md:text-xl">{t("Oops! Something went wrong. Click reload to restart the app.")}</p>
 
       <div className="flex flex-row items-center gap-2">
         <Button size="icon" onClick={() => window.location.reload()}>
@@ -26,22 +26,15 @@ export const ErrorLayout = ({ isCompact }: { isCompact?: boolean }) => {
             <div className="flex size-6 items-center justify-center rounded-lg bg-foreground">
               <SparklesIcon className="size-4 text-background" />
             </div>
-            <h1 className="text-md font-semibold text-foreground">Pluely</h1>
+            <h1 className="text-md font-semibold text-foreground">{t("Pluely")}</h1>
           </div>
         </div>
 
         <div className="flex flex-col gap-4 items-center text-center select-none mt-8">
-          <h1 className="text-6xl md:text-6xl font-bold hover:scale-105 transition-transform duration-200">
-            Oops!
-          </h1>
+          <h1 className="text-6xl md:text-6xl font-bold hover:scale-105 transition-transform duration-200">{t("Oops!")}</h1>
           <div className="space-y-2">
-            <p className="text-xl md:text-2xl font-medium text-foreground">
-              Something unexpected happened
-            </p>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Don't worry! Just click the reload button below to restart the
-              app.
-            </p>
+            <p className="text-xl md:text-2xl font-medium text-foreground">{t("Something unexpected happened")}</p>
+            <p className="text-sm md:text-base text-muted-foreground">{t("Don't worry! Just click the reload button below to restart the app.")}</p>
           </div>
         </div>
 
@@ -51,8 +44,7 @@ export const ErrorLayout = ({ isCompact }: { isCompact?: boolean }) => {
             onClick={() => window.location.reload()}
             className="w-full shadow-sm hover:shadow-md transition-shadow duration-200"
           >
-            <RefreshCcwIcon className="size-4" /> Reload
-          </Button>
+            <RefreshCcwIcon className="size-4" /> {t("Reload")}</Button>
         </div>
       </div>
     </div>

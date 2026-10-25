@@ -3,6 +3,8 @@ import { Button, Header } from "@/components";
 import { UseSettingsReturn } from "@/types";
 import { useState } from "react";
 
+import { t } from "@/i18n";
+
 export const DeleteChats = ({
   handleDeleteAllChatsConfirm,
   showDeleteConfirmDialog,
@@ -21,17 +23,17 @@ export const DeleteChats = ({
   return (
     <div id="delete-chats" className="space-y-3">
       <Header
-        title="Delete Chat History"
-        description="Permanently delete all your chat conversations and history. This action cannot be undone and will remove all stored conversations from your local storage."
+        title={t("Delete Chat History")}
+        description={t(
+          "Permanently delete all your chat conversations and history. This action cannot be undone and will remove all stored conversations from your local storage."
+        )}
         isMainTitle
       />
 
       <div className="space-y-2">
         {isDeleting && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-xs text-green-700 font-medium">
-              ✅ All chat history has been successfully deleted.
-            </p>
+            <p className="text-xs text-green-700 font-medium">{t("✅ All chat history has been successfully deleted.")}</p>
           </div>
         )}
 
@@ -40,18 +42,14 @@ export const DeleteChats = ({
           disabled={isDeleting}
           variant="destructive"
           className="w-full h-11"
-          title="Delete all chat history"
+          title={t("Delete all chat history")}
         >
           {isDeleting ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Deleting...
-            </>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />{t("Deleting...")}</>
           ) : (
             <>
-              <TrashIcon className="h-4 w-4 mr-2" />
-              Delete All Chats
-            </>
+              <TrashIcon className="h-4 w-4 mr-2" />{t("Delete All Chats")}</>
           )}
         </Button>
       </div>
@@ -60,24 +58,16 @@ export const DeleteChats = ({
       {showDeleteConfirmDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background border rounded-lg p-6 max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-2">
-              Delete All Chat History
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Are you sure you want to delete all chat history? This action
-              cannot be undone and will permanently remove all stored
-              conversations.
-            </p>
+            <h3 className="text-lg font-semibold mb-2">{t("Delete All Chat History")}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t(
+              "Are you sure you want to delete all chat history? This action cannot be undone and will permanently remove all stored conversations."
+            )}</p>
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowDeleteConfirmDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={deleteAllChats}>
-                Delete All
-              </Button>
+              >{t("Cancel")}</Button>
+              <Button variant="destructive" onClick={deleteAllChats}>{t("Delete All")}</Button>
             </div>
           </div>
         </div>

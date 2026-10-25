@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { useCopyToClipboard } from "@/hooks";
 import { Button } from "@/components/ui/button";
 
+import { t } from "@/i18n";
+
 type CopyButtonProps = {
   content: string;
   copyMessage?: string;
@@ -19,7 +21,7 @@ export function CopyButton({ content, copyMessage }: CopyButtonProps) {
       variant="ghost"
       size="icon"
       className="relative h-6 w-6"
-      aria-label="Copy to clipboard"
+      aria-label={t("Copy to clipboard")}
       onClick={handleCopy}
     >
       <div className="absolute inset-0 flex items-center justify-center">

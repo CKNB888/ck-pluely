@@ -11,6 +11,8 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { t } from "@/i18n";
+
 interface QuickActionsProps {
   actions: string[];
   onActionClick: (action: string) => void;
@@ -44,7 +46,7 @@ export const QuickActions = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-1.5">
           <ZapIcon className="w-3.5 h-3.5 text-primary" />
-          <h4 className="text-xs font-medium">Quick Actions</h4>
+          <h4 className="text-xs font-medium">{t("Quick Actions")}</h4>
         </div>
         <div className="flex items-center gap-1">
           {show && (
@@ -55,7 +57,7 @@ export const QuickActions = ({
               onClick={() => setIsManaging(!isManaging)}
             >
               <Settings2Icon className="w-3 h-3 mr-1" />
-              {isManaging ? "Done" : "Edit"}
+              {isManaging ? t("Done") : t("Edit")}
             </Button>
           )}
           <Button
@@ -115,7 +117,7 @@ export const QuickActions = ({
                 type="text"
                 value={newAction}
                 onChange={(e) => setNewAction(e.target.value)}
-                placeholder="Add action..."
+                placeholder={t("Add action...")}
                 className="h-7 text-xs w-28"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

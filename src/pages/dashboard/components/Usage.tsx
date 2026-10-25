@@ -15,6 +15,8 @@ import {
 import { RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { t } from "@/i18n";
+
 const formatNumber = (num: number): string => {
   if (num >= 1_000_000_000) {
     return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
@@ -57,10 +59,8 @@ export function Usage({
       <CardHeader className="flex flex-row items-stretch border-b !p-0 ">
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-0">
-            <CardTitle className="text-md lg:text-lg">Pluely Usage</CardTitle>
-            <CardDescription className="text-xs lg:text-sm">
-              Your current monthly usage of Pluely's API
-            </CardDescription>
+            <CardTitle className="text-md lg:text-lg">{t("Pluely Usage")}</CardTitle>
+            <CardDescription className="text-xs lg:text-sm">{t("Your current monthly usage of Pluely's API")}</CardDescription>
           </div>
 
           <Button
@@ -89,7 +89,7 @@ export function Usage({
                 className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
               >
                 <span className="text-muted-foreground text-[10px] lg:text-xs">
-                  {key.label}
+                  {t(String(key.label))}
                 </span>
                 <span className="text-lg lg:text-3xl leading-none font-bold">
                   {formatNumber(key.value)}

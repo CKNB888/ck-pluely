@@ -8,6 +8,8 @@ import {
 } from "@/lib";
 import { invoke } from "@tauri-apps/api/core";
 
+import { t } from "@/i18n";
+
 interface ShortcutRecorderProps {
   onSave: (key: string) => void;
   onCancel: () => void;
@@ -201,21 +203,17 @@ export const ShortcutRecorder = ({
           variant="default"
           onClick={handleSave}
           disabled={disabled || recordedKeys.length < minKeys}
-          title="Save shortcut"
+          title={t("Save shortcut")}
         >
-          <Check className="h-4 w-4" />
-          Save
-        </Button>
+          <Check className="h-4 w-4" />{t("Save")}</Button>
         <Button
           size="sm"
           variant="outline"
           onClick={handleCancel}
           disabled={disabled}
-          title="Cancel"
+          title={t("Cancel")}
         >
-          <X className="h-4 w-4" />
-          Cancel
-        </Button>
+          <X className="h-4 w-4" />{t("Cancel")}</Button>
       </div>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -223,15 +221,13 @@ export const ShortcutRecorder = ({
       {isRecording && !error && (
         <p className="text-xs text-muted-foreground">
           {isMoveWindow
-            ? "Press modifier keys (e.g., Cmd+Shift). Arrow keys work automatically."
-            : "Press a key combination now (e.g., Cmd+Shift+K)"}
+            ? t("Press modifier keys (e.g., Cmd+Shift). Arrow keys work automatically.")
+            : t("Press a key combination now (e.g., Cmd+Shift+K)")}
         </p>
       )}
 
       {recordedKeys.length >= minKeys && !error && (
-        <p className="text-xs text-green-600">
-          ✓ Shortcut captured! Click "Save" to apply.
-        </p>
+        <p className="text-xs text-green-600">{t("✓ Shortcut captured! Click \"Save\" to apply.")}</p>
       )}
     </div>
   );

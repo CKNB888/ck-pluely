@@ -1,6 +1,8 @@
 import { Button, Input, Textarea } from "@/components";
 import { Trash2 } from "lucide-react";
 
+import { t } from "@/i18n";
+
 interface CreateSystemPromptProps {
   form: {
     id?: number;
@@ -36,13 +38,15 @@ export const CreateSystemPrompt = ({
     <div className="space-y-3">
       <Input
         className="h-11"
-        placeholder="Enter a name for the system prompt"
+        placeholder={t("Enter a name for the system prompt")}
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
         disabled={isSaving}
       />
       <Textarea
-        placeholder="You are a helpful AI assistant. Be concise, accurate, and friendly in your responses..."
+        placeholder={t(
+          "You are a helpful AI assistant. Be concise, accurate, and friendly in your responses..."
+        )}
         className="min-h-[100px] resize-none border-1 border-input/50 focus:border-primary/50 transition-colors"
         value={form.prompt}
         onChange={(e) => setForm({ ...form, prompt: e.target.value })}
@@ -57,15 +61,13 @@ export const CreateSystemPrompt = ({
                 variant="outline"
                 onClick={onClose}
                 disabled={isSaving}
-              >
-                Close
-              </Button>
+              >{t("Close")}</Button>
               <Button
                 className="w-1/3"
                 variant="destructive"
                 onClick={onDelete}
                 disabled={isSaving}
-                title="Delete this prompt"
+                title={t("Delete this prompt")}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -74,7 +76,7 @@ export const CreateSystemPrompt = ({
                 onClick={onSave}
                 disabled={!isFormValid || isSaving}
               >
-                {isSaving ? "Updating..." : "Update"}
+                {isSaving ? t("Updating...") : t("Update")}
               </Button>
             </div>
           </>
@@ -85,15 +87,13 @@ export const CreateSystemPrompt = ({
               variant="outline"
               onClick={onClose}
               disabled={isSaving}
-            >
-              Cancel
-            </Button>
+            >{t("Cancel")}</Button>
             <Button
               className="w-1/2"
               onClick={onSave}
               disabled={!isFormValid || isSaving}
             >
-              {isSaving ? "Creating..." : "Create"}
+              {isSaving ? t("Creating...") : t("Create")}
             </Button>
           </>
         )}

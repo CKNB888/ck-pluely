@@ -1,6 +1,8 @@
 import { Switch, Label, Header } from "@/components";
 import { useApp } from "@/contexts";
 
+import { t } from "@/i18n";
+
 interface AppIconToggleProps {
   className?: string;
 }
@@ -15,8 +17,10 @@ export const AppIconToggle = ({ className }: AppIconToggleProps) => {
   return (
     <div id="app-icon" className={`space-y-2 ${className}`}>
       <Header
-        title="App Icon Stealth Mode"
-        description="Control dock/taskbar icon visibility when window is hidden for maximum discretion"
+        title={t("App Icon Stealth Mode")}
+        description={t(
+          "Control dock/taskbar icon visibility when window is hidden for maximum discretion"
+        )}
         isMainTitle
       />
       <div className="flex items-center justify-between">
@@ -24,12 +28,12 @@ export const AppIconToggle = ({ className }: AppIconToggleProps) => {
           <div>
             <Label className="text-sm font-medium">
               {!customizable.appIcon.isVisible
-                ? "Show Icon in Dock/Taskbar"
-                : "Hide Icon from Dock/Taskbar"}
+                ? t("Show Icon in Dock/Taskbar")
+                : t("Hide Icon from Dock/Taskbar")}
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
               {`Toggle to make App Icon ${
-                !customizable.appIcon.isVisible ? "Visible" : "Hidden"
+                !customizable.appIcon.isVisible ? t("Visible") : t("Hidden")
               }`}
             </p>
           </div>
@@ -37,7 +41,7 @@ export const AppIconToggle = ({ className }: AppIconToggleProps) => {
         <Switch
           checked={customizable.appIcon.isVisible}
           onCheckedChange={handleSwitchChange}
-          aria-label="Toggle app icon visibility"
+          aria-label={t("Toggle app icon visibility")}
         />
       </div>
     </div>

@@ -2,6 +2,8 @@ import { InfoIcon, MicIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger, Button } from "@/components";
 import { useApp } from "@/contexts";
 
+import { t } from "@/i18n";
+
 interface ChatAudioProps {
   micOpen: boolean;
   setMicOpen: (open: boolean) => void;
@@ -37,7 +39,7 @@ export const ChatAudio = ({
           variant="outline"
           onClick={handleMicClick}
           className="size-7 lg:size-9 rounded-lg lg:rounded-xl"
-          title={isRecording ? "Recording..." : "Voice input"}
+          title={isRecording ? t("Recording...") : t("Voice input")}
           disabled={disabled}
         >
           <MicIcon
@@ -55,17 +57,13 @@ export const ChatAudio = ({
         sideOffset={8}
       >
         <div className="text-sm">
-          <div className="font-semibold text-orange-600 mb-1">
-            Speech Provider Required
-          </div>
+          <div className="font-semibold text-orange-600 mb-1">{t("Speech Provider Required")}</div>
           <p className="text-muted-foreground">
             <div className="mt-2 flex items-center gap-1 text-orange-600">
               <InfoIcon size={16} />
-              <span>Provider not configured</span>
+              <span>{t("Provider not configured")}</span>
             </div>
-            <span className="block mt-2">
-              Configure a speech provider in settings to enable voice input.
-            </span>
+            <span className="block mt-2">{t("Configure a speech provider in settings to enable voice input.")}</span>
           </p>
         </div>
       </PopoverContent>

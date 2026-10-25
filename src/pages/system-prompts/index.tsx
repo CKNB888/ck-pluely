@@ -27,6 +27,8 @@ import { PluelyPrompts } from "./PluelyPrompts";
 import { useState } from "react";
 import { PageLayout } from "@/layouts";
 
+import { t } from "@/i18n";
+
 const SystemPrompts = () => {
   const {
     prompts,
@@ -165,8 +167,8 @@ const SystemPrompts = () => {
 
   return (
     <PageLayout
-      title="System Prompts"
-      description="Manage your AI behavior profiles and create new ones"
+      title={t("System Prompts")}
+      description={t("Manage your AI behavior profiles and create new ones")}
     >
       {/* Error Display */}
       {error && (
@@ -180,23 +182,21 @@ const SystemPrompts = () => {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search system prompts..."
+            placeholder={t("Search system prompts...")}
             className="pl-9 focus-visible:ring-0 focus-visible:ring-offset-0"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Button variant="default" size="default" onClick={handleCreateClick}>
-          <PlusIcon className="size-4" />
-          Create New
-        </Button>
+          <PlusIcon className="size-4" />{t("Create New")}</Button>
       </div>
       {filteredPrompts.length === 0 ? (
         <Empty
           isLoading={isLoading}
           icon={WandSparklesIcon}
-          title="No prompts found"
-          description="Create a new prompt to get started"
+          title={t("No prompts found")}
+          description={t("Create a new prompt to get started")}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 pb-4">
@@ -251,9 +251,7 @@ const SystemPrompts = () => {
                           handleEditClick(prompt.id);
                         }}
                       >
-                        <Pencil className="size-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
+                        <Pencil className="size-4 mr-2" />{t("Edit")}</DropdownMenuItem>
                       <DropdownMenuItem
                         variant="destructive"
                         onClick={(e) => {
@@ -261,9 +259,7 @@ const SystemPrompts = () => {
                           handleDeleteClick(prompt.id);
                         }}
                       >
-                        <Trash2 className="size-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
+                        <Trash2 className="size-4 mr-2" />{t("Delete")}</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

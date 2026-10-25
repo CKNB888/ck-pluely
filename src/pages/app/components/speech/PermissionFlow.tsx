@@ -9,6 +9,8 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import { cn } from "@/lib/utils";
 
+import { t } from "@/i18n";
+
 interface PermissionFlowProps {
   onPermissionGranted: () => void;
   onPermissionDenied: () => void;
@@ -138,22 +140,18 @@ export const PermissionFlow = ({
         </div>
         <div className="flex-1 min-w-0">
           <h3 className={cn("font-semibold text-sm mb-0.5", config.titleColor)}>
-            {config.title}
+            {t(String(config.title))}
           </h3>
-          <p className={cn("text-xs", config.textColor)}>{config.description}</p>
+          <p className={cn("text-xs", config.textColor)}>{t(String(config.description))}</p>
 
           {permissionState === "denied" && (
             <div className="mt-3 space-y-2">
-              <Button onClick={requestPermission} size="sm" className="w-full">
-                Grant Permission
-              </Button>
+              <Button onClick={requestPermission} size="sm" className="w-full">{t("Grant Permission")}</Button>
               <button
                 type="button"
                 onClick={() => setShowManual(!showManual)}
                 className="w-full flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-              >
-                Manual setup
-                <ChevronDownIcon
+              >{t("Manual setup")}<ChevronDownIcon
                   className={cn(
                     "w-3 h-3 transition-transform",
                     showManual && "rotate-180"
@@ -162,10 +160,10 @@ export const PermissionFlow = ({
               </button>
               {showManual && (
                 <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside pt-2 border-t border-border/50">
-                  <li>Open System Settings</li>
-                  <li>Go to Privacy & Security</li>
-                  <li>Select Screen & System Audio Recording</li>
-                  <li>Enable Pluely</li>
+                  <li>{t("Open System Settings")}</li>
+                  <li>{t("Go to Privacy & Security")}</li>
+                  <li>{t("Select Screen & System Audio Recording")}</li>
+                  <li>{t("Enable Pluely")}</li>
                 </ol>
               )}
             </div>
@@ -178,9 +176,7 @@ export const PermissionFlow = ({
                 size="sm"
                 onClick={checkPermission}
                 className="text-xs"
-              >
-                Check Now
-              </Button>
+              >{t("Check Now")}</Button>
             </div>
           )}
         </div>

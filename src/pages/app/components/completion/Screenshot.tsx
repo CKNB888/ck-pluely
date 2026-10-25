@@ -4,6 +4,8 @@ import { UseCompletionReturn } from "@/types";
 import { MAX_FILES } from "@/config";
 import { useApp } from "@/contexts";
 
+import { t } from "@/i18n";
+
 export const Screenshot = ({
   screenshotConfiguration,
   attachedFiles,
@@ -29,7 +31,7 @@ export const Screenshot = ({
       className="cursor-pointer"
       title={
         !supportsImages
-          ? "Screenshot not supported by current AI provider"
+          ? t("Screenshot not supported by current AI provider")
           : `${captureMode} mode (${processingMode}) - ${attachedFiles.length}/${MAX_FILES} files`
       }
       onClick={captureScreenshot}

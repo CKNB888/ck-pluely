@@ -2,6 +2,7 @@ import { Button, Label } from "@/components";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { t } from "@/i18n";
 
 interface HeaderProps {
   title: string;
@@ -55,7 +56,7 @@ export const Header = ({
                 : "text-xs lg:text-sm transition-all duration-300"
             )} ${titleClassName}`}
           >
-            {title}
+            {t(title)}
           </Label>
           <p
             className={cn(
@@ -66,7 +67,7 @@ export const Header = ({
               } ${descriptionClassName}`
             )}
           >
-            {description}
+            {t(description)}
           </p>
         </div>
       </div>

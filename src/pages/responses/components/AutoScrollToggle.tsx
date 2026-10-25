@@ -3,6 +3,8 @@ import { useApp } from "@/contexts";
 import { useState, useEffect } from "react";
 import { getResponseSettings, updateAutoScroll } from "@/lib";
 
+import { t } from "@/i18n";
+
 export const AutoScrollToggle = () => {
   const { hasActiveLicense } = useApp();
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
@@ -23,8 +25,10 @@ export const AutoScrollToggle = () => {
   return (
     <div className="space-y-4">
       <Header
-        title="Auto-Scroll Behavior"
-        description="Control whether responses automatically scroll to the bottom. This setting applies immediately and controls whether responses automatically scroll to the latest content as it streams"
+        title={t("Auto-Scroll Behavior")}
+        description={t(
+          "Control whether responses automatically scroll to the bottom. This setting applies immediately and controls whether responses automatically scroll to the latest content as it streams"
+        )}
         isMainTitle
       />
 
@@ -32,12 +36,12 @@ export const AutoScrollToggle = () => {
         <div className="flex items-center space-x-3">
           <div>
             <Label className="text-sm font-medium">
-              {autoScroll ? "Auto-Scroll Enabled" : "Auto-Scroll Disabled"}
+              {autoScroll ? t("Auto-Scroll Enabled") : t("Auto-Scroll Disabled")}
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
               {autoScroll
-                ? "Responses will automatically scroll to the bottom as they arrive"
-                : "Responses will stay at your current scroll position"}
+                ? t("Responses will automatically scroll to the bottom as they arrive")
+                : t("Responses will stay at your current scroll position")}
             </p>
           </div>
         </div>
@@ -45,10 +49,12 @@ export const AutoScrollToggle = () => {
           checked={autoScroll}
           onCheckedChange={handleSwitchChange}
           disabled={!hasActiveLicense}
-          title={`Toggle to ${!autoScroll ? "enable" : "disable"} auto-scroll`}
-          aria-label={`Toggle to ${
-            autoScroll ? "disable" : "enable"
-          } auto-scroll`}
+          title={t("Toggle to {{v0}} auto-scroll", {
+            v0: !autoScroll ? "enable" : "disable"
+          })}
+          aria-label={t("Toggle to {{v0}} auto-scroll", {
+            v0: autoScroll ? "disable" : "enable"
+          })}
         />
       </div>
     </div>

@@ -5,6 +5,8 @@ import { shouldUsePluelyAPI, fetchSTT } from "@/lib";
 import { useApp } from "@/contexts";
 import { StopCircle, Send } from "lucide-react";
 
+import { t } from "@/i18n";
+
 interface AudioRecorderProps {
   onTranscriptionComplete: (text: string) => void;
   onCancel: () => void;
@@ -182,9 +184,7 @@ export const AudioRecorder = ({
             <AudioVisualizer stream={audioStream} isRecording={true} />
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-            Initializing...
-          </div>
+          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">{t("Initializing...")}</div>
         )}
       </div>
       <div className="flex items-center justify-between px-4 py-2.5 border-t bg-muted/5">
@@ -202,7 +202,7 @@ export const AudioRecorder = ({
             onClick={handleStop}
             disabled={isTranscribing}
             className="h-8 w-8"
-            title="Stop recording"
+            title={t("Stop recording")}
           >
             <StopCircle className="h-4 w-4" />
           </Button>
@@ -211,7 +211,7 @@ export const AudioRecorder = ({
             onClick={handleSend}
             disabled={isTranscribing}
             className="h-8 w-8"
-            title={isTranscribing ? "Sending..." : "Send to AI"}
+            title={isTranscribing ? t("Sending...") : t("Send to AI")}
           >
             <Send className="h-4 w-4" />
           </Button>

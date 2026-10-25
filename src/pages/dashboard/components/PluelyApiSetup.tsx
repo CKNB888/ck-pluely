@@ -18,6 +18,8 @@ import {
   PopoverTrigger,
 } from "@/components";
 
+import { t } from "@/i18n";
+
 interface ActivationResponse {
   activated: boolean;
   error?: string;
@@ -327,7 +329,7 @@ export const PluelyApiSetup = () => {
               variant="outline"
               className="h-11 text-start shadow-none w-full"
             >
-              {selectedModel ? selectedModel.name : "Select pro models"}{" "}
+              {selectedModel ? selectedModel.name : t("Select pro models")}{" "}
               <ChevronDown />
             </Button>
           </PopoverTrigger>
@@ -338,7 +340,7 @@ export const PluelyApiSetup = () => {
           >
             <Command shouldFilter={true}>
               <CommandInput
-                placeholder="Select model..."
+                placeholder={t("Select model...")}
                 value={searchValue}
                 onValueChange={setSearchValue}
               />
@@ -346,9 +348,7 @@ export const PluelyApiSetup = () => {
                 ref={commandListRef}
                 className="rounded-xl h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/30"
               >
-                <CommandEmpty>
-                  No models found. Please try again later.
-                </CommandEmpty>
+                <CommandEmpty>{t("No models found. Please try again later.")}</CommandEmpty>
                 <CommandGroup className="h-full rounded-xl">
                   {models.map((model, index) => (
                     <CommandItem
@@ -368,16 +368,14 @@ export const PluelyApiSetup = () => {
                               {model?.provider}
                             </div>
                           ) : (
-                            <div className="text-xs text-red-600 bg-white rounded-full px-2">
-                              Not Available
-                            </div>
+                            <div className="text-xs text-red-600 bg-white rounded-full px-2">{t("Not Available")}</div>
                           )}
                         </div>
                         <p
                           className="text-sm text-muted-foreground line-clamp-2"
-                          title={model?.description}
+                          title={t(String(model?.description))}
                         >
-                          {model?.description}
+                          {t(String(model?.description))}
                         </p>
                       </div>
                     </CommandItem>
@@ -391,8 +389,12 @@ export const PluelyApiSetup = () => {
         {selectedModel && (
           <div className="text-xs text-amber-500 bg-amber-500/10 p-3 rounded-md">
             {selectedModel.modality?.includes("image")
-              ? "This model accepts both text and images as input and generates text responses."
-              : "⚠️ This model ONLY accepts text input. Do NOT upload images - they will not work with this model. Use a text+image→text model if you need image support."}
+              ? t(
+              "This model accepts both text and images as input and generates text responses."
+            )
+              : t(
+              "⚠️ This model ONLY accepts text input. Do NOT upload images - they will not work with this model. Use a text+image→text model if you need image support."
+            )}
           </div>
         )}
         {/* License Key Input or Display */}
@@ -400,16 +402,15 @@ export const PluelyApiSetup = () => {
           {!storedLicenseKey ? (
             <>
               <div className="space-y-1">
-                <label className="text-sm font-medium">License Key</label>
-                <p className="text-sm font-medium text-muted-foreground">
-                  After completing your purchase, you'll receive a license key
-                  via email. Paste it below to activate.
-                </p>
+                <label className="text-sm font-medium">{t("License Key")}</label>
+                <p className="text-sm font-medium text-muted-foreground">{t(
+                  "After completing your purchase, you'll receive a license key via email. Paste it below to activate."
+                )}</p>
               </div>
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder="Enter your license key (e.g., 38b1460a-5104-4067-a91d-77b872934d51)"
+                  placeholder={t("Enter your license key (e.g., 38b1460a-5104-4067-a91d-77b872934d51)")}
                   value={licenseKey}
                   onChange={(value) => {
                     setLicenseKey(
@@ -427,7 +428,7 @@ export const PluelyApiSetup = () => {
                   disabled={isLoading || !licenseKey.trim()}
                   size="icon"
                   className="shrink-0 h-11 w-11"
-                  title="Activate License"
+                  title={t("Activate License")}
                 >
                   {isLoading ? (
                     <LoaderIcon className="h-4 w-4 animate-spin" />
@@ -439,9 +440,7 @@ export const PluelyApiSetup = () => {
             </>
           ) : (
             <>
-              <label className="text-xs lg:text-sm font-medium">
-                Current License
-              </label>
+              <label className="text-xs lg:text-sm font-medium">{t("Current License")}</label>
               <div className="flex gap-2">
                 <Input
                   type="text"
@@ -455,7 +454,7 @@ export const PluelyApiSetup = () => {
                   size="icon"
                   variant="destructive"
                   className="shrink-0 h-11 w-11"
-                  title="Remove License"
+                  title={t("Remove License")}
                 >
                   {isLoading ? (
                     <LoaderIcon className="h-4 w-4 animate-spin" />
@@ -466,10 +465,7 @@ export const PluelyApiSetup = () => {
               </div>
               {storedLicenseKey ? (
                 <div className="-mt-1">
-                  <p className="text-sm font-medium text-muted-foreground select-auto">
-                    If you need any help or any assistance, contact
-                    support@pluely.com
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground select-auto">{t("If you need any help or any assistance, contact support@pluely.com")}</p>
                 </div>
               ) : null}
             </>
@@ -478,13 +474,17 @@ export const PluelyApiSetup = () => {
       </div>
       <div className="flex justify-between items-center">
         <Header
-          title={`${pluelyApiEnabled ? "Disable" : "Enable"} Pluely API`}
+          title={t("{{v0}} Pluely API", {
+            v0: pluelyApiEnabled ? t("Disable") : t("Enable")
+          })}
           description={
             storedLicenseKey
               ? pluelyApiEnabled
-                ? "Using all pluely APIs for audio, and chat."
-                : "Using all your own AI Providers for audio, and chat."
-              : "A valid license is required to enable Pluely API or you can use your own AI Providers and STT Providers."
+                ? t("Using all pluely APIs for audio, and chat.")
+                : t("Using all your own AI Providers for audio, and chat.")
+              : t(
+              "A valid license is required to enable Pluely API or you can use your own AI Providers and STT Providers."
+            )
           }
         />
         <Switch

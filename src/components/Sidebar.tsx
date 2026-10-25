@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useMenuItems, useVersion } from "@/hooks";
 
+import { t } from "@/i18n";
+
 export const Sidebar = () => {
   const { version, isLoading } = useVersion();
   const { menu, footerLinks, footerItems } = useMenuItems();
@@ -22,11 +24,9 @@ export const Sidebar = () => {
           <SparklesIcon className="size-4 lg:size-5 text-primary-foreground transition-all duration-300" />
         </div>
         <div className="flex flex-col">
-          <h1 className="text-xs lg:text-md font-semibold text-foreground transition-all duration-300">
-            Pluely
-          </h1>
+          <h1 className="text-xs lg:text-md font-semibold text-foreground transition-all duration-300">{t("Pluely")}</h1>
           <span className="text-[8px] lg:text-[10px] text-muted-foreground -mt-1 block">
-            {isLoading ? "Loading..." : `(v${version})`}
+            {isLoading ? t("Loading...") : `(v${version})`}
           </span>
         </div>
       </div>
@@ -46,7 +46,7 @@ export const Sidebar = () => {
           >
             <div className="flex items-center gap-3">
               <item.icon className="size-3 lg:size-4 transition-all duration-300" />
-              {item.label}
+              {t(String(item.label))}
             </div>
             {item.count ? (
               <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
@@ -62,7 +62,7 @@ export const Sidebar = () => {
           {footerLinks.map((item, index) => (
             <Button
               key={`${item.title}-${index}`}
-              title={item.title}
+              title={t(String(item.title))}
               size="sm"
               variant="outline"
               onClick={() => openUrl(item.link)}
@@ -85,7 +85,7 @@ export const Sidebar = () => {
           >
             <div className="flex items-center gap-3">
               <item.icon className="size-3 lg:size-4 transition-all duration-300" />
-              {item.label}
+              {t(String(item.label))}
             </div>
           </a>
         ))}

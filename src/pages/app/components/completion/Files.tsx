@@ -10,6 +10,8 @@ import { UseCompletionReturn } from "@/types";
 import { MAX_FILES } from "@/config";
 import { useApp } from "@/contexts";
 
+import { t } from "@/i18n";
+
 export const Files = ({
   attachedFiles,
   handleFileSelect,
@@ -47,8 +49,8 @@ export const Files = ({
             className="cursor-pointer"
             title={
               supportsImages
-                ? "Attach images"
-                : "Image upload not supported by current AI provider"
+                ? t("Attach images")
+                : t("Image upload not supported by current AI provider")
             }
           >
             <PaperclipIcon className="h-4 w-4" />
@@ -70,15 +72,14 @@ export const Files = ({
             sideOffset={8}
           >
             <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
-              <h3 className="font-semibold text-sm select-none">
-                Attached Images ({attachedFiles.length}/{MAX_FILES})
+              <h3 className="font-semibold text-sm select-none">{t("Attached Images (")}{attachedFiles.length}/{MAX_FILES})
               </h3>
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={() => setIsFilesPopoverOpen(false)}
                 className="cursor-pointer"
-                title="Close"
+                title={t("Close")}
               >
                 <XIcon className="h-4 w-4" />
               </Button>
@@ -108,8 +109,7 @@ export const Files = ({
                     <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 text-xs">
                       <div className="truncate font-medium">{file.name}</div>
                       <div className="text-gray-300">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </div>
+                        {(file.size / 1024 / 1024).toFixed(2)} {t("MB")}</div>
                     </div>
 
                     {/* Remove button */}
@@ -118,7 +118,7 @@ export const Files = ({
                       variant="default"
                       className="absolute top-2 right-2 h-6 w-6 cursor-pointer"
                       onClick={() => removeFile(file.id)}
-                      title="Remove image"
+                      title={t("Remove image")}
                     >
                       <XIcon className="h-3 w-3" />
                     </Button>
@@ -135,17 +135,14 @@ export const Files = ({
                 className="w-2/4"
                 variant="outline"
               >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Add More Images {!canAddMore && `(${MAX_FILES} max)`}
+                <PlusIcon className="h-4 w-4 mr-2" />{t("Add More Images")} {!canAddMore && `(${MAX_FILES} max)`}
               </Button>
               <Button
                 className="w-2/4"
                 variant="destructive"
                 onClick={onRemoveAllFiles}
               >
-                <TrashIcon className="h-4 w-4 mr-2" />
-                Remove All Images
-              </Button>
+                <TrashIcon className="h-4 w-4 mr-2" />{t("Remove All Images")}</Button>
             </div>
           </PopoverContent>
         )}

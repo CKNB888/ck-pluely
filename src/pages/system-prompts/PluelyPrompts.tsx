@@ -21,6 +21,8 @@ import { safeLocalStorage } from "@/lib";
 import { STORAGE_KEYS } from "@/config";
 import moment from "moment";
 
+import { t } from "@/i18n";
+
 interface PluelyPrompt {
   title: string;
   prompt: string;
@@ -204,14 +206,14 @@ export const PluelyPrompts = () => {
     return (
       <div className="space-y-4 mt-6">
         <Header
-          title="Pluely Default Prompts"
-          description="Pre-configured prompts with optimal model selection"
+          title={t("Pluely Default Prompts")}
+          description={t("Pre-configured prompts with optimal model selection")}
         />
         <Empty
           isLoading={true}
           icon={Sparkles}
-          title="Loading prompts..."
-          description="Fetching Pluely default prompts"
+          title={t("Loading prompts...")}
+          description={t("Fetching Pluely default prompts")}
         />
       </div>
     );
@@ -221,8 +223,8 @@ export const PluelyPrompts = () => {
     return (
       <div className="space-y-4 mt-6">
         <Header
-          title="Pluely Default Prompts"
-          description="Pre-configured prompts with optimal model selection"
+          title={t("Pluely Default Prompts")}
+          description={t("Pre-configured prompts with optimal model selection")}
         />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3">
           <p className="text-sm text-destructive">{error}</p>
@@ -241,19 +243,21 @@ export const PluelyPrompts = () => {
         <div className="flex items-start gap-3 w-full">
           <div className="flex flex-col gap-1 w-full">
             <Header
-              title="Pluely Default Prompts"
-              description="Pre-configured prompts with optimal model pairings. Selecting a prompt will automatically set the recommended AI model for best results."
+              title={t("Pluely Default Prompts")}
+              description={t(
+                "Pre-configured prompts with optimal model pairings. Selecting a prompt will automatically set the recommended AI model for best results."
+              )}
             />
             {lastUpdated && (
               <div className="flex justify-end items-center gap-1 text-[10px] text-muted-foreground">
                 <ClockIcon className="size-2" />
-                <span>Last updated: {moment(lastUpdated).fromNow()}</span>
+                <span>{t("Last updated:")} {moment(lastUpdated).fromNow()}</span>
               </div>
             )}
           </div>
         </div>
         {!hasActiveLicense && (
-          <GetLicense buttonText="Unlock" buttonClassName="shrink-0" />
+          <GetLicense buttonText={t("Unlock")} buttonClassName="shrink-0" />
         )}
       </div>
 
@@ -287,7 +291,7 @@ export const PluelyPrompts = () => {
                   <div className="flex-1 space-y-1.5">
                     <div className="flex items-center gap-2">
                       <CardTitle className="text-[10px] text-base line-clamp-1 flex-1 pr-3">
-                        {prompt.title}
+                        {t(String(prompt.title))}
                       </CardTitle>
                     </div>
                     <CardDescription className="h-14 line-clamp-3 text-xs leading-relaxed">

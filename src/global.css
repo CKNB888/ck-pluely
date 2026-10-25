@@ -172,6 +172,17 @@ html {
   overscroll-behavior: none;
 }
 
+/* CJK font fallback so Chinese UI text renders with a native font on every OS */
+html[lang^="zh"] body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Source Han Sans SC", "WenQuanYi Micro Hei", sans-serif;
+  /* Long CJK strings have no spaces; allow wrapping instead of overflowing */
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-break: strict;
+}
+
 body {
   position: fixed;
   width: 100%;

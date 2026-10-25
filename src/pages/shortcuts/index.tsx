@@ -1,11 +1,13 @@
 import { CursorSelection, ShortcutManager } from "./components";
 import { PageLayout } from "@/layouts";
 
+import { t } from "@/i18n";
+
 const Shortcuts = () => {
   return (
     <PageLayout
-      title="Cursor & Keyboard Shortcuts"
-      description="Manage your cursor and keyboard shortcuts"
+      title={t("Cursor & Keyboard Shortcuts")}
+      description={t("Manage your cursor and keyboard shortcuts")}
     >
       <div className="flex flex-col gap-6 pb-8">
         {/* Cursor Selection */}
