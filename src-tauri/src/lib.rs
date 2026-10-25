@@ -17,6 +17,7 @@ mod speaker;
 mod osinfo;
 #[cfg(target_os = "macos")]
 mod macui;
+mod panel;
 use capture::CaptureState;
 use speaker::VadConfig;
 
@@ -71,7 +72,8 @@ pub fn run() {
         .manage(AudioState::default())
         .manage(CaptureState::default())
         .manage(shortcuts::WindowVisibility {
-            is_hidden: Mutex::new(false),
+            // 启动时主条隐藏（默认界面为托盘面板）
+            is_hidden: Mutex::new(cfg!(target_os = "windows")),
         })
         .manage(shortcuts::RegisteredShortcuts::default())
         .manage(shortcuts::LicenseState::default())
@@ -116,6 +118,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
+            panel::ck_set_ui_style,
+            panel::ck_toggle_panel,
+            panel::ck_hide_panel,
+            panel::ck_panel_action,
             osinfo::ck_permission_status,
             osinfo::ck_restart_app,
             osinfo::ck_mac_mode,
@@ -178,7 +184,14 @@ pub fn run() {
             init(app.app_handle());
             #[cfg(target_os = "macos")]
             if let Err(e) = macui::setup(app) {
-                eprintln!("[macui] tray setup failed: {e}");
+                eprintln!("[macui] setup failed: {e}");
+            }
+            if let Err(e) = panel::setup_tray(app.handle()) {
+                eprintln!("[panel] tray setup failed: {e}");
+            }
+            // 默认界面为菜单栏面板：启动时只留托盘图标，主条由前端按用户设置决定是否显示
+            if let Some(w) = app.get_webview_window("main") {
+                let _ = w.hide();
             }
             #[cfg(target_os = "macos")]
             let app_handle = app.handle();
