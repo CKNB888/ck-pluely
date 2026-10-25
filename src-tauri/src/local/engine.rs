@@ -194,6 +194,11 @@ impl LocalState {
     }
 }
 
+/// 读取声纹文件内容（备份恢复用）。
+pub fn parse_voiceprint(b: &[u8]) -> Option<Vec<f32>> {
+    serde_json::from_slice::<Voiceprint>(b).ok().map(|v| v.embedding).filter(|v| !v.is_empty())
+}
+
 pub fn voiceprint_path(data_dir: &std::path::Path) -> PathBuf {
     data_dir.join("voiceprint.json")
 }

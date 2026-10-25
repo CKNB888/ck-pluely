@@ -61,6 +61,9 @@ sha2 = "0.10"
 flate2 = "1"
 tar = "0.4"
 zip = { version = "4", default-features = false, features = ["deflate"] }
+# 备份 / 恢复：与 sqlx 共用 libsqlite3-sys 0.30
+rusqlite = "0.32"
+tauri-plugin-dialog = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 tauri-plugin-macos-permissions = "2"

@@ -18,6 +18,7 @@ mod osinfo;
 mod local;
 mod notes;
 mod uninstall;
+mod backup;
 #[cfg(target_os = "macos")]
 mod macui;
 mod panel;
@@ -82,6 +83,7 @@ pub fn run() {
         .manage(shortcuts::LicenseState::default())
         .manage(shortcuts::MoveWindowState::default())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_keychain::init())
@@ -123,6 +125,12 @@ pub fn run() {
             privacy::privacy_status,
             notes::ck_export_notes,
             notes::ck_check_update,
+            backup::ck_backup_export,
+            backup::ck_backup_inspect,
+            backup::ck_backup_apply,
+            backup::ck_backup_discard,
+            backup::ck_backup_list,
+            backup::ck_backup_dir,
             window::ck_move_bar_to_screen,
             window::ck_screen_count,
             local::commands::local_status,

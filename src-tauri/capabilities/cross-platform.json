@@ -13,6 +13,8 @@
   "permissions": [
     "core:default",
     "opener:default",
+    "dialog:allow-save",
+    "dialog:allow-open",
     "keychain:default",
     "keychain:allow-get-item",
     "keychain:allow-save-item",
