@@ -15,6 +15,7 @@ use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
 mod speaker;
 mod osinfo;
+mod local;
 mod uninstall;
 #[cfg(target_os = "macos")]
 mod macui;
