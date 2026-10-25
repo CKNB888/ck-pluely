@@ -88,7 +88,7 @@ export const useMenuItems = () => {
     {
       icon: BugIcon,
       label: "Report a bug",
-      href: "https://github.com/NEWUSER/ck-pluely/issues/new",
+      href: "https://github.com/CKNB888/ck-pluely/issues/new",
     },
     {
       icon: PowerIcon,
@@ -112,7 +112,7 @@ export const useMenuItems = () => {
     {
       title: "Github",
       icon: GithubIcon,
-      link: "https://github.com/NEWUSER/ck-pluely",
+      link: "https://github.com/CKNB888/ck-pluely",
     },
     {
       title: "Upstream: Pluely by Srikanth Nani",
@@ -122,7 +122,7 @@ export const useMenuItems = () => {
     {
       title: "Maintainer: CKNB",
       icon: GithubIcon,
-      link: "https://github.com/cknb6",
+      link: "https://github.com/CKNB888",
     },
     {
       title: "Buy Me a Coffee",

@@ -3,7 +3,7 @@
 **简体中文** | [English](#english)
 
 > **基于 [Pluely](https://github.com/iamsrikanthnani/pluely)（作者 Srikanth Nani，GPL-3.0）开源版 v0.1.9 二次开发。**
-> 维护者：**CKNB**（[github.com/cknb6](https://github.com/cknb6)）。仓库：<https://github.com/NEWUSER/ck-pluely>
+> 维护者：**CKNB**（[github.com/CKNB888](https://github.com/CKNB888)）。仓库：<https://github.com/CKNB888/ck-pluely>
 > 与上游 Pluely 使用不同的包标识（`io.github.cknb6.ckpluely`），可以同时安装。
 
 ## 它能做什么
@@ -25,7 +25,7 @@
 #315 重复转录、#287/#292/#310 Windows 快捷键隐藏、快捷键事件触发两次、截图监听泄漏、截图遮罩暴露、设置损坏白屏、开关提示文字相反、多处硬编码英文报错等。详见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
 
 ## 下载与安装
-到 [Releases](https://github.com/NEWUSER/ck-pluely/releases) 下载 `ck-pluely_*`：
+到 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载 `ck-pluely_*`：
 - macOS：`aarch64`（Apple Silicon）/ `x64`（Intel）的 `.dmg`。**未公证**：首次请右键 → 打开，或终端执行
   `xattr -cr "/Applications/CK Pluely.app"`；然后在 系统设置 → 隐私与安全性 中授予 **麦克风、屏幕与系统录音** 权限
 - Windows：`-setup.exe`（NSIS）或 `.msi`；SmartScreen 点“更多信息 → 仍要运行”
@@ -51,6 +51,6 @@ GPL-3.0（见 [LICENSE](./LICENSE)）。Copyright © Srikanth Nani（上游 Plue
 
 ## English
 
-**CK Pluely** is a Chinese-first fork of [Pluely](https://github.com/iamsrikanthnani/pluely) by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** ([github.com/cknb6](https://github.com/cknb6)). It installs alongside upstream (`io.github.cknb6.ckpluely`).
+**CK Pluely** is a Chinese-first fork of [Pluely](https://github.com/iamsrikanthnani/pluely) by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** ([github.com/CKNB888](https://github.com/CKNB888)). It installs alongside upstream (`io.github.cknb6.ckpluely`).
 
 New in 1.0.0: a real-time copilot panel (auto-answer detected questions / answer everything / manual), interview / class / meeting presets, resume & notes context, Groq as default channel, extra providers (DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao/Ark, SiliconFlow, LM Studio, …), SiliconFlow SenseVoice STT, Groq STT language auto-detect, Chinese default UI with English available, upstream auto-update disabled. Unsigned builds: on macOS run `xattr -cr "/Applications/CK Pluely.app"`. Original upstream README: [README.en.md](./README.en.md).

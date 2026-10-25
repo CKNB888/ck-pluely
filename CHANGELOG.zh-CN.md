@@ -31,4 +31,4 @@
 - 本地设置损坏导致启动白屏
 - 窗口置顶 / 自动滚动开关提示文字相反
 
-贡献者：[CKNB](https://github.com/cknb6)
+贡献者：[CKNB](https://github.com/CKNB888)

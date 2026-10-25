@@ -9,13 +9,13 @@
     "url": "https://www.srikanthnani.com"
   },
   "license": "GPL-3.0",
-  "homepage": "https://github.com/NEWUSER/ck-pluely#readme",
+  "homepage": "https://github.com/CKNB888/ck-pluely#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NEWUSER/ck-pluely.git"
+    "url": "https://github.com/CKNB888/ck-pluely.git"
   },
   "bugs": {
-    "url": "https://github.com/NEWUSER/ck-pluely/issues"
+    "url": "https://github.com/CKNB888/ck-pluely/issues"
   },
   "keywords": [
     "ai-assistant",
@@ -103,7 +103,7 @@
   "contributors": [
     {
       "name": "CKNB",
-      "url": "https://github.com/cknb6"
+      "url": "https://github.com/CKNB888"
     }
   ]
 }

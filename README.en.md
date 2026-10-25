@@ -1,4 +1,4 @@
-> **CK Pluely note:** this is the original upstream Pluely README kept for reference. See [README.md](./README.md) for the CK Pluely fork (maintained by CKNB, github.com/cknb6).
+> **CK Pluely note:** this is the original upstream Pluely README kept for reference. See [README.md](./README.md) for the CK Pluely fork (maintained by CKNB, github.com/CKNB888).
 
 # Pluely v1 🚀
 
@@ -142,7 +142,7 @@ Pluely v1 and later are proprietary, closed-source software distributed as binar
 
 ### Contributors
 
-- [CKNB](https://github.com/cknb6) - multi-language (i18n) support, Simplified Chinese translation and bug fixes
+- [CKNB](https://github.com/CKNB888) - multi-language (i18n) support, Simplified Chinese translation and bug fixes
 
 ---
 

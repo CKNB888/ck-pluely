@@ -63,7 +63,7 @@
     },
     "updater": {
       "endpoints": [
-        "https://github.com/NEWUSER/ck-pluely/releases/latest/download/latest.json"
+        "https://github.com/CKNB888/ck-pluely/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY2RDJBNUFFM0ZCREEyQjEKUldTeG9yMC9ycVhTWmlBRkovV2N5L3RudDhTTHFzM3QxSkF0R0doRGtvSUJKWktpdGp4cWRhcmcK",
       "windows": {

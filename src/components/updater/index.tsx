@@ -56,7 +56,7 @@ export const Updater = () => {
     try {
       setUpdateState("checking");
 
-      // ck-pluely: the in-app updater stays off until NEWUSER/ck-pluely
+      // ck-pluely: the in-app updater stays off until CKNB888/ck-pluely
       // publishes a signed latest.json (and tauri.conf.json gets its pubkey).
       // This prevents silently "updating" to the upstream closed-source v1.
       if (!CK_UPDATER_ENABLED) {
@@ -286,7 +286,7 @@ export const Updater = () => {
             <p className="text-xs text-muted-foreground">
               {t("Having trouble downloading?")}{" "}
               <a
-                href={"https://github.com/NEWUSER/ck-pluely/releases/latest"}
+                href={"https://github.com/CKNB888/ck-pluely/releases/latest"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700 underline inline-flex items-center gap-1"

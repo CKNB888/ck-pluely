@@ -30,7 +30,7 @@ const Settings = () => {
       <p className="pt-4 text-center text-[11px] text-muted-foreground/70 select-none">
         {t("Translation & fixes by")}{" "}
         <a
-          href="https://github.com/cknb6"
+          href="https://github.com/CKNB888"
           target="_blank"
           rel="noopener noreferrer"
           className="underline-offset-2 hover:underline hover:text-foreground"

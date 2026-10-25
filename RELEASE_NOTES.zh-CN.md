@@ -1,6 +1,6 @@
 # CK Pluely v1.0.0 发布说明
 
-首个独立发布版。基于 Pluely 开源版 v0.1.9（Srikanth Nani，GPL-3.0），维护者 CKNB（github.com/cknb6）。
+首个独立发布版。基于 Pluely 开源版 v0.1.9（Srikanth Nani，GPL-3.0），维护者 CKNB（github.com/CKNB888）。
 
 ## 新功能
 - 实时助手：系统音频 → 实时转写 → 自动识别提问 → 流式回答；三种回答模式（自动答问题 / 每段都答 / 手动“立即回答”）
