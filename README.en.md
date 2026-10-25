@@ -1,25 +1,37 @@
 # CK Pluely
 
-A Chinese-first, privacy-focused real-time AI assistant for interviews, classes and meetings.
+[简体中文](./README.md) | **English**
 
-- Repository & downloads: <https://github.com/CKNB888/ck-pluely> · [Releases](https://github.com/CKNB888/ck-pluely/releases)
-- Report a bug: <https://github.com/CKNB888/ck-pluely/issues>
-- Chinese README (full docs): [README.md](./README.md)
+A real-time assistant for interviews, classes and meetings: it captures the other side's audio, transcribes it, detects questions and drafts short answers. Its windows use content protection so they stay hidden during screen sharing (test with your own meeting app first).
 
-## Highlights
-- Floating bar on Windows/Linux; on macOS it lives in the notch (Dynamic-Island style) or, on Macs without a notch, in the menu bar.
-- Invisible to screen sharing / recording by default (Windows 10 2004+: `WDA_EXCLUDEFROMCAPTURE`; macOS: `sharingType = none`), with an honest per-OS self-check.
-- First-launch onboarding wizard for permissions, API key and hotkeys.
-- Groq as the default channel, plus many OpenAI-compatible providers and STT engines.
+Fork of Pluely v0.1.9 by Srikanth Nani (GPL-3.0), maintained by CKNB — <https://github.com/CKNB888/ck-pluely>. Bundle id `io.github.cknb6.ckpluely`; installs alongside upstream.
 
-## Build from source
-```bash
-npm install
-npm run tauri build
-```
+## New in v2.0.0
 
-## Sponsorship & Ads
-Sponsorships and advertising partnerships are welcome — add WeChat **1837620622** (please mention your purpose).
+- **Menu bar / tray panel** with four tabs (Home, Questions, Notes, Status) and a privacy badge in the header. The floating bar is still available in Settings.
+- **Offline speech recognition**: SenseVoice small model (about 240 MB, downloaded on demand). Used automatically when offline or rate limited; online recognition stays the first choice. Settings show whether your CPU, memory and disk are a good fit.
+- **Voiceprint**: optionally enroll your voice during onboarding (about 28 MB model). Your own speech no longer triggers answers and is labelled "Me".
+- **Class mode**: conclusion first, at most three points, under 150 characters; formulas rendered with LaTeX, code highlighted; optional subject hints.
+- **Question list**: questions heard in class or an interview are collected, can be marked answered, copied, and exported as Markdown notes or plain text.
+- **Display**: four font sizes; move the panel between monitors.
+- **Update check** against this repository (manual, never auto-downloads).
+- **Full uninstall** in Settings, in the Windows uninstaller and Linux package removal; a script for macOS.
+
+## Screenshots
+
+| | |
+|---|---|
+| <img src="docs/screenshots/v2/panel-home.webp" width="400"> | <img src="docs/screenshots/v2/panel-questions.webp" width="400"> |
+| <img src="docs/screenshots/v2/settings-local-speech.webp" width="400"> | <img src="docs/screenshots/v2/onboarding-voiceprint.webp" width="400"> |
+
+## Install
+
+Download from [Releases](https://github.com/CKNB888/ck-pluely/releases): macOS `.dmg`/`.pkg` (`aarch64` or `x64`), Windows `-setup.exe`/`.msi`, Linux `.deb`/`.rpm`/`.AppImage`. Builds are not notarized: on macOS run `xattr -cr "/Applications/CK Pluely.app"` once.
+
+## Uninstall
+
+Settings → Full uninstall; or the Windows uninstaller ("delete app data"); `apt purge` / `dnf remove` on Linux; `scripts/uninstall-macos.command` on macOS.
 
 ## License
-GPL-3.0 (see [LICENSE](./LICENSE)). Based on Pluely by Srikanth Nani; modifications © CKNB.
+
+GPL-3.0, see [LICENSE](./LICENSE). Upstream © Srikanth Nani; modifications © CKNB.

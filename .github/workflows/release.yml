@@ -112,9 +112,9 @@ jobs:
           releaseName: "CK Pluely ${{ needs.prep.outputs.tag }}"
           assetNamePattern: "ck-pluely_[version]_[platform]_[arch][setup][ext]"
           releaseBody: |
-            CK Pluely —— 中文优先的实时 AI 会议 / 面试 / 课堂助手。更新内容见 RELEASE_NOTES.zh-CN.md。
+            CK Pluely —— 面试、上课答疑、会议实时助手。更新内容见 RELEASE_NOTES.zh-CN.md。
 
-            ⚠️ 未经 Apple 公证（ad-hoc 签名）：macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`；Windows SmartScreen 请点“更多信息 → 仍要运行”。
+            未经 Apple 公证（ad-hoc 签名）：macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`；Windows SmartScreen 请点“更多信息 → 仍要运行”。
 
             Based on Pluely by Srikanth Nani (GPL-3.0). Maintained by CKNB (https://github.com/CKNB888).
           releaseDraft: false

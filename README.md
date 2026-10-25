@@ -1,73 +1,56 @@
-# CK Pluely —— 中文优先的实时 AI 面试 / 上课答疑 / 会议助手
+# CK Pluely
 
-**简体中文** | [English](#english)
+**简体中文** | [English](./README.en.md)
 
-> **基于 Pluely（作者 Srikanth Nani，GPL-3.0）开源版 v0.1.9 二次开发。**
-> 维护者：**CKNB**。仓库：<https://github.com/CKNB888/ck-pluely>
-> 与上游 Pluely 使用不同的包标识（`io.github.cknb6.ckpluely`），可以同时安装。
+面试、上课答疑、会议时用的实时助手：采集对方的声音，实时转成文字，判断是否在提问，然后给出简短回答。窗口开启内容保护，屏幕共享时对方看不到（请先用自己的腾讯会议 / Zoom 自测）。
 
-## 它能做什么
+基于 Pluely 开源版 v0.1.9（Srikanth Nani，GPL-3.0）二次开发，维护者 CKNB，仓库 <https://github.com/CKNB888/ck-pluely>。包标识 `io.github.cknb6.ckpluely`，可与上游同时安装。
 
-一个半透明悬浮窗：持续采集**对方的声音（系统音频）→ 实时语音转文字 → 自动判断是否在提问 → 流式生成简洁回答**。悬浮窗开启内容保护，屏幕共享时通常不可见（务必先用自己的腾讯会议 / Zoom 自测）。
+## v2.0.0 新功能
 
-### v1.0.0 新功能
-- **实时助手面板**（系统音频界面）
-  - 回答模式：`检测到问题自动回答`（默认）/ `每段都回答`（上游行为）/ `手动`（先攒着，点“立即回答”）
-  - 中文场景预设：**面试 / 上课答疑 / 会议**，也可继续用你自己的系统提示词
-  - **简历 / 笔记上下文**：粘贴简历、讲义、议程，每次回答都会带上
-- **更多模型渠道（自带 Key，本地保存，不内置任何密钥）**：Groq（首次启动默认，对话 + whisper-large-v3 语音识别）、OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Mistral、Cohere、Perplexity、OpenRouter、Ollama、**DeepSeek、通义千问（阿里百炼 DashScope）、Moonshot Kimi、智谱 GLM、豆包（火山方舟）、硅基流动 SiliconFlow、LM Studio**，以及自定义 OpenAI 兼容地址
-- **语音识别渠道**：Groq Whisper（去掉写死的 `language=en`，中文可正常识别）、**硅基流动 SenseVoice**、OpenAI Whisper 及上游已有渠道
-- **中文为第一语言**：系统语言无法识别时默认简体中文；设置里仍可切换 English（结构支持继续加语言）
-- macOS 权限提示改为中英双语；ad-hoc 签名；独立 entitlements
-- 关闭指向上游（已闭源 v1）的自动更新
+- **菜单栏 / 托盘面板**：点击菜单栏或托盘图标弹出面板，分为「常用 / 提问 / 记录 / 状态」四页；标题栏显示隐私状态（共享不可见 / 部分可见），点击查看详情。也可在设置里改回悬浮条
+- **本地语音识别（离线）**：SenseVoice 小模型（约 240 MB，按需下载），中英粤日韩混说；断网或在线服务限流时自动切到本地，联网后优先在线。设置页按电脑配置（处理器指令集、内存、磁盘）给出是否适合开启的建议
+- **声纹：只回答别人的问题**：首次引导可选录入自己的声音（约 28 MB 模型），之后自己说的话不会触发自动回答，记录中标为「我」
+- **上课模式**：回答先给结论、最多三点、150 字以内；公式用 LaTeX 排版，代码带高亮；可选科目（数学、物理、化学、编程、英语、语文、历史、生物）让回答更贴合
+- **提问列表**：自动收集课堂 / 面试中听到的问题，可标记已回答、复制，一键导出课堂纪要（Markdown）或纯文本；「新的一节课」清空重来
+- **显示设置**：字号四档（小 / 标准 / 大 / 特大）；多显示器时可把面板移到鼠标所在屏、主屏或下一块屏幕
+- **检查更新**：设置中手动检查本仓库的新版本，不会自动下载
+- **完全卸载**：设置里一键删除全部数据与密钥；Windows 卸载程序、Linux 包卸载时同样清理；macOS 提供卸载脚本
+- 所有界面文案去掉 emoji 与感叹号，中英文条目一一对应
 
-### 修复的 Bug（继承自中文版）
-#315 重复转录、#287/#292/#310 Windows 快捷键隐藏、快捷键事件触发两次、截图监听泄漏、截图遮罩暴露、设置损坏白屏、开关提示文字相反、多处硬编码英文报错等。详见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
+更早版本的改动见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
 
 ## 界面截图
 
-以下均为 CK Pluely 实际运行界面截图（简体中文界面）。英文界面截图见 [docs/screenshots/en](docs/screenshots/en)。
-
 | | |
 |---|---|
-| <img src="docs/screenshots/01-overlay.webp" width="420"><br>悬浮条：随时提问、截图、语音 | <img src="docs/screenshots/02-dashboard.webp" width="420"><br>控制台首页 |
-| <img src="docs/screenshots/03-history.webp" width="420"><br>聊天记录 | <img src="docs/screenshots/04-prompts.webp" width="420"><br>系统提示词 |
-| <img src="docs/screenshots/05-settings.webp" width="420"><br>应用设置 | <img src="docs/screenshots/16-language.webp" width="420"><br>界面语言（默认简体中文，可切换） |
-| <img src="docs/screenshots/06-responses.webp" width="420"><br>回答设置：长度与语言 | <img src="docs/screenshots/13-responses-more.webp" width="420"><br>回答设置：自动滚动 |
-| <img src="docs/screenshots/07-screenshot.webp" width="420"><br>截图设置 | <img src="docs/screenshots/08-audio.webp" width="420"><br>音频：麦克风与系统音频 |
-| <img src="docs/screenshots/09-shortcuts.webp" width="420"><br>光标与快捷键 | <img src="docs/screenshots/14-shortcuts-more.webp" width="420"><br>全局快捷键一览 |
-| <img src="docs/screenshots/10-dev.webp" width="420"><br>开发者空间：AI 服务商与 API Key | <img src="docs/screenshots/12-dev-stt.webp" width="420"><br>开发者空间：语音识别服务商 |
-| <img src="docs/screenshots/11-settings-more.webp" width="420"><br>开机启动 / 隐身 / 置顶 | |
+| <img src="docs/screenshots/v2/panel-home.webp" width="400"><br>面板：常用 | <img src="docs/screenshots/v2/panel-questions.webp" width="400"><br>面板：提问列表 |
+| <img src="docs/screenshots/v2/panel-questions-dark.webp" width="400"><br>深色模式 | <img src="docs/screenshots/v2/settings-local-speech.webp" width="400"><br>本地语音识别与配置建议 |
+| <img src="docs/screenshots/v2/settings-display.webp" width="400"><br>显示：字号、屏幕、检查更新 | <img src="docs/screenshots/v2/onboarding-voiceprint.webp" width="400"><br>首次引导：录入你的声音 |
 
-## 使用教程
+## 安装
 
-![教程预览](docs/media/tutorial-zh.gif)
+到 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载对应系统的安装包：
 
-🎬 完整视频：[中文视频](https://github.com/CKNB888/ck-pluely/releases/download/v1.0.0/ck-pluely-tutorial-zh.mp4) · [English video](https://github.com/CKNB888/ck-pluely/releases/download/v1.0.0/ck-pluely-tutorial-en.mp4)
+- **macOS**：Apple 芯片选 `aarch64`，Intel 选 `x64`，`.dmg` 或 `.pkg` 均可。应用未经公证，首次请右键 → 打开，或在终端执行 `xattr -cr "/Applications/CK Pluely.app"`；然后在「系统设置 → 隐私与安全性」授予麦克风、屏幕与系统录音权限
+- **Windows**：`-setup.exe` 或 `.msi`；SmartScreen 提示时点「更多信息 → 仍要运行」
+- **Linux**：`.deb` / `.rpm` / `.AppImage`
 
-1. **安装**：在 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载对应系统的安装包（macOS .dmg/.pkg、Windows .msi/.exe、Linux .deb/.rpm/.AppImage）。macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`。
-2. **打开悬浮条**：启动后屏幕顶部出现悬浮条，`Ctrl+\`（macOS 为 `Cmd+\`）显示 / 隐藏。
-3. **打开控制台**：按 `Ctrl+Alt+Shift+D`（macOS `⌘⌥⇧D`）打开控制台窗口。
-4. **确认界面语言**：「应用设置 → 界面语言」，默认简体中文，可切换为 English 或跟随系统。
-5. **配置 AI 服务商**：「开发者空间」中选择服务商（Groq、OpenAI、Claude、Gemini、DeepSeek、通义千问、智谱等），填入 API Key 和模型名。密钥只保存在本机。
-6. **配置语音识别**：同一页下方选择语音识别服务商并填写 Key。
-7. **调整提示词与回答**：在「系统提示词」中选择或新建提示词；在「回答设置」中设置回答长度与语言。
-8. **授予权限**：在「音频」中选择麦克风与系统音频，macOS 需授予麦克风、屏幕录制权限。
-9. **开始使用**：在悬浮条输入问题，或用 `Ctrl+Alt+Shift+S` 截图提问、`Ctrl+Alt+Shift+R` 语音输入、`Ctrl+Alt+Shift+M` 捕获系统音频（macOS 把 Ctrl+Alt 换成 ⌘⌥）；显示/隐藏悬浮条 `Ctrl+Alt+\`，一键隐藏全部 `Ctrl+Alt+Shift+X`（macOS `⌘⌥⇧H`）。默认快捷键都用三个修饰键，避开腾讯会议、钉钉、飞书、微信、QQ、Zoom 的常用快捷键；欧洲键盘布局（AltGr = Ctrl+Alt）用户如与输入字符冲突，请在「快捷键」页改键。
-10. **回看记录**：在「聊天记录」中查看历史对话。
+首次启动有引导：权限 → 填写 Groq Key 并测试 → 快捷键 → 录入声音（可跳过）→ 隐私自检。
 
-## 下载与安装
-到 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载 `ck-pluely_*`：
-- macOS：`aarch64`（Apple Silicon）/ `x64`（Intel）的 `.dmg`。**未公证**：首次请右键 → 打开，或终端执行
-  `xattr -cr "/Applications/CK Pluely.app"`；然后在 系统设置 → 隐私与安全性 中授予 **麦克风、屏幕与系统录音** 权限
-- Windows：`-setup.exe`（NSIS）或 `.msi`；SmartScreen 点“更多信息 → 仍要运行”
-- Linux：`.deb` / `.rpm` / `.AppImage`
+## 卸载
 
-## 快速上手（面试 / 上课）
-1. 设置 → AI 服务商选 **groq**，填入你在 console.groq.com 申请的 Key 和模型（例如 `llama-3.3-70b-versatile`，以 Groq 文档为准）
-2. 语音识别选 **groq**，模型填 `whisper-large-v3`
-3. 打开系统音频 → 在“实时助手”中选预设（面试 / 上课答疑 / 会议），粘贴简历或讲义
-4. 对方提问时自动出答案；不想自动就切到“手动”
+- **应用内**：设置 → 完全卸载，删除记录、设置、模型和保存的密钥，然后退出
+- **Windows**：在「设置 → 应用」卸载；卸载程序会询问是否同时删除数据
+- **Linux**：`sudo apt purge ck-pluely` 或 `sudo dnf remove ck-pluely`（会清理各用户的数据目录）；AppImage 直接删除文件，再删除 `~/.local/share/io.github.cknb6.ckpluely` 与 `~/.config/io.github.cknb6.ckpluely`
+- **macOS**：运行仓库中的 [`scripts/uninstall-macos.command`](scripts/uninstall-macos.command)，或先在应用内完全卸载，再把应用拖到废纸篓
+
+## 快速上手
+
+1. 首次引导里填入 console.groq.com 申请的 Key（对话与语音识别共用，只保存在本机）
+2. 打开面板 →「常用」中开始会议转写；需要上课答疑时选择「上课」预设和科目
+3. 对方提问时自动给出回答；「提问」页可回看所有问题并导出
+4. 常用快捷键：显示 / 隐藏 `Ctrl+\`（macOS `⌘\`），截图提问 `Ctrl+Alt+Shift+S`，语音输入 `Ctrl+Alt+Shift+R`，系统声音 `Ctrl+Alt+Shift+M`，一键隐藏 `Ctrl+Alt+Shift+X`（macOS 为 ⌘⌥⇧ 组合，隐藏为 ⌘⌥⇧H）
 
 ## 从源码构建
 ```bash
@@ -80,15 +63,5 @@ npm run check:i18n           # 中英文条目一致性检查
 欢迎赞助本项目或洽谈广告合作，请添加微信 **1837620622**（请备注来意）。
 
 ## 许可证
-GPL-3.0（见 [LICENSE](./LICENSE)）。Copyright © Srikanth Nani（上游 Pluely）；修改部分 © CKNB。
 
----
-
-## English
-
-**CK Pluely** is a Chinese-first fork of Pluely by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** — <https://github.com/CKNB888/ck-pluely>. It installs alongside upstream (`io.github.cknb6.ckpluely`).
-
-New in 1.0.0: a real-time copilot panel (auto-answer detected questions / answer everything / manual), interview / class / meeting presets, resume & notes context, Groq as default channel, extra providers (DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao/Ark, SiliconFlow, LM Studio, …), SiliconFlow SenseVoice STT, Groq STT language auto-detect, Chinese default UI with English available, upstream auto-update disabled. Unsigned builds: on macOS run `xattr -cr "/Applications/CK Pluely.app"`. More: [README.en.md](./README.en.md).
-
-### Sponsorship & Ads
-Sponsorships and advertising partnerships are welcome — add WeChat **1837620622** (please mention your purpose).
+GPL-3.0，见 [LICENSE](./LICENSE)。上游版权 © Srikanth Nani，修改部分 © CKNB。
