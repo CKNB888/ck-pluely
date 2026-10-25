@@ -579,7 +579,11 @@ pub fn set_always_on_top<R: Runtime>(app: AppHandle<R>, enabled: bool) -> Result
             const NSFloatWindowLevel: i32 = 4;
             #[allow(non_upper_case_globals)]
             const NSNormalWindowLevel: i32 = 0;
-            panel.set_level(if enabled { NSFloatWindowLevel } else { NSNormalWindowLevel });
+            panel.set_level(if enabled {
+                NSFloatWindowLevel
+            } else {
+                NSNormalWindowLevel
+            });
         }
     } else {
         return Err("Main window not found".to_string());

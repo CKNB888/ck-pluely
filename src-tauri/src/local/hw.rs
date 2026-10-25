@@ -50,7 +50,11 @@ pub fn machine(data_dir: &Path) -> Machine {
     let mut sys = System::new();
     sys.refresh_memory();
     sys.refresh_cpu();
-    let cpu = sys.cpus().first().map(|c| c.brand().trim().to_string()).unwrap_or_default();
+    let cpu = sys
+        .cpus()
+        .first()
+        .map(|c| c.brand().trim().to_string())
+        .unwrap_or_default();
     let disks = Disks::new_with_refreshed_list();
     // the disk holding the data dir = longest matching mount point
     let free = disks
@@ -64,7 +68,9 @@ pub fn machine(data_dir: &Path) -> Machine {
     Machine {
         arch: std::env::consts::ARCH.to_string(),
         cpu,
-        cores: std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1),
+        cores: std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1),
         memory_gb: sys.total_memory() as f64 / 1e9,
         free_disk_gb: free as f64 / 1e9,
         simd: ok,
@@ -76,15 +82,49 @@ pub fn machine(data_dir: &Path) -> Machine {
 pub fn advise(m: &Machine, need_stt_gb: f64, need_spk_gb: f64) -> Advice {
     let threads = (m.cores / 2).clamp(1, 4);
     let (local_stt, stt_reason) = if !m.simd {
-        (false, format!("处理器不支持 {}，本地识别会很慢，建议用在线识别", if m.arch == "x86_64" { "AVX2" } else { "向量指令" }))
+        (
+            false,
+            format!(
+                "处理器不支持 {}，本地识别会很慢，建议用在线识别",
+                if m.arch == "x86_64" {
+                    "AVX2"
+                } else {
+                    "向量指令"
+                }
+            ),
+        )
     } else if m.memory_gb < 3.5 {
-        (false, format!("内存 {:.0} GB，本地识别约需 0.7 GB，建议用在线识别", m.memory_gb))
+        (
+            false,
+            format!(
+                "内存 {:.0} GB，本地识别约需 0.7 GB，建议用在线识别",
+                m.memory_gb
+            ),
+        )
     } else if m.free_disk_gb < need_stt_gb + 0.5 {
-        (false, format!("磁盘剩余 {:.1} GB，模型需要 {:.2} GB，空间不足", m.free_disk_gb, need_stt_gb))
+        (
+            false,
+            format!(
+                "磁盘剩余 {:.1} GB，模型需要 {:.2} GB，空间不足",
+                m.free_disk_gb, need_stt_gb
+            ),
+        )
     } else if m.cores < 4 {
-        (true, format!("{} 核处理器，可离线识别，但长句会慢一些；联网时仍优先在线识别", m.cores))
+        (
+            true,
+            format!(
+                "{} 核处理器，可离线识别，但长句会慢一些；联网时仍优先在线识别",
+                m.cores
+            ),
+        )
     } else {
-        (true, format!("{}，{} 核，内存 {:.0} GB：可流畅离线识别（SenseVoice 小模型，约 240 MB）", m.simd_name, m.cores, m.memory_gb))
+        (
+            true,
+            format!(
+                "{}，{} 核，内存 {:.0} GB：可流畅离线识别（SenseVoice 小模型，约 240 MB）",
+                m.simd_name, m.cores, m.memory_gb
+            ),
+        )
     };
     let (voiceprint, voiceprint_reason) = if m.memory_gb < 2.0 {
         (false, "内存不足 2 GB，不建议开启声纹".to_string())
@@ -93,7 +133,13 @@ pub fn advise(m: &Machine, need_stt_gb: f64, need_spk_gb: f64) -> Advice {
     } else {
         (true, "声纹模型约 28 MB，每句话处理不到 50 毫秒".to_string())
     };
-    Advice { local_stt, stt_reason, voiceprint, voiceprint_reason, threads }
+    Advice {
+        local_stt,
+        stt_reason,
+        voiceprint,
+        voiceprint_reason,
+        threads,
+    }
 }
 
 #[cfg(test)]

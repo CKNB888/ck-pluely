@@ -41,17 +41,47 @@ fn hf(path: &str) -> Vec<String> {
 /// (archive name, sha256, size, library path inside) for this platform.
 fn ort_archive() -> Option<(&'static str, &'static str, u64, &'static str)> {
     if cfg!(all(target_os = "linux", target_arch = "x86_64")) {
-        Some(("onnxruntime-linux-x64-1.22.0.tgz", "8344d55f93d5bc5021ce342db50f62079daf39aaafb5d311a451846228be49b3", 7_798_730, "onnxruntime-linux-x64-1.22.0/lib/libonnxruntime.so.1.22.0"))
+        Some((
+            "onnxruntime-linux-x64-1.22.0.tgz",
+            "8344d55f93d5bc5021ce342db50f62079daf39aaafb5d311a451846228be49b3",
+            7_798_730,
+            "onnxruntime-linux-x64-1.22.0/lib/libonnxruntime.so.1.22.0",
+        ))
     } else if cfg!(all(target_os = "linux", target_arch = "aarch64")) {
-        Some(("onnxruntime-linux-aarch64-1.22.0.tgz", "bb76395092d150b52c7092dc6b8f2fe4d80f0f3bf0416d2f269193e347e24702", 6_849_865, "onnxruntime-linux-aarch64-1.22.0/lib/libonnxruntime.so.1.22.0"))
+        Some((
+            "onnxruntime-linux-aarch64-1.22.0.tgz",
+            "bb76395092d150b52c7092dc6b8f2fe4d80f0f3bf0416d2f269193e347e24702",
+            6_849_865,
+            "onnxruntime-linux-aarch64-1.22.0/lib/libonnxruntime.so.1.22.0",
+        ))
     } else if cfg!(all(target_os = "macos", target_arch = "aarch64")) {
-        Some(("onnxruntime-osx-arm64-1.22.0.tgz", "cab6dcbd77e7ec775390e7b73a8939d45fec3379b017c7cb74f5b204c1a1cc07", 25_943_843, "onnxruntime-osx-arm64-1.22.0/lib/libonnxruntime.1.22.0.dylib"))
+        Some((
+            "onnxruntime-osx-arm64-1.22.0.tgz",
+            "cab6dcbd77e7ec775390e7b73a8939d45fec3379b017c7cb74f5b204c1a1cc07",
+            25_943_843,
+            "onnxruntime-osx-arm64-1.22.0/lib/libonnxruntime.1.22.0.dylib",
+        ))
     } else if cfg!(all(target_os = "macos", target_arch = "x86_64")) {
-        Some(("onnxruntime-osx-x86_64-1.22.0.tgz", "e4ec94a7696de74fb1b12846569aa94e499958af6ffa186022cfde16c9d617f0", 27_889_590, "onnxruntime-osx-x86_64-1.22.0/lib/libonnxruntime.1.22.0.dylib"))
+        Some((
+            "onnxruntime-osx-x86_64-1.22.0.tgz",
+            "e4ec94a7696de74fb1b12846569aa94e499958af6ffa186022cfde16c9d617f0",
+            27_889_590,
+            "onnxruntime-osx-x86_64-1.22.0/lib/libonnxruntime.1.22.0.dylib",
+        ))
     } else if cfg!(all(windows, target_arch = "x86_64")) {
-        Some(("onnxruntime-win-x64-1.22.0.zip", "174c616efc0271194488642a72f1a514e01487da4dfe84c49296d66e40ebe0da", 72_368_545, "onnxruntime-win-x64-1.22.0/lib/onnxruntime.dll"))
+        Some((
+            "onnxruntime-win-x64-1.22.0.zip",
+            "174c616efc0271194488642a72f1a514e01487da4dfe84c49296d66e40ebe0da",
+            72_368_545,
+            "onnxruntime-win-x64-1.22.0/lib/onnxruntime.dll",
+        ))
     } else if cfg!(all(windows, target_arch = "aarch64")) {
-        Some(("onnxruntime-win-arm64-1.22.0.zip", "7008f7ff82f8e7de563a22f2b590e08e706a1289eba606b93de2b56edfb1e04b", 73_055_483, "onnxruntime-win-arm64-1.22.0/lib/onnxruntime.dll"))
+        Some((
+            "onnxruntime-win-arm64-1.22.0.zip",
+            "7008f7ff82f8e7de563a22f2b590e08e706a1289eba606b93de2b56edfb1e04b",
+            73_055_483,
+            "onnxruntime-win-arm64-1.22.0/lib/onnxruntime.dll",
+        ))
     } else {
         None
     }
@@ -104,7 +134,9 @@ pub fn catalog() -> Vec<Asset> {
         id: "campplus",
         kind: Kind::Speaker,
         file: "campplus_zh-cn.onnx",
-        urls: hf(&format!("{HF_SPK}/3dspeaker_speech_campplus_sv_zh-cn_16k-common.onnx")),
+        urls: hf(&format!(
+            "{HF_SPK}/3dspeaker_speech_campplus_sv_zh-cn_16k-common.onnx"
+        )),
         sha256: "f682b514c05d947ee3fa91cd6ec6c5c7543479a128373fa29b1faedccd21fd11",
         size: 28_281_138,
         inner: None,
@@ -267,7 +299,10 @@ fn extract_one(archive: &Path, inner: &str, dest: &Path) -> Result<(), String> {
         let mut found = false;
         for e in t.entries().map_err(|e| e.to_string())? {
             let mut e = e.map_err(|e| e.to_string())?;
-            if e.path().map(|p| p.to_string_lossy() == inner).unwrap_or(false) {
+            if e.path()
+                .map(|p| p.to_string_lossy() == inner)
+                .unwrap_or(false)
+            {
                 let mut out = std::fs::File::create(&tmp).map_err(|e| e.to_string())?;
                 std::io::copy(&mut e, &mut out).map_err(|e| e.to_string())?;
                 found = true;
@@ -286,7 +321,9 @@ static ORT_READY: OnceLock<Result<(), String>> = OnceLock::new();
 /// Threads for the shared pool: half the cores, 1..=4. Speech models are
 /// small; more threads mostly add wake-ups.
 pub fn pool_threads() -> usize {
-    let n = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(2);
+    let n = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(2);
     (n / 2).clamp(1, 4)
 }
 
@@ -319,12 +356,13 @@ pub fn ensure_runtime(dir: &Path) -> Result<(), String> {
 
 pub fn session(path: &Path) -> Result<ort::session::Session, String> {
     ort::session::Session::builder()
-        .and_then(|b| b.with_optimization_level(ort::session::builder::GraphOptimizationLevel::Level3))
+        .and_then(|b| {
+            b.with_optimization_level(ort::session::builder::GraphOptimizationLevel::Level3)
+        })
         .and_then(|b| b.with_memory_pattern(false))
         .and_then(|b| b.commit_from_file(path))
         .map_err(|e| e.to_string())
 }
-
 
 /// Hand freed model memory back to the OS (glibc keeps it otherwise).
 pub fn trim_heap() {

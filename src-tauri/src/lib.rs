@@ -4,8 +4,10 @@ mod api;
 mod capture;
 mod ck;
 mod db;
+mod meeting;
 mod privacy;
 mod shortcuts;
+mod startup;
 mod window;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
@@ -13,16 +15,16 @@ use tauri::Manager;
 use tauri::{AppHandle, WebviewWindow};
 use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
-mod speaker;
-mod osinfo;
-mod local;
-mod notes;
-mod uninstall;
 mod backup;
-mod net;
+mod local;
 #[cfg(target_os = "macos")]
 mod macui;
+mod net;
+mod notes;
+mod osinfo;
 mod panel;
+mod speaker;
+mod uninstall;
 use capture::CaptureState;
 use speaker::VadConfig;
 
@@ -44,6 +46,7 @@ fn get_app_version() -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    startup::begin();
     // Get PostHog API key
     let posthog_api_key = option_env!("POSTHOG_API_KEY").unwrap_or("").to_string();
     // `mut` is only needed on macOS (nspanel plugin / panel setup).
@@ -53,21 +56,9 @@ pub fn run() {
         // second launch would register the same global hotkeys and open a
         // second overlay; instead bring the running instance forward.
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-            if let Some(window) = app.get_webview_window("main") {
-                #[cfg(target_os = "windows")]
-                let hidden = *app
-                    .state::<shortcuts::WindowVisibility>()
-                    .is_hidden
-                    .lock()
-                    .unwrap_or_else(|e| e.into_inner());
-                #[cfg(not(target_os = "windows"))]
-                let hidden = !window.is_visible().unwrap_or(false);
-                if hidden {
-                    shortcuts::handle_toggle_window(app);
-                } else {
-                    let _ = window.set_focus();
-                }
-            }
+            // 再次打开应用（Finder / 开始菜单 / 命令行）：总是把界面亮出来
+            startup::log("second launch -> reveal");
+            panel::reveal(app);
         }))
         .plugin(
             tauri_plugin_sql::Builder::default()
@@ -116,7 +107,10 @@ pub fn run() {
             }
         })
         .on_window_event(|window, event| {
-            if matches!(event, tauri::WindowEvent::Focused(true) | tauri::WindowEvent::ScaleFactorChanged { .. }) {
+            if matches!(
+                event,
+                tauri::WindowEvent::Focused(true) | tauri::WindowEvent::ScaleFactorChanged { .. }
+            ) {
                 if let Some(w) = window.app_handle().get_webview_window(window.label()) {
                     privacy::harden(&w);
                 }
@@ -124,6 +118,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
+            meeting::ck_meeting_status,
             notes::ck_export_notes,
             notes::ck_check_update,
             net::ck_http_fetch,
@@ -209,7 +204,9 @@ pub fn run() {
         ])
         .setup(|app| {
             // Setup main window positioning
-            window::setup_main_window(app).expect("Failed to setup main window");
+            if let Err(e) = window::setup_main_window(app) {
+                startup::log(&format!("setup_main_window failed: {e}"));
+            }
             privacy::harden_all(app.handle());
             if let Ok(dir) = app.path().app_data_dir() {
                 app.manage(local::engine::LocalState::new(dir));
@@ -220,8 +217,18 @@ pub fn run() {
             if let Err(e) = macui::setup(app) {
                 eprintln!("[macui] setup failed: {e}");
             }
-            if let Err(e) = panel::setup_tray(app.handle()) {
-                eprintln!("[panel] tray setup failed: {e}");
+            match panel::setup_tray(app.handle()) {
+                Ok(()) => startup::log("tray ok"),
+                Err(e) => {
+                    // 没有托盘图标用户就找不到入口：改用悬浮条并显示 Dock 图标
+                    startup::log(&format!("tray setup failed: {e}"));
+                    panel::set_tray_failed();
+                    #[cfg(target_os = "macos")]
+                    let _ = app.set_activation_policy(tauri::ActivationPolicy::Regular);
+                    startup::alert(&format!(
+                        "菜单栏 / 托盘图标创建失败（{e}），已改用悬浮条显示。"
+                    ));
+                }
             }
             // 默认界面为菜单栏面板：启动时只留托盘图标，主条由前端按用户设置决定是否显示
             if let Some(w) = app.get_webview_window("main") {
@@ -244,7 +251,7 @@ pub fn run() {
                 #[allow(deprecated, unexpected_cfgs)]
                 if let Err(e) = app.handle().plugin(tauri_plugin_autostart::init(
                     MacosLauncher::LaunchAgent,
-                    Some(vec![]),
+                    Some(vec!["--autostart"]),
                 )) {
                     eprintln!("Failed to initialize autostart plugin: {}", e);
                 }
@@ -301,10 +308,21 @@ pub fn run() {
                         })
                         .build(),
                 )
-                .expect("Failed to initialize global shortcut plugin");
+                .unwrap_or_else(|e| startup::log(&format!("global shortcut plugin failed: {e}")));
             if let Err(e) = shortcuts::setup_global_shortcuts(app.handle()) {
                 eprintln!("Failed to setup global shortcuts: {}", e);
             }
+            // 启动后亮出界面一次（开机自启动除外），避免「打开了却什么都没有」
+            if !startup::launched_at_login() {
+                let h = app.handle().clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_millis(900));
+                    let h2 = h.clone();
+                    let _ = h.run_on_main_thread(move || panel::reveal_first(&h2));
+                });
+            }
+            meeting::start_watcher(app.handle().clone());
+            startup::log("setup done");
             Ok(())
         });
 
@@ -314,9 +332,29 @@ pub fn run() {
         builder = builder.plugin(tauri_plugin_macos_permissions::init());
     }
 
-    builder
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    let app = match builder.build(tauri::generate_context!()) {
+        Ok(a) => a,
+        Err(e) => {
+            startup::log(&format!("fatal: {e}"));
+            startup::alert(&format!("{e}"));
+            std::thread::sleep(std::time::Duration::from_secs(8));
+            std::process::exit(1);
+        }
+    };
+    #[allow(unused_variables)]
+    app.run(|app, event| match event {
+        // 点 Dock 图标 / 在 Finder 再次打开正在运行的应用
+        #[cfg(target_os = "macos")]
+        tauri::RunEvent::Reopen { .. } => {
+            startup::log("reopen -> reveal");
+            panel::reveal(app);
+        }
+        // 关闭 / 销毁任何窗口都不退出应用；只有「退出」(app.exit) 才退出
+        tauri::RunEvent::ExitRequested {
+            code: None, api, ..
+        } => api.prevent_exit(),
+        _ => {}
+    });
 }
 
 #[cfg(target_os = "macos")]

@@ -37,7 +37,13 @@ pub struct Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        Self { stt: SttMode::Cloud, voiceprint: true, threshold: 0.5, language: "auto".into(), idle_unload_secs: 120 }
+        Self {
+            stt: SttMode::Cloud,
+            voiceprint: true,
+            threshold: 0.5,
+            language: "auto".into(),
+            idle_unload_secs: 120,
+        }
     }
 }
 
@@ -66,7 +72,10 @@ impl Models {
             if !m.exists() {
                 return Err("离线识别模型还没下载".into());
             }
-            self.asr = Some(SenseVoice::load(&m, &self.dir.join("sensevoice.tokens.txt"))?);
+            self.asr = Some(SenseVoice::load(
+                &m,
+                &self.dir.join("sensevoice.tokens.txt"),
+            )?);
         }
         Ok(self.asr.as_mut().unwrap())
     }
@@ -104,7 +113,10 @@ pub struct LocalState {
 }
 
 fn now_secs() -> u64 {
-    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
 }
 
 impl LocalState {
@@ -127,7 +139,12 @@ impl LocalState {
         std::thread::Builder::new()
             .name("ck-local".into())
             .spawn(move || {
-                let mut m = Models { dir: wdir, asr: None, spk: None, labeler: Labeler::new(vp, thr) };
+                let mut m = Models {
+                    dir: wdir,
+                    asr: None,
+                    spk: None,
+                    labeler: Labeler::new(vp, thr),
+                };
                 let mut last = Instant::now();
                 loop {
                     match rx.recv_timeout(Duration::from_secs(10)) {
@@ -148,7 +165,14 @@ impl LocalState {
                 }
             })
             .expect("spawn local worker");
-        Self { tx: Mutex::new(tx), dir, settings: RwLock::new(settings), voiceprint, loaded, downloading: Mutex::new(None) }
+        Self {
+            tx: Mutex::new(tx),
+            dir,
+            settings: RwLock::new(settings),
+            voiceprint,
+            loaded,
+            downloading: Mutex::new(None),
+        }
     }
 
     pub fn submit(&self, job: Job) {
@@ -182,9 +206,17 @@ impl LocalState {
     }
 
     pub fn save_settings(&self, s: Settings) -> Result<(), String> {
-        let data = self.dir.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+        let data = self
+            .dir
+            .parent()
+            .map(|p| p.to_path_buf())
+            .unwrap_or_default();
         std::fs::create_dir_all(&data).map_err(|e| e.to_string())?;
-        std::fs::write(data.join("local.json"), serde_json::to_vec_pretty(&s).unwrap()).map_err(|e| e.to_string())?;
+        std::fs::write(
+            data.join("local.json"),
+            serde_json::to_vec_pretty(&s).unwrap(),
+        )
+        .map_err(|e| e.to_string())?;
         let thr = s.threshold;
         if let Ok(mut w) = self.settings.write() {
             *w = s;
@@ -196,7 +228,10 @@ impl LocalState {
 
 /// 读取声纹文件内容（备份恢复用）。
 pub fn parse_voiceprint(b: &[u8]) -> Option<Vec<f32>> {
-    serde_json::from_slice::<Voiceprint>(b).ok().map(|v| v.embedding).filter(|v| !v.is_empty())
+    serde_json::from_slice::<Voiceprint>(b)
+        .ok()
+        .map(|v| v.embedding)
+        .filter(|v| !v.is_empty())
 }
 
 pub fn voiceprint_path(data_dir: &std::path::Path) -> PathBuf {
@@ -222,7 +257,10 @@ pub fn dispatch(app: &AppHandle, sr: u32, samples: Vec<f32>, gate_allowed: bool)
         return emit_wav(app, sr, &samples);
     };
     let s = state.settings();
-    let gate = gate_allowed && s.voiceprint && state.enrolled() && state.dir.join("campplus_zh-cn.onnx").exists();
+    let gate = gate_allowed
+        && s.voiceprint
+        && state.enrolled()
+        && state.dir.join("campplus_zh-cn.onnx").exists();
     let local = s.stt == SttMode::Local;
     if !gate && !local {
         return emit_wav(app, sr, &samples);
@@ -252,13 +290,29 @@ pub fn dispatch(app: &AppHandle, sr: u32, samples: Vec<f32>, gate_allowed: bool)
             match m.asr().and_then(|r| r.transcribe(&a, &lang)) {
                 Ok(text) => {
                     let ev = if is_me { "speech-self" } else { "speech-text" };
-                    let _ = app.emit(ev, SpeechText { text, speaker, score, ms: t0.elapsed().as_millis() as u64 });
+                    let _ = app.emit(
+                        ev,
+                        SpeechText {
+                            text,
+                            speaker,
+                            score,
+                            ms: t0.elapsed().as_millis() as u64,
+                        },
+                    );
                 }
                 Err(e) => {
                     // fall back to the online provider
                     let _ = app.emit("local-error", e);
                     if !is_me {
-                        let _ = app.emit("speech-speaker", SpeechText { text: String::new(), speaker, score, ms: 0 });
+                        let _ = app.emit(
+                            "speech-speaker",
+                            SpeechText {
+                                text: String::new(),
+                                speaker,
+                                score,
+                                ms: 0,
+                            },
+                        );
                         emit_wav(&app, sr, &samples);
                     }
                 }
@@ -266,9 +320,25 @@ pub fn dispatch(app: &AppHandle, sr: u32, samples: Vec<f32>, gate_allowed: bool)
         } else if is_me {
             // The teacher's own voice (often echo through the speakers):
             // never answered. Logged only.
-            let _ = app.emit("speech-self", SpeechText { text: String::new(), speaker, score, ms: t0.elapsed().as_millis() as u64 });
+            let _ = app.emit(
+                "speech-self",
+                SpeechText {
+                    text: String::new(),
+                    speaker,
+                    score,
+                    ms: t0.elapsed().as_millis() as u64,
+                },
+            );
         } else {
-            let _ = app.emit("speech-speaker", SpeechText { text: String::new(), speaker, score, ms: t0.elapsed().as_millis() as u64 });
+            let _ = app.emit(
+                "speech-speaker",
+                SpeechText {
+                    text: String::new(),
+                    speaker,
+                    score,
+                    ms: t0.elapsed().as_millis() as u64,
+                },
+            );
             emit_wav(&app, sr, &samples);
         }
     }));
@@ -294,18 +364,27 @@ pub fn session_started(app: &AppHandle) {
 
 pub fn decode_wav_b64(b64: &str) -> Result<Vec<f32>, String> {
     use base64::Engine as _;
-    let bytes = base64::engine::general_purpose::STANDARD.decode(b64.trim()).map_err(|e| e.to_string())?;
-    let mut r = hound::WavReader::new(std::io::Cursor::new(bytes)).map_err(|_| "录音格式无法识别".to_string())?;
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(b64.trim())
+        .map_err(|e| e.to_string())?;
+    let mut r = hound::WavReader::new(std::io::Cursor::new(bytes))
+        .map_err(|_| "录音格式无法识别".to_string())?;
     let spec = r.spec();
     let ch = spec.channels.max(1) as usize;
     let raw: Vec<f32> = match spec.sample_format {
         hound::SampleFormat::Int => {
             let scale = (1i64 << (spec.bits_per_sample - 1)) as f32;
-            r.samples::<i32>().filter_map(|s| s.ok()).map(|s| s as f32 / scale).collect()
+            r.samples::<i32>()
+                .filter_map(|s| s.ok())
+                .map(|s| s as f32 / scale)
+                .collect()
         }
         hound::SampleFormat::Float => r.samples::<f32>().filter_map(|s| s.ok()).collect(),
     };
-    let mono: Vec<f32> = raw.chunks(ch).map(|c| c.iter().sum::<f32>() / ch as f32).collect();
+    let mono: Vec<f32> = raw
+        .chunks(ch)
+        .map(|c| c.iter().sum::<f32>() / ch as f32)
+        .collect();
     Ok(to_16k(spec.sample_rate, &mono))
 }
 
@@ -345,15 +424,34 @@ pub fn enroll(m: &mut Models, a: Vec<f32>) -> Result<(Vec<f32>, Enrollment), Str
         }
     }
     let mean = spk::average(&embs).ok_or("录音无效")?;
-    let consistency = embs.iter().map(|v| spk::cosine(v, &mean)).fold(f32::MAX, f32::min);
-    Ok((mean, Enrollment { windows: embs.len(), consistency }))
+    let consistency = embs
+        .iter()
+        .map(|v| spk::cosine(v, &mean))
+        .fold(f32::MAX, f32::min);
+    Ok((
+        mean,
+        Enrollment {
+            windows: embs.len(),
+            consistency,
+        },
+    ))
 }
 
 pub fn store_voiceprint(state: &LocalState, emb: Vec<f32>) -> Result<(), String> {
-    let data = state.dir.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+    let data = state
+        .dir
+        .parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_default();
     std::fs::create_dir_all(&data).map_err(|e| e.to_string())?;
-    let vp = Voiceprint { version: 1, model: "campplus_zh-cn".into(), created: now_secs(), embedding: emb.clone() };
-    std::fs::write(voiceprint_path(&data), serde_json::to_vec(&vp).unwrap()).map_err(|e| e.to_string())?;
+    let vp = Voiceprint {
+        version: 1,
+        model: "campplus_zh-cn".into(),
+        created: now_secs(),
+        embedding: emb.clone(),
+    };
+    std::fs::write(voiceprint_path(&data), serde_json::to_vec(&vp).unwrap())
+        .map_err(|e| e.to_string())?;
     if let Ok(mut w) = state.voiceprint.write() {
         *w = Some(emb.clone());
     }
@@ -362,7 +460,11 @@ pub fn store_voiceprint(state: &LocalState, emb: Vec<f32>) -> Result<(), String>
 }
 
 pub fn delete_voiceprint(state: &LocalState) -> Result<(), String> {
-    let data = state.dir.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+    let data = state
+        .dir
+        .parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_default();
     match std::fs::remove_file(voiceprint_path(&data)) {
         Ok(_) => {}
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
@@ -388,7 +490,6 @@ pub fn kind_of(id: &str) -> Option<Kind> {
         _ => None,
     }
 }
-
 
 pub fn transcribe(m: &mut Models, a: &[f32], lang: &str) -> Result<String, String> {
     m.asr()?.transcribe(a, lang)

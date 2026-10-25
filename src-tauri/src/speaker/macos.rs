@@ -168,6 +168,55 @@ struct Ctx {
     should_terminate: Arc<AtomicBool>,
 }
 
+/// 会议软件的 Core Audio 进程对象（按 PID 或 bundle id 前缀匹配）组成的进程 Tap
+fn meeting_process_tap() -> Option<ca::TapGuard> {
+    let d = crate::meeting::current()?;
+    let app = crate::meeting::KNOWN.iter().find(|a| a.name == d.name)?;
+    let mut ids: Vec<arc::R<ns::Number>> = Vec::new();
+    for p in ca::Process::list().ok()? {
+        let pid_hit = p
+            .pid()
+            .map(|x| d.pids.contains(&(x as u32)))
+            .unwrap_or(false);
+        let bundle_hit = p
+            .bundle_id()
+            .map(|b| {
+                let b = b.to_string();
+                app.bundles.iter().any(|pre| b.starts_with(pre))
+            })
+            .unwrap_or(false);
+        if pid_hit || bundle_hit {
+            ids.push(ns::Number::with_u32(p.0 .0));
+        }
+    }
+    if ids.is_empty() {
+        crate::startup::log(&format!(
+            "{}: no audio process yet, using system audio",
+            d.name
+        ));
+        return None;
+    }
+    let arr = ns::Array::from_slice_retained(&ids);
+    let desc = ca::TapDesc::with_mono_mixdown_of_processes(&arr);
+    match desc.create_process_tap() {
+        Ok(t) => {
+            crate::startup::log(&format!(
+                "{}: per-process tap on {} objects",
+                d.name,
+                ids.len()
+            ));
+            Some(t)
+        }
+        Err(e) => {
+            crate::startup::log(&format!(
+                "{}: process tap failed {e:?}, using system audio",
+                d.name
+            ));
+            None
+        }
+    }
+}
+
 impl SpeakerInput {
     pub fn new(device_id: Option<String>) -> Result<Self> {
         let output_device = match device_id {
@@ -189,8 +238,19 @@ impl SpeakerInput {
             &[output_uid.as_type_ref()],
         );
 
-        let tap_desc = ca::TapDesc::with_mono_global_tap_excluding_processes(&ns::Array::new());
-        let tap = tap_desc.create_process_tap()?;
+        // 识别到会议软件时只录它（进程 Tap）；否则 / 失败时录整机系统声音
+        let tap = match meeting_process_tap() {
+            Some(t) => {
+                crate::meeting::set_mode("process");
+                t
+            }
+            None => {
+                crate::meeting::set_mode("system");
+                let tap_desc =
+                    ca::TapDesc::with_mono_global_tap_excluding_processes(&ns::Array::new());
+                tap_desc.create_process_tap()?
+            }
+        };
 
         let sub_tap = cf::DictionaryOf::with_keys_values(
             &[ca::sub_device_keys::uid()],

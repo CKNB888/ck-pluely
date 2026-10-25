@@ -51,6 +51,7 @@ pub async fn start_system_audio_capture(
     device_id: Option<String>,
 ) -> Result<(), String> {
     let state = app.state::<crate::AudioState>();
+    crate::meeting::refresh();
 
     // Check if already capturing (atomic check)
     {
@@ -274,7 +275,9 @@ async fn run_vad_with_recovery(
     use super::recovery::*;
     let mut next = Some((first, first_sr));
     loop {
-        let Some((stream, sr)) = next.take() else { break };
+        let Some((stream, sr)) = next.take() else {
+            break;
+        };
         let end = EndCell::default();
 
         // Follow default-output changes (Windows/Linux open a concrete endpoint).
@@ -596,6 +599,7 @@ pub(crate) fn samples_to_wav_b64(sample_rate: u32, mono_f32: &[f32]) -> Result<S
 
 #[tauri::command]
 pub async fn stop_system_audio_capture(app: AppHandle) -> Result<(), String> {
+    crate::meeting::set_mode("idle");
     let state = app.state::<crate::AudioState>();
 
     // Abort task in separate scope (Send trait fix)

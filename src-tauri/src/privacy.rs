@@ -83,6 +83,14 @@ pub fn privacy_status(app: AppHandle) -> PrivacyStatus {
     }
 }
 
+/// 忘掉「一键隐藏」记录（用户主动打开应用时调用，避免下次按快捷键反而把窗口又藏起来）
+pub fn clear_hidden_state() {
+    HIDDEN_BY_HOTKEY
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .clear();
+}
+
 /// 一键隐藏/恢复全部窗口（共享屏幕时的保底手段，各平台都有效）。
 pub fn toggle_hide_all<R: Runtime>(app: &AppHandle<R>) {
     let mut hidden = HIDDEN_BY_HOTKEY.lock().unwrap_or_else(|e| e.into_inner());
@@ -135,7 +143,9 @@ mod win {
     }
 
     pub fn apply<R: Runtime>(w: &WebviewWindow<R>) -> String {
-        let Some(h) = hwnd(w) else { return "none".into() };
+        let Some(h) = hwnd(w) else {
+            return "none".into();
+        };
         unsafe {
             // WDA_EXCLUDEFROMCAPTURE 需要 Windows 10 2004（build 19041）及以上
             if SetWindowDisplayAffinity(h, WDA_EXCLUDEFROMCAPTURE) != 0 {

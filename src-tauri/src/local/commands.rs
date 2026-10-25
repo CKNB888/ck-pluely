@@ -77,7 +77,11 @@ struct Progress {
 }
 
 #[tauri::command]
-pub async fn local_download(app: AppHandle, state: State<'_, LocalState>, part: String) -> Result<(), String> {
+pub async fn local_download(
+    app: AppHandle,
+    state: State<'_, LocalState>,
+    part: String,
+) -> Result<(), String> {
     let kind = engine::kind_of(&part).ok_or("未知的组件")?;
     {
         let mut d = state.downloading.lock().map_err(|e| e.to_string())?;
@@ -106,13 +110,27 @@ pub async fn local_download(app: AppHandle, state: State<'_, LocalState>, part: 
                 // throttle UI updates to 4 per second
                 if last.elapsed().as_millis() >= 250 {
                     last = std::time::Instant::now();
-                    let _ = app.emit("local-download", Progress { part: part.clone(), done: b + done, total });
+                    let _ = app.emit(
+                        "local-download",
+                        Progress {
+                            part: part.clone(),
+                            done: b + done,
+                            total,
+                        },
+                    );
                 }
             })
             .await?;
             base += a.size;
         }
-        let _ = app.emit("local-download", Progress { part: part.clone(), done: total, total });
+        let _ = app.emit(
+            "local-download",
+            Progress {
+                part: part.clone(),
+                done: total,
+                total,
+            },
+        );
         Ok(())
     }
     .await;
@@ -130,7 +148,10 @@ pub async fn local_delete_models(state: State<'_, LocalState>, part: String) -> 
     engine::unload_now(&state);
     state.call(|_| ()).await?;
     for a in runtime::catalog().iter().filter(|a| a.kind == kind) {
-        for p in [runtime::installed_path(&state.dir, a), state.dir.join(format!("{}.part", a.file))] {
+        for p in [
+            runtime::installed_path(&state.dir, a),
+            state.dir.join(format!("{}.part", a.file)),
+        ] {
             let _ = std::fs::remove_file(p);
         }
     }
@@ -138,14 +159,22 @@ pub async fn local_delete_models(state: State<'_, LocalState>, part: String) -> 
 }
 
 #[tauri::command]
-pub async fn local_transcribe(state: State<'_, LocalState>, wav_b64: String) -> Result<String, String> {
+pub async fn local_transcribe(
+    state: State<'_, LocalState>,
+    wav_b64: String,
+) -> Result<String, String> {
     let a = engine::decode_wav_b64(&wav_b64)?;
     let lang = state.settings().language;
-    state.call(move |m| engine::transcribe(m, &a, &lang)).await?
+    state
+        .call(move |m| engine::transcribe(m, &a, &lang))
+        .await?
 }
 
 #[tauri::command]
-pub async fn voiceprint_enroll(state: State<'_, LocalState>, wav_b64: String) -> Result<engine::Enrollment, String> {
+pub async fn voiceprint_enroll(
+    state: State<'_, LocalState>,
+    wav_b64: String,
+) -> Result<engine::Enrollment, String> {
     let a = engine::decode_wav_b64(&wav_b64)?;
     let (emb, info) = state.call(move |m| engine::enroll(m, a)).await??;
     engine::store_voiceprint(&state, emb)?;

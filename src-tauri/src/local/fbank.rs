@@ -31,7 +31,11 @@ impl Fbank {
     pub fn new(window: Window, bins: usize, low_freq: f32, high_freq: f32) -> Self {
         let sr = 16000.0f32;
         let nyq = sr / 2.0;
-        let high = if high_freq <= 0.0 { nyq + high_freq } else { high_freq };
+        let high = if high_freq <= 0.0 {
+            nyq + high_freq
+        } else {
+            high_freq
+        };
         let w: Vec<f32> = (0..FRAME)
             .map(|i| {
                 let a = 2.0 * std::f32::consts::PI * i as f32 / (FRAME - 1) as f32;
@@ -72,7 +76,12 @@ impl Fbank {
             banks.push((if first == usize::MAX { 0 } else { first }, weights));
         }
         let fft = FftPlanner::new().plan_fft_forward(NFFT);
-        Self { window: w, mel: banks, fft, bins }
+        Self {
+            window: w,
+            mel: banks,
+            fft,
+            bins,
+        }
     }
 
     pub fn num_frames(samples: usize) -> usize {
@@ -149,10 +158,10 @@ mod tests {
         let f = fb.compute(&x, 32768.0);
         assert_eq!(f.len(), 98 * 80);
         let row = &f[40 * 80..41 * 80];
-        let (argmax, _) = row
-            .iter()
-            .enumerate()
-            .fold((0, f32::MIN), |a, (i, &v)| if v > a.1 { (i, v) } else { a });
+        let (argmax, _) =
+            row.iter()
+                .enumerate()
+                .fold((0, f32::MIN), |a, (i, &v)| if v > a.1 { (i, v) } else { a });
         // 1 kHz sits around mel bin 22-26 for 20..7600 Hz / 80 bins
         assert!((20..=28).contains(&argmax), "argmax {argmax}");
     }

@@ -13,14 +13,25 @@ fn dir() -> Option<PathBuf> {
 fn wav(p: &std::path::Path) -> Vec<f32> {
     let b = std::fs::read(p).unwrap();
     let data = b.windows(4).position(|w| w == b"data").unwrap() + 8;
-    b[data..].chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]]) as f32 / 32768.0).collect()
+    b[data..]
+        .chunks_exact(2)
+        .map(|c| i16::from_le_bytes([c[0], c[1]]) as f32 / 32768.0)
+        .collect()
 }
 
 fn rss_mb() -> f64 {
     std::fs::read_to_string("/proc/self/status")
         .ok()
-        .and_then(|s| s.lines().find(|l| l.starts_with("VmRSS")).map(|l| l.to_string()))
-        .and_then(|l| l.split_whitespace().nth(1).and_then(|v| v.parse::<f64>().ok()))
+        .and_then(|s| {
+            s.lines()
+                .find(|l| l.starts_with("VmRSS"))
+                .map(|l| l.to_string())
+        })
+        .and_then(|l| {
+            l.split_whitespace()
+                .nth(1)
+                .and_then(|v| v.parse::<f64>().ok())
+        })
         .unwrap_or(0.0)
         / 1024.0
 }
@@ -33,7 +44,11 @@ fn eval_real_models() {
     let r0 = rss_mb();
     let t = Instant::now();
     let mut emb = Embedder::load(&d.join("campplus_zh-cn.onnx")).unwrap();
-    println!("campplus load {:?}, rss +{:.0} MB", t.elapsed(), rss_mb() - r0);
+    println!(
+        "campplus load {:?}, rss +{:.0} MB",
+        t.elapsed(),
+        rss_mb() - r0
+    );
     let people = ["fangjun", "leijun", "liudehua"];
     let sr = d.join("sr");
     let mut enrolled = Vec::new();
@@ -60,8 +75,14 @@ fn eval_real_models() {
             let e = emb.embed(&a).unwrap().unwrap();
             lat.push((t.elapsed().as_secs_f64() * 1000.0, a.len() as f64 / 16000.0));
             let scores: Vec<f32> = enrolled.iter().map(|m| cosine(m, &e)).collect();
-            let best = scores.iter().enumerate().fold(0, |b, (j, s)| if *s > scores[b] { j } else { b });
-            println!("{p} test {i}: {:?}", scores.iter().map(|s| format!("{s:.2}")).collect::<Vec<_>>());
+            let best = scores
+                .iter()
+                .enumerate()
+                .fold(0, |b, (j, s)| if *s > scores[b] { j } else { b });
+            println!(
+                "{p} test {i}: {:?}",
+                scores.iter().map(|s| format!("{s:.2}")).collect::<Vec<_>>()
+            );
             n += 1;
             if best == pi {
                 ok += 1;
@@ -104,7 +125,11 @@ fn eval_real_models() {
             let e = emb.embed(&echo(&wav(&f))).unwrap().unwrap();
             for (mi, m) in enrolled.iter().enumerate() {
                 let s = cosine(m, &e);
-                if mi == pi { me_scores.push(s) } else { other_scores.push(s) }
+                if mi == pi {
+                    me_scores.push(s)
+                } else {
+                    other_scores.push(s)
+                }
             }
         }
     }
@@ -113,13 +138,25 @@ fn eval_real_models() {
     println!("echo: same speaker min {min_me:.2}, other speakers max {max_other:.2}");
     let r1 = rss_mb();
     let t = Instant::now();
-    let mut sv = SenseVoice::load(&d.join("sensevoice.int8.onnx"), &d.join("sensevoice.tokens.txt")).unwrap();
-    println!("sensevoice load {:?}, rss +{:.0} MB", t.elapsed(), rss_mb() - r1);
+    let mut sv = SenseVoice::load(
+        &d.join("sensevoice.int8.onnx"),
+        &d.join("sensevoice.tokens.txt"),
+    )
+    .unwrap();
+    println!(
+        "sensevoice load {:?}, rss +{:.0} MB",
+        t.elapsed(),
+        rss_mb() - r1
+    );
     for l in ["zh", "en"] {
         let a = wav(&d.join(format!("{l}.wav")));
         let t = Instant::now();
         let text = sv.transcribe(&a, "auto").unwrap();
-        println!("{l} ({:.1}s audio) {:?}: {text}", a.len() as f64 / 16000.0, t.elapsed());
+        println!(
+            "{l} ({:.1}s audio) {:?}: {text}",
+            a.len() as f64 / 16000.0,
+            t.elapsed()
+        );
     }
     println!("peak rss {:.0} MB", rss_mb());
     drop(sv);

@@ -33,14 +33,18 @@ impl SenseVoice {
         let inv_std = floats(&get("inv_stddev"));
         let lfr_m = int("lfr_window_size", 7) as usize;
         let lfr_n = int("lfr_window_shift", 6) as usize;
-        let (lang_auto, lang_zh, lang_en) = (int("lang_auto", 0), int("lang_zh", 3), int("lang_en", 4));
+        let (lang_auto, lang_zh, lang_en) =
+            (int("lang_auto", 0), int("lang_zh", 3), int("lang_en", 4));
         let with_itn = int("with_itn", 14);
         drop(meta);
         if neg_mean.len() != 80 * lfr_m || inv_std.len() != neg_mean.len() {
             return Err("语音模型文件不完整".into());
         }
         let mut toks = Vec::new();
-        for line in std::fs::read_to_string(tokens).map_err(|e| e.to_string())?.lines() {
+        for line in std::fs::read_to_string(tokens)
+            .map_err(|e| e.to_string())?
+            .lines()
+        {
             let mut it = line.rsplitn(2, ' ');
             let id: usize = it.next().and_then(|x| x.parse().ok()).unwrap_or(toks.len());
             let sym = it.next().unwrap_or("").to_string();

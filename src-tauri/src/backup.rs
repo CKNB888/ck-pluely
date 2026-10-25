@@ -128,7 +128,14 @@ fn list_models(models_dir: &Path) -> Vec<(PathBuf, ModelEntry)> {
             let name = e.file_name().to_string_lossy().to_string();
             let size = e.metadata().map(|m| m.len()).unwrap_or(0);
             let sha = sha256_file(&p).unwrap_or_default();
-            v.push((p, ModelEntry { file: name, size, sha256: sha }));
+            v.push((
+                p,
+                ModelEntry {
+                    file: name,
+                    size,
+                    sha256: sha,
+                },
+            ));
         }
     }
     v.sort_by(|a, b| a.1.file.cmp(&b.1.file));
@@ -144,13 +151,15 @@ pub fn write_archive(
     app_version: &str,
     opts: &ExportOptions,
 ) -> Result<ExportSummary, String> {
-    serde_json::from_str::<serde_json::Value>(settings_json).map_err(|e| format!("设置数据无效：{e}"))?;
+    serde_json::from_str::<serde_json::Value>(settings_json)
+        .map_err(|e| format!("设置数据无效：{e}"))?;
     let tmp_dir = std::env::temp_dir().join(format!("ckbak-{}", uuid::Uuid::new_v4()));
     std::fs::create_dir_all(&tmp_dir).map_err(|e| e.to_string())?;
     let result = (|| {
         // (zip 内名称, 本地文件)
         let mut files: Vec<(String, PathBuf)> = Vec::new();
-        let mut blobs: Vec<(String, Vec<u8>)> = vec![("settings.json".into(), settings_json.as_bytes().to_vec())];
+        let mut blobs: Vec<(String, Vec<u8>)> =
+            vec![("settings.json".into(), settings_json.as_bytes().to_vec())];
         if db.exists() {
             let snap = tmp_dir.join("db.sqlite");
             snapshot_db(db, &snap)?;
@@ -166,7 +175,10 @@ pub fn write_archive(
         }
         let models = list_models(&data_dir.join("models"));
         let list: Vec<&ModelEntry> = models.iter().map(|m| &m.1).collect();
-        blobs.push(("models.json".into(), serde_json::to_vec_pretty(&list).unwrap()));
+        blobs.push((
+            "models.json".into(),
+            serde_json::to_vec_pretty(&list).unwrap(),
+        ));
         if opts.include_models {
             for (p, m) in &models {
                 files.push((format!("models/{}", m.file), p.clone()));
@@ -205,15 +217,22 @@ pub fn write_archive(
             let stored = zip::write::SimpleFileOptions::default()
                 .compression_method(zip::CompressionMethod::Stored)
                 .large_file(true);
-            z.start_file("manifest.json", deflate).map_err(|e| e.to_string())?;
-            z.write_all(&serde_json::to_vec_pretty(&manifest).unwrap()).map_err(|e| e.to_string())?;
+            z.start_file("manifest.json", deflate)
+                .map_err(|e| e.to_string())?;
+            z.write_all(&serde_json::to_vec_pretty(&manifest).unwrap())
+                .map_err(|e| e.to_string())?;
             for (n, b) in &blobs {
-                z.start_file(n.as_str(), deflate).map_err(|e| e.to_string())?;
+                z.start_file(n.as_str(), deflate)
+                    .map_err(|e| e.to_string())?;
                 z.write_all(b).map_err(|e| e.to_string())?;
             }
             for (n, p) in &files {
                 // 模型本身已压缩，存储即可，省时间
-                let o = if n.starts_with("models/") { stored } else { deflate };
+                let o = if n.starts_with("models/") {
+                    stored
+                } else {
+                    deflate
+                };
                 z.start_file(n.as_str(), o).map_err(|e| e.to_string())?;
                 let mut f = File::open(p).map_err(|e| e.to_string())?;
                 std::io::copy(&mut f, &mut z).map_err(|e| e.to_string())?;
@@ -222,7 +241,11 @@ pub fn write_archive(
         }
         std::fs::rename(&part, out).map_err(|e| e.to_string())?;
         let bytes = std::fs::metadata(out).map(|m| m.len()).unwrap_or(0);
-        Ok(ExportSummary { path: out.to_string_lossy().into(), bytes, contents: manifest.contents })
+        Ok(ExportSummary {
+            path: out.to_string_lossy().into(),
+            bytes,
+            contents: manifest.contents,
+        })
     })();
     let _ = std::fs::remove_dir_all(&tmp_dir);
     result
@@ -240,7 +263,9 @@ pub fn inspect_archive(path: &Path, staging: &Path) -> Result<Inspection, String
     let f = File::open(path).map_err(|e| format!("无法打开备份文件：{e}"))?;
     let mut z = zip::ZipArchive::new(f).map_err(|_| "不是有效的备份文件".to_string())?;
     let manifest: Manifest = {
-        let mut m = z.by_name("manifest.json").map_err(|_| "备份文件缺少清单（manifest.json）".to_string())?;
+        let mut m = z
+            .by_name("manifest.json")
+            .map_err(|_| "备份文件缺少清单（manifest.json）".to_string())?;
         let mut s = String::new();
         m.read_to_string(&mut s).map_err(|e| e.to_string())?;
         serde_json::from_str(&s).map_err(|e| format!("清单无法解析：{e}"))?
@@ -282,16 +307,24 @@ pub fn inspect_archive(path: &Path, staging: &Path) -> Result<Inspection, String
     let mut db_counts = BTreeMap::new();
     let db = staging.join("db.sqlite");
     if db.exists() {
-        let c = rusqlite::Connection::open_with_flags(&db, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
-            .map_err(|e| format!("备份中的数据库无法打开：{e}"))?;
+        let c =
+            rusqlite::Connection::open_with_flags(&db, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
+                .map_err(|e| format!("备份中的数据库无法打开：{e}"))?;
         for t in TABLES {
-            if let Ok(n) = c.query_row(&format!("SELECT COUNT(*) FROM \"{t}\""), [], |r| r.get::<_, i64>(0)) {
+            if let Ok(n) = c.query_row(&format!("SELECT COUNT(*) FROM \"{t}\""), [], |r| {
+                r.get::<_, i64>(0)
+            }) {
                 db_counts.insert(t.to_string(), n);
             }
         }
     }
-    let models: Vec<ModelEntry> = read("models.json").and_then(|s| serde_json::from_str(&s).ok()).unwrap_or_default();
-    let model_files_included = !models.is_empty() && models.iter().all(|m| staging.join("models").join(&m.file).exists());
+    let models: Vec<ModelEntry> = read("models.json")
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let model_files_included = !models.is_empty()
+        && models
+            .iter()
+            .all(|m| staging.join("models").join(&m.file).exists());
     Ok(Inspection {
         staging: staging.to_string_lossy().into(),
         newer_than_app: manifest.schema_version > SCHEMA_VERSION,
@@ -319,18 +352,28 @@ fn columns(c: &rusqlite::Connection, schema: &str, t: &str) -> Vec<String> {
 /// 用备份中的数据库替换当前的记录与提示词：一个事务内完成，任何一步失败都回滚。
 /// 只复制两边都有的列，所以旧备份（列更少）和新备份（多出的列）都能导入。
 /// `merge = true` 时保留现有数据、按主键覆盖；否则先清空再导入。
-pub fn apply_db(main_db: &Path, staged_db: &Path, merge: bool) -> Result<BTreeMap<String, i64>, String> {
+pub fn apply_db(
+    main_db: &Path,
+    staged_db: &Path,
+    merge: bool,
+) -> Result<BTreeMap<String, i64>, String> {
     let mut c = rusqlite::Connection::open(main_db).map_err(|e| format!("打开数据库失败：{e}"))?;
     c.busy_timeout(std::time::Duration::from_secs(10)).ok();
-    c.execute("ATTACH DATABASE ?1 AS bak", [staged_db.to_string_lossy().as_ref()])
-        .map_err(|e| format!("读取备份数据库失败：{e}"))?;
+    c.execute(
+        "ATTACH DATABASE ?1 AS bak",
+        [staged_db.to_string_lossy().as_ref()],
+    )
+    .map_err(|e| format!("读取备份数据库失败：{e}"))?;
     let res = (|| {
-        let tx = c.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate).map_err(|e| e.to_string())?;
+        let tx = c
+            .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)
+            .map_err(|e| e.to_string())?;
         let mut counts = BTreeMap::new();
         if !merge {
             for t in TABLES.iter().rev() {
                 if !columns(&tx, "main", t).is_empty() {
-                    tx.execute(&format!("DELETE FROM main.\"{t}\""), []).map_err(|e| format!("清空 {t} 失败：{e}"))?;
+                    tx.execute(&format!("DELETE FROM main.\"{t}\""), [])
+                        .map_err(|e| format!("清空 {t} 失败：{e}"))?;
                 }
             }
         }
@@ -340,7 +383,11 @@ pub fn apply_db(main_db: &Path, staged_db: &Path, merge: bool) -> Result<BTreeMa
             if main_cols.is_empty() || bak_cols.is_empty() {
                 continue;
             }
-            let common: Vec<String> = main_cols.into_iter().filter(|c| bak_cols.contains(c)).map(|c| format!("\"{c}\"")).collect();
+            let common: Vec<String> = main_cols
+                .into_iter()
+                .filter(|c| bak_cols.contains(c))
+                .map(|c| format!("\"{c}\""))
+                .collect();
             if common.is_empty() {
                 continue;
             }
@@ -360,10 +407,17 @@ pub fn apply_db(main_db: &Path, staged_db: &Path, merge: bool) -> Result<BTreeMa
 /// 只保留最近 `keep` 个自动备份。
 pub fn prune(dir: &Path, prefix: &str, keep: usize) {
     let mut v: Vec<PathBuf> = std::fs::read_dir(dir)
-        .map(|rd| rd.flatten().map(|e| e.path()).filter(|p| {
-            p.file_name().map(|n| n.to_string_lossy().starts_with(prefix)).unwrap_or(false)
-                && p.extension().map(|x| x == "ckbak").unwrap_or(false)
-        }).collect())
+        .map(|rd| {
+            rd.flatten()
+                .map(|e| e.path())
+                .filter(|p| {
+                    p.file_name()
+                        .map(|n| n.to_string_lossy().starts_with(prefix))
+                        .unwrap_or(false)
+                        && p.extension().map(|x| x == "ckbak").unwrap_or(false)
+                })
+                .collect()
+        })
         .unwrap_or_default();
     v.sort();
     while v.len() > keep {
@@ -371,13 +425,16 @@ pub fn prune(dir: &Path, prefix: &str, keep: usize) {
     }
 }
 
-
 // ---------------- Tauri 命令 ----------------
 use tauri::{AppHandle, Manager, Runtime};
 
 fn db_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     // tauri-plugin-sql 把 sqlite:pluely.db 放在 app_config_dir
-    Ok(app.path().app_config_dir().map_err(|e| e.to_string())?.join("pluely.db"))
+    Ok(app
+        .path()
+        .app_config_dir()
+        .map_err(|e| e.to_string())?
+        .join("pluely.db"))
 }
 fn data_dir<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     app.path().app_data_dir().map_err(|e| e.to_string())
@@ -410,7 +467,10 @@ pub async fn ck_backup_export<R: Runtime>(
                 return Err("备份类型无效".into());
             }
             let prefix = format!("{k}-");
-            (auto_dir(&app)?.join(format!("{prefix}{}-v{ver}.ckbak", stamp())), Some(prefix))
+            (
+                auto_dir(&app)?.join(format!("{prefix}{}-v{ver}.ckbak", stamp())),
+                Some(prefix),
+            )
         }
     };
     let r = tauri::async_runtime::spawn_blocking(move || {
@@ -426,8 +486,15 @@ pub async fn ck_backup_export<R: Runtime>(
 }
 
 #[tauri::command]
-pub async fn ck_backup_inspect<R: Runtime>(app: AppHandle<R>, path: String) -> Result<Inspection, String> {
-    let staging = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("restore-staging");
+pub async fn ck_backup_inspect<R: Runtime>(
+    app: AppHandle<R>,
+    path: String,
+) -> Result<Inspection, String> {
+    let staging = app
+        .path()
+        .app_cache_dir()
+        .map_err(|e| e.to_string())?
+        .join("restore-staging");
     tauri::async_runtime::spawn_blocking(move || inspect_archive(Path::new(&path), &staging))
         .await
         .map_err(|e| e.to_string())?
@@ -453,8 +520,15 @@ fn yes() -> bool {
 
 /// 应用已校验的暂存数据。数据库在事务中替换；其余文件先写临时名再改名。
 #[tauri::command]
-pub async fn ck_backup_apply<R: Runtime>(app: AppHandle<R>, options: ApplyOptions) -> Result<BTreeMap<String, i64>, String> {
-    let staging = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("restore-staging");
+pub async fn ck_backup_apply<R: Runtime>(
+    app: AppHandle<R>,
+    options: ApplyOptions,
+) -> Result<BTreeMap<String, i64>, String> {
+    let staging = app
+        .path()
+        .app_cache_dir()
+        .map_err(|e| e.to_string())?
+        .join("restore-staging");
     if !staging.join("settings.json").exists() {
         return Err("没有待恢复的备份，请重新选择文件".into());
     }
@@ -462,26 +536,27 @@ pub async fn ck_backup_apply<R: Runtime>(app: AppHandle<R>, options: ApplyOption
     let data = data_dir(&app)?;
     let st = staging.clone();
     let o = options.clone();
-    let counts = tauri::async_runtime::spawn_blocking(move || -> Result<BTreeMap<String, i64>, String> {
-        let mut counts = BTreeMap::new();
-        if o.database && st.join("db.sqlite").exists() && db.exists() {
-            counts = apply_db(&db, &st.join("db.sqlite"), o.merge)?;
-        }
-        if o.models {
-            let md = data.join("models");
-            std::fs::create_dir_all(&md).map_err(|e| e.to_string())?;
-            if let Ok(rd) = std::fs::read_dir(st.join("models")) {
-                for e in rd.flatten() {
-                    let tmp = md.join(format!("{}.part", e.file_name().to_string_lossy()));
-                    std::fs::copy(e.path(), &tmp).map_err(|e| format!("恢复模型失败：{e}"))?;
-                    std::fs::rename(&tmp, md.join(e.file_name())).map_err(|e| e.to_string())?;
+    let counts =
+        tauri::async_runtime::spawn_blocking(move || -> Result<BTreeMap<String, i64>, String> {
+            let mut counts = BTreeMap::new();
+            if o.database && st.join("db.sqlite").exists() && db.exists() {
+                counts = apply_db(&db, &st.join("db.sqlite"), o.merge)?;
+            }
+            if o.models {
+                let md = data.join("models");
+                std::fs::create_dir_all(&md).map_err(|e| e.to_string())?;
+                if let Ok(rd) = std::fs::read_dir(st.join("models")) {
+                    for e in rd.flatten() {
+                        let tmp = md.join(format!("{}.part", e.file_name().to_string_lossy()));
+                        std::fs::copy(e.path(), &tmp).map_err(|e| format!("恢复模型失败：{e}"))?;
+                        std::fs::rename(&tmp, md.join(e.file_name())).map_err(|e| e.to_string())?;
+                    }
                 }
             }
-        }
-        Ok(counts)
-    })
-    .await
-    .map_err(|e| e.to_string())??;
+            Ok(counts)
+        })
+        .await
+        .map_err(|e| e.to_string())??;
 
     if let Some(state) = app.try_state::<crate::local::engine::LocalState>() {
         if options.local_settings {
@@ -493,7 +568,8 @@ pub async fn ck_backup_apply<R: Runtime>(app: AppHandle<R>, options: ApplyOption
         }
         if options.voiceprint {
             if let Ok(b) = std::fs::read(staging.join("voiceprint.json")) {
-                let emb = crate::local::engine::parse_voiceprint(&b).ok_or("备份中的声纹无法读取")?;
+                let emb =
+                    crate::local::engine::parse_voiceprint(&b).ok_or("备份中的声纹无法读取")?;
                 crate::local::engine::store_voiceprint(&state, emb)?;
             }
         }
@@ -503,7 +579,11 @@ pub async fn ck_backup_apply<R: Runtime>(app: AppHandle<R>, options: ApplyOption
 
 #[tauri::command]
 pub fn ck_backup_discard<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
-    let staging = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("restore-staging");
+    let staging = app
+        .path()
+        .app_cache_dir()
+        .map_err(|e| e.to_string())?
+        .join("restore-staging");
     let _ = std::fs::remove_dir_all(staging);
     Ok(())
 }
@@ -557,14 +637,18 @@ mod tests {
 
     fn make_db(p: &Path, v1: bool) {
         let c = rusqlite::Connection::open(p).unwrap();
-        c.execute_batch(include_str!("db/migrations/system-prompts.sql")).unwrap();
+        c.execute_batch(include_str!("db/migrations/system-prompts.sql"))
+            .unwrap();
         if v1 {
             // v1.0.x：会话表没有后来可能新增的列，这里用完整建表脚本即可
-            c.execute_batch(include_str!("db/migrations/chat-history.sql")).unwrap();
+            c.execute_batch(include_str!("db/migrations/chat-history.sql"))
+                .unwrap();
         } else {
-            c.execute_batch(include_str!("db/migrations/chat-history.sql")).unwrap();
+            c.execute_batch(include_str!("db/migrations/chat-history.sql"))
+                .unwrap();
             // 模拟未来版本多出的列：导入旧版本时应被忽略
-            c.execute_batch("ALTER TABLE conversations ADD COLUMN pinned INTEGER DEFAULT 0;").unwrap();
+            c.execute_batch("ALTER TABLE conversations ADD COLUMN pinned INTEGER DEFAULT 0;")
+                .unwrap();
         }
     }
 
@@ -583,14 +667,31 @@ mod tests {
         make_db(&db, true);
         {
             let c = rusqlite::Connection::open(&db).unwrap();
-            c.execute("INSERT INTO system_prompts(name,prompt) VALUES('课堂','先结论')", []).unwrap();
-            c.execute("INSERT INTO conversations VALUES('c1','第一节',1,1)", []).unwrap();
-            c.execute("INSERT INTO messages VALUES('m1','c1','user','什么是导数？',2,NULL)", []).unwrap();
+            c.execute(
+                "INSERT INTO system_prompts(name,prompt) VALUES('课堂','先结论')",
+                [],
+            )
+            .unwrap();
+            c.execute("INSERT INTO conversations VALUES('c1','第一节',1,1)", [])
+                .unwrap();
+            c.execute(
+                "INSERT INTO messages VALUES('m1','c1','user','什么是导数？',2,NULL)",
+                [],
+            )
+            .unwrap();
         }
-        std::fs::write(data.join("voiceprint.json"), br#"{"version":1,"model":"campplus_zh-cn","created":1,"embedding":[0.1,0.2]}"#).unwrap();
+        std::fs::write(
+            data.join("voiceprint.json"),
+            br#"{"version":1,"model":"campplus_zh-cn","created":1,"embedding":[0.1,0.2]}"#,
+        )
+        .unwrap();
         std::fs::write(data.join("models/tiny.onnx"), b"model-bytes").unwrap();
         let out = d.join("a.ckbak");
-        let opts = ExportOptions { include_voiceprint: true, include_models: false, secrets_enc: Some("{\"v\":1}".into()) };
+        let opts = ExportOptions {
+            include_voiceprint: true,
+            include_models: false,
+            secrets_enc: Some("{\"v\":1}".into()),
+        };
         let s = write_archive(&out, &db, &data, r#"{"theme":"dark"}"#, "2.1.0", &opts).unwrap();
         assert!(s.contents.contains(&"db.sqlite".to_string()));
         assert!(!s.contents.iter().any(|c| c.starts_with("models/")));
@@ -606,11 +707,19 @@ mod tests {
         // 恢复到一个已有其他数据的新库
         let db2 = d.join("new.db");
         make_db(&db2, false);
-        rusqlite::Connection::open(&db2).unwrap().execute("INSERT INTO conversations(id,title,created_at,updated_at) VALUES('x','旧',1,1)", []).unwrap();
+        rusqlite::Connection::open(&db2)
+            .unwrap()
+            .execute(
+                "INSERT INTO conversations(id,title,created_at,updated_at) VALUES('x','旧',1,1)",
+                [],
+            )
+            .unwrap();
         let n = apply_db(&db2, &d.join("stage/db.sqlite"), false).unwrap();
         assert_eq!(n["messages"], 1);
         let c = rusqlite::Connection::open(&db2).unwrap();
-        let titles: i64 = c.query_row("SELECT COUNT(*) FROM conversations", [], |r| r.get(0)).unwrap();
+        let titles: i64 = c
+            .query_row("SELECT COUNT(*) FROM conversations", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(titles, 1, "replace mode clears old rows");
         let _ = std::fs::remove_dir_all(&d);
     }
@@ -621,7 +730,15 @@ mod tests {
         let data = d.join("data");
         std::fs::create_dir_all(&data).unwrap();
         let out = d.join("a.ckbak");
-        write_archive(&out, &d.join("none.db"), &data, "{}", "2.1.0", &ExportOptions::default()).unwrap();
+        write_archive(
+            &out,
+            &d.join("none.db"),
+            &data,
+            "{}",
+            "2.1.0",
+            &ExportOptions::default(),
+        )
+        .unwrap();
         // 改写 settings.json 但不改清单
         let f = File::open(&out).unwrap();
         let mut z = zip::ZipArchive::new(f).unwrap();
@@ -634,7 +751,8 @@ mod tests {
             if e.name() == "settings.json" {
                 buf = b"{\"x\":1}".to_vec();
             }
-            w.start_file(e.name(), zip::write::SimpleFileOptions::default()).unwrap();
+            w.start_file(e.name(), zip::write::SimpleFileOptions::default())
+                .unwrap();
             w.write_all(&buf).unwrap();
         }
         w.finish().unwrap();
@@ -649,7 +767,10 @@ mod tests {
         let d = tmp("rb");
         let db = d.join("main.db");
         make_db(&db, true);
-        rusqlite::Connection::open(&db).unwrap().execute("INSERT INTO conversations VALUES('keep','保留',1,1)", []).unwrap();
+        rusqlite::Connection::open(&db)
+            .unwrap()
+            .execute("INSERT INTO conversations VALUES('keep','保留',1,1)", [])
+            .unwrap();
         // 备份库里的 messages.role 违反 CHECK 约束 → 插入失败，前面的 DELETE 也必须回滚
         let bak = d.join("bak.db");
         let c = rusqlite::Connection::open(&bak).unwrap();
@@ -660,7 +781,9 @@ mod tests {
         drop(c);
         assert!(apply_db(&db, &bak, false).is_err());
         let c = rusqlite::Connection::open(&db).unwrap();
-        let id: String = c.query_row("SELECT id FROM conversations", [], |r| r.get(0)).unwrap();
+        let id: String = c
+            .query_row("SELECT id FROM conversations", [], |r| r.get(0))
+            .unwrap();
         assert_eq!(id, "keep");
         let _ = std::fs::remove_dir_all(&d);
     }

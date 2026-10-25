@@ -92,7 +92,12 @@ pub const MAX_STUDENTS: usize = 12;
 
 impl Labeler {
     pub fn new(me: Option<Vec<f32>>, me_threshold: f32) -> Self {
-        Self { me, me_threshold, cluster_threshold: 0.5, students: Vec::new() }
+        Self {
+            me,
+            me_threshold,
+            cluster_threshold: 0.5,
+            students: Vec::new(),
+        }
     }
 
     pub fn reset_students(&mut self) {
@@ -100,7 +105,11 @@ impl Labeler {
     }
 
     pub fn label(&mut self, emb: &[f32]) -> (Speaker, f32) {
-        let best_student = self.students.iter().map(|(c, _)| cosine(c, emb)).fold(f32::MIN, f32::max);
+        let best_student = self
+            .students
+            .iter()
+            .map(|(c, _)| cosine(c, emb))
+            .fold(f32::MIN, f32::max);
         if let Some(me) = &self.me {
             let s = cosine(me, emb);
             // A voice that fits a known student clearly better (by 0.1) is
@@ -165,7 +174,11 @@ mod tests {
         assert_eq!(l.label(&unit(0)).0, Speaker::Me);
         assert_eq!(l.label(&unit(1)).0, Speaker::Student(1));
         assert_eq!(l.label(&unit(2)).0, Speaker::Student(2));
-        assert_eq!(l.label(&normalize(vec![0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])).0, Speaker::Student(1));
+        assert_eq!(
+            l.label(&normalize(vec![0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
+                .0,
+            Speaker::Student(1)
+        );
         l.reset_students();
         assert_eq!(l.label(&unit(2)).0, Speaker::Student(1));
     }

@@ -2,6 +2,8 @@
 use super::AudioDevice;
 use anyhow::{anyhow, Result};
 use futures_util::Stream;
+use libpulse_binding as pulse;
+use libpulse_simple_binding as psimple;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
@@ -10,8 +12,6 @@ use std::task::{Poll, Waker};
 use std::thread;
 use tracing::error;
 use tracing::warn;
-use libpulse_binding as pulse;
-use libpulse_simple_binding as psimple;
 
 use psimple::Simple;
 use pulse::context::Context;
@@ -228,6 +228,8 @@ pub struct SpeakerInput {
 
 impl SpeakerInput {
     pub fn new(device_id: Option<String>) -> Result<Self> {
+        // PulseAudio 按应用录音需要用户在 pavucontrol 里选择，这里统一录整机系统声音
+        crate::meeting::set_mode("system");
         // For Linux, device_id is the PulseAudio sink name for output devices
         let source_name = match device_id {
             Some(ref id) if !id.is_empty() && id != "default" => {

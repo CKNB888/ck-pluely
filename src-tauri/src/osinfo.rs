@@ -30,7 +30,10 @@ pub struct Strategy {
 }
 
 pub fn parse_version(v: &str) -> (u32, u32) {
-    let mut it = v.trim().split('.').map(|p| p.trim().parse::<u32>().unwrap_or(0));
+    let mut it = v
+        .trim()
+        .split('.')
+        .map(|p| p.trim().parse::<u32>().unwrap_or(0));
     (it.next().unwrap_or(0), it.next().unwrap_or(0))
 }
 
@@ -60,7 +63,10 @@ pub fn windows_strategy(build: u32) -> Strategy {
     } else if build >= 7600 {
         (CaptureProtection::Monitor, "此 Windows 版本低于 10 2004：只能使用 WDA_MONITOR，共享画面中本窗口位置会显示为黑块（对方能看到有个黑框）。建议升级系统，或共享前按「一键隐藏」。")
     } else {
-        (CaptureProtection::None, "未能识别 Windows 版本，无法保证防录屏，请共享前按「一键隐藏」。")
+        (
+            CaptureProtection::None,
+            "未能识别 Windows 版本，无法保证防录屏，请共享前按「一键隐藏」。",
+        )
     };
     Strategy {
         protection,
@@ -92,7 +98,10 @@ pub fn os_version() -> String {
                 return s;
             }
         }
-        if let Ok(o) = std::process::Command::new("sw_vers").arg("-productVersion").output() {
+        if let Ok(o) = std::process::Command::new("sw_vers")
+            .arg("-productVersion")
+            .output()
+        {
             return String::from_utf8_lossy(&o.stdout).trim().to_string();
         }
     }
@@ -282,11 +291,26 @@ mod tests {
 
     #[test]
     fn windows_builds_map_to_protection() {
-        assert_eq!(windows_strategy(26100).protection, CaptureProtection::Exclude); // Win11 24H2
-        assert_eq!(windows_strategy(19041).protection, CaptureProtection::Exclude); // 10 2004
-        assert_eq!(windows_strategy(18363).protection, CaptureProtection::Monitor); // 10 1909
-        assert_eq!(windows_strategy(9600).protection, CaptureProtection::Monitor); // 8.1
-        assert_eq!(windows_strategy(7601).protection, CaptureProtection::Monitor); // 7 SP1
+        assert_eq!(
+            windows_strategy(26100).protection,
+            CaptureProtection::Exclude
+        ); // Win11 24H2
+        assert_eq!(
+            windows_strategy(19041).protection,
+            CaptureProtection::Exclude
+        ); // 10 2004
+        assert_eq!(
+            windows_strategy(18363).protection,
+            CaptureProtection::Monitor
+        ); // 10 1909
+        assert_eq!(
+            windows_strategy(9600).protection,
+            CaptureProtection::Monitor
+        ); // 8.1
+        assert_eq!(
+            windows_strategy(7601).protection,
+            CaptureProtection::Monitor
+        ); // 7 SP1
         assert_eq!(windows_strategy(0).protection, CaptureProtection::None);
     }
 
@@ -299,7 +323,10 @@ mod tests {
         let s15 = mac_strategy(15, 0);
         assert!(s15.notch_api && s15.sck_caveat);
         assert!(s15.notes.iter().any(|n| n.contains("ScreenCaptureKit")));
-        assert_eq!(mac_strategy(26, 0).protection, CaptureProtection::SharingNone);
+        assert_eq!(
+            mac_strategy(26, 0).protection,
+            CaptureProtection::SharingNone
+        );
     }
 
     #[test]
@@ -323,7 +350,10 @@ mod tests {
     fn parses_reg_output() {
         let allow = "\r\nHKEY_CURRENT_USER\\...\\microphone\r\n    Value    REG_SZ    Allow\r\n";
         assert_eq!(mic_consent_from_reg(allow), "granted");
-        assert_eq!(mic_consent_from_reg("    Value    REG_SZ    Deny"), "denied");
+        assert_eq!(
+            mic_consent_from_reg("    Value    REG_SZ    Deny"),
+            "denied"
+        );
         assert_eq!(mic_consent_from_reg("ERROR: not found"), "unknown");
     }
 }

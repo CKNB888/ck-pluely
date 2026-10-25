@@ -185,7 +185,37 @@ impl SpeakerStream {
         init_tx: mpsc::Sender<Result<u32>>,
         device_id: Option<String>,
     ) -> Result<()> {
-        let init_result = (|| -> Result<_> {
+        // 识别到会议软件时只录它的声音（进程环回，Windows 10 2004+，含子进程）；
+        // 不支持或失败时退回整机系统声音
+        let process_result = (|| -> Result<_> {
+            let d = crate::meeting::current().ok_or_else(|| anyhow::anyhow!("no meeting app"))?;
+            let pid = *d.pids.first().ok_or_else(|| anyhow::anyhow!("no pid"))?;
+            let mut audio_client = wasapi::AudioClient::new_application_loopback_client(pid, true)
+                .map_err(|e| anyhow::anyhow!("process loopback: {e}"))?;
+            let rate = 48000u32;
+            let format = WaveFormat::new(32, 32, &SampleType::Float, rate as usize, 1, None);
+            let mode = StreamMode::EventsShared {
+                autoconvert: true,
+                buffer_duration_hns: 200_000,
+            };
+            audio_client.initialize_client(&format, &Direction::Capture, &mode)?;
+            let h_event = audio_client.set_get_eventhandle()?;
+            let capture_client = audio_client.get_audiocaptureclient()?;
+            audio_client.start_stream()?;
+            crate::startup::log(&format!("{}: process loopback pid {pid}", d.name));
+            Ok((h_event, capture_client, rate))
+        })();
+        if let Err(e) = &process_result {
+            crate::startup::log(&format!(
+                "process loopback unavailable ({e}), using system audio"
+            ));
+        }
+        crate::meeting::set_mode(if process_result.is_ok() {
+            "process"
+        } else {
+            "system"
+        });
+        let init_result = process_result.or_else(|_| (|| -> Result<_> {
             let device = match device_id {
                 Some(ref id) => match find_device_by_id(&Direction::Render, id) {
                     Some(d) => d,
@@ -219,7 +249,7 @@ impl SpeakerStream {
             audio_client.start_stream()?;
 
             Ok((h_event, render_client, actual_rate))
-        })();
+        })());
 
         match init_result {
             Ok((h_event, render_client, sample_rate)) => {

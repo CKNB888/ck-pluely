@@ -381,7 +381,12 @@ pub fn vision_png_base64(img: image::RgbaImage) -> Result<String, String> {
     let img = downscale_for_vision(img);
     let mut png_buffer = Vec::new();
     PngEncoder::new(&mut png_buffer)
-        .write_image(img.as_raw(), img.width(), img.height(), ColorType::Rgba8.into())
+        .write_image(
+            img.as_raw(),
+            img.width(),
+            img.height(),
+            ColorType::Rgba8.into(),
+        )
         .map_err(|e| format!("截图编码失败：{}", e))?;
     Ok(base64::engine::general_purpose::STANDARD.encode(png_buffer))
 }

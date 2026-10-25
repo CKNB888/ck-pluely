@@ -34,14 +34,17 @@ pub fn ck_export_notes(name: String, content: String) -> Result<String, String> 
 }
 
 fn dirs_docs() -> Option<PathBuf> {
-    let home = std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" }).map(PathBuf::from)?;
+    let home =
+        std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" }).map(PathBuf::from)?;
     #[cfg(target_os = "linux")]
     {
         // honour XDG user-dirs when set
         if let Ok(cfg) = std::fs::read_to_string(home.join(".config/user-dirs.dirs")) {
             for line in cfg.lines() {
                 if let Some(v) = line.strip_prefix("XDG_DOCUMENTS_DIR=") {
-                    let v = v.trim_matches('"').replace("$HOME", &home.to_string_lossy());
+                    let v = v
+                        .trim_matches('"')
+                        .replace("$HOME", &home.to_string_lossy());
                     let p = PathBuf::from(v);
                     if p.is_dir() {
                         return Some(p);
@@ -77,7 +80,11 @@ pub struct UpdateInfo {
 }
 
 fn parse_ver(v: &str) -> Vec<u64> {
-    v.trim_start_matches('v').split(['.', '-']).take(3).map(|x| x.parse().unwrap_or(0)).collect()
+    v.trim_start_matches('v')
+        .split(['.', '-'])
+        .take(3)
+        .map(|x| x.parse().unwrap_or(0))
+        .collect()
 }
 
 /// Compare with the latest CKNB888/ck-pluely release (read-only GitHub API).
@@ -98,9 +105,16 @@ pub async fn ck_check_update() -> Result<UpdateInfo, String> {
     }
     let j: serde_json::Value = r.json().await.map_err(|e| e.to_string())?;
     let tag = j["tag_name"].as_str().unwrap_or_default().to_string();
-    let url = j["html_url"].as_str().unwrap_or("https://github.com/CKNB888/ck-pluely/releases").to_string();
+    let url = j["html_url"]
+        .as_str()
+        .unwrap_or("https://github.com/CKNB888/ck-pluely/releases")
+        .to_string();
     let newer = parse_ver(&tag) > parse_ver(env!("CARGO_PKG_VERSION"));
-    Ok(UpdateInfo { version: tag, url, newer })
+    Ok(UpdateInfo {
+        version: tag,
+        url,
+        newer,
+    })
 }
 
 #[cfg(test)]

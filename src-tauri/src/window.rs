@@ -75,7 +75,11 @@ pub fn ensure_on_screen<R: Runtime>(window: &WebviewWindow<R>) {
     if visible {
         return;
     }
-    let target = window.primary_monitor().ok().flatten().or_else(|| monitors.into_iter().next());
+    let target = window
+        .primary_monitor()
+        .ok()
+        .flatten()
+        .or_else(|| monitors.into_iter().next());
     if let Some(m) = target {
         let (mp, ms) = (m.position(), m.size());
         let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
@@ -305,7 +309,9 @@ pub fn ck_move_bar_to_screen(app: tauri::AppHandle, target: String) -> Result<St
         return Err("没有检测到显示器".into());
     }
     let current = w.current_monitor().ok().flatten();
-    let same = |a: &tauri::Monitor, b: &tauri::Monitor| a.position() == b.position() && a.size() == b.size();
+    let same = |a: &tauri::Monitor, b: &tauri::Monitor| {
+        a.position() == b.position() && a.size() == b.size()
+    };
     let pick = match target.as_str() {
         "primary" => w.primary_monitor().ok().flatten(),
         "next" => {
@@ -336,7 +342,10 @@ pub fn ck_move_bar_to_screen(app: tauri::AppHandle, target: String) -> Result<St
     let y = mp.y + (40.0 * pick.scale_factor()) as i32;
     w.set_position(tauri::Position::Physical(tauri::PhysicalPosition { x, y }))
         .map_err(|e| e.to_string())?;
-    Ok(pick.name().cloned().unwrap_or_else(|| format!("{}x{}", ms.width, ms.height)))
+    Ok(pick
+        .name()
+        .cloned()
+        .unwrap_or_else(|| format!("{}x{}", ms.width, ms.height)))
 }
 
 /// Number of connected screens (to hide the screen picker on one monitor).

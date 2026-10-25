@@ -43,7 +43,8 @@ pub fn data_paths(
             home.join(".config").join(BUNDLE_ID),
             home.join(".local/share").join(BUNDLE_ID),
             home.join(".cache").join(BUNDLE_ID),
-            home.join(".config/autostart").join(format!("{PRODUCT}.desktop")),
+            home.join(".config/autostart")
+                .join(format!("{PRODUCT}.desktop")),
         ],
     }
 }
@@ -110,12 +111,18 @@ pub fn ck_full_uninstall(app: tauri::AppHandle, accounts: Vec<String>) -> Result
     #[cfg(target_os = "macos")]
     {
         if let Ok(exe) = std::env::current_exe() {
-            if let Some(bundle) = exe.ancestors().find(|a| a.extension().map(|e| e == "app").unwrap_or(false)) {
+            if let Some(bundle) = exe
+                .ancestors()
+                .find(|a| a.extension().map(|e| e == "app").unwrap_or(false))
+            {
                 let script = format!(
                     "tell application \"Finder\" to delete (POSIX file \"{}\" as alias)",
                     bundle.display().to_string().replace('"', "")
                 );
-                let _ = std::process::Command::new("osascript").arg("-e").arg(script).spawn();
+                let _ = std::process::Command::new("osascript")
+                    .arg("-e")
+                    .arg(script)
+                    .spawn();
             }
         }
     }
@@ -174,7 +181,10 @@ mod tests {
             Some(Path::new("C:/Users/u/AppData/Roaming")),
             Some(Path::new("C:/Users/u/AppData/Local")),
         );
-        let s: Vec<_> = p.iter().map(|x| x.to_string_lossy().replace('\\', "/")).collect();
+        let s: Vec<_> = p
+            .iter()
+            .map(|x| x.to_string_lossy().replace('\\', "/"))
+            .collect();
         assert_eq!(
             s,
             vec![
@@ -188,7 +198,9 @@ mod tests {
     fn macos_paths_inside_library() {
         let p = data_paths("macos", Path::new("/Users/u"), None, None);
         assert_eq!(p.len(), 8);
-        assert!(p.iter().all(|x| x.starts_with("/Users/u/Library") && is_safe(x)));
+        assert!(p
+            .iter()
+            .all(|x| x.starts_with("/Users/u/Library") && is_safe(x)));
     }
 
     /// Speech models, the voiceprint and local settings live in the app
@@ -196,13 +208,26 @@ mod tests {
     #[test]
     fn local_models_and_voiceprint_are_covered() {
         let cases = [
-            ("linux", "/home/u", "/home/u/.local/share/io.github.cknb6.ckpluely"),
-            ("macos", "/Users/u", "/Users/u/Library/Application Support/io.github.cknb6.ckpluely"),
+            (
+                "linux",
+                "/home/u",
+                "/home/u/.local/share/io.github.cknb6.ckpluely",
+            ),
+            (
+                "macos",
+                "/Users/u",
+                "/Users/u/Library/Application Support/io.github.cknb6.ckpluely",
+            ),
         ];
         for (os, home, data) in cases {
             let p = data_paths(os, Path::new(home), None, None);
             let data = Path::new(data);
-            for f in ["models/sensevoice.int8.onnx", "models/campplus_zh-cn.onnx", "voiceprint.json", "local.json"] {
+            for f in [
+                "models/sensevoice.int8.onnx",
+                "models/campplus_zh-cn.onnx",
+                "voiceprint.json",
+                "local.json",
+            ] {
                 assert!(p.iter().any(|d| data.join(f).starts_with(d)), "{os} {f}");
             }
         }

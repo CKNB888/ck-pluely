@@ -1,6 +1,7 @@
 //! 托盘面板：点击菜单栏 / 托盘图标弹出的功能面板（默认界面样式）。
 //! 面板是普通 WebView 窗口，和其它窗口一样加防录屏（macOS sharingType = none，
 //! Windows WDA_EXCLUDEFROMCAPTURE），因此不用 NSMenu —— NSMenu 无法防录屏。
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 #[cfg(target_os = "linux")]
 use tauri::menu::{Menu, MenuItem};
@@ -45,7 +46,11 @@ pub fn panel_origin(
     };
     let min_x = mx + 8.0 * scale;
     let max_x = mx + mw - w - 8.0 * scale;
-    let x = if max_x > min_x { x.clamp(min_x, max_x) } else { x };
+    let x = if max_x > min_x {
+        x.clamp(min_x, max_x)
+    } else {
+        x
+    };
     (x, y.max(my))
 }
 
@@ -68,16 +73,51 @@ fn ensure_panel<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<tauri::WebviewW
         .build()?;
     crate::privacy::harden(&w);
     let w2 = w.clone();
-    w.on_window_event(move |e| {
-        if let tauri::WindowEvent::Focused(false) = e {
+    w.on_window_event(move |e| match e {
+        // 只有用户真正点进过面板之后，失去焦点才收起；
+        // 否则启动时还没拿到焦点就会立刻被收起，看起来像「没反应」
+        tauri::WindowEvent::Focused(true) => FOCUSED_SINCE_SHOW.store(true, Ordering::SeqCst),
+        tauri::WindowEvent::Focused(false) if FOCUSED_SINCE_SHOW.swap(false, Ordering::SeqCst) => {
             let _ = w2.hide();
         }
+        _ => {}
     });
     Ok(w)
 }
 
+static FOCUSED_SINCE_SHOW: AtomicBool = AtomicBool::new(false);
+static TRAY_FAILED: AtomicBool = AtomicBool::new(false);
+
+pub fn set_tray_failed() {
+    TRAY_FAILED.store(true, Ordering::SeqCst);
+}
+
+/// 让用户看到应用：面板模式且托盘正常 → 弹出面板；否则显示悬浮条。
+/// 同时撤销「一键隐藏」状态（那只是给共享屏幕用的，不能让用户自己也找不到）。
+pub fn reveal<R: Runtime>(app: &AppHandle<R>) {
+    crate::privacy::clear_hidden_state();
+    if style() == "panel" && !TRAY_FAILED.load(Ordering::SeqCst) {
+        show_panel(app);
+    } else if let Some(w) = app.get_webview_window("main") {
+        if !w.is_visible().unwrap_or(false) {
+            crate::shortcuts::handle_toggle_window(app);
+        } else {
+            let _ = w.set_focus();
+        }
+    }
+}
+
+/// 启动后第一次亮出：面板顶部会显示一次「以后点菜单栏图标打开」的提示
+pub fn reveal_first<R: Runtime>(app: &AppHandle<R>) {
+    reveal(app);
+    if let Some(w) = app.get_webview_window(LABEL) {
+        let _ = tauri::Emitter::emit(&w, "ck-launch-hint", TRAY_FAILED.load(Ordering::SeqCst));
+    }
+}
+
 pub fn show_panel<R: Runtime>(app: &AppHandle<R>) {
     let Ok(w) = ensure_panel(app) else { return };
+    FOCUSED_SINCE_SHOW.store(false, Ordering::SeqCst);
     let tray = *TRAY_RECT.lock().unwrap_or_else(|e| e.into_inner());
     if let Ok(Some(mon)) = w.primary_monitor() {
         let scale = mon.scale_factor();
@@ -146,11 +186,13 @@ pub fn setup_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         let open = MenuItem::with_id(app, "ck-panel", "打开面板", true, None::<&str>)?;
         let quit = MenuItem::with_id(app, "ck-quit", "退出", true, None::<&str>)?;
         let menu = Menu::with_items(app, &[&open, &quit])?;
-        builder = builder.menu(&menu).on_menu_event(|app, e| match e.id().as_ref() {
-            "ck-panel" => on_tray_click(app),
-            "ck-quit" => app.exit(0),
-            _ => {}
-        });
+        builder = builder
+            .menu(&menu)
+            .on_menu_event(|app, e| match e.id().as_ref() {
+                "ck-panel" => on_tray_click(app),
+                "ck-quit" => app.exit(0),
+                _ => {}
+            });
     }
     let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray.png"))?;
     builder = builder.icon(icon);
@@ -223,18 +265,36 @@ mod tests {
 
     #[test]
     fn under_menu_bar_icon() {
-        let (x, y) = panel_origin(Some((1500.0, 0.0, 40.0, 48.0)), (0.0, 0.0, 2880.0, 1800.0), (720.0, 1120.0), 2.0);
+        let (x, y) = panel_origin(
+            Some((1500.0, 0.0, 40.0, 48.0)),
+            (0.0, 0.0, 2880.0, 1800.0),
+            (720.0, 1120.0),
+            2.0,
+        );
         assert_eq!((x, y), (1160.0, 60.0));
     }
     #[test]
     fn above_windows_taskbar_icon() {
-        let (x, y) = panel_origin(Some((1700.0, 1040.0, 24.0, 40.0)), (0.0, 0.0, 1920.0, 1080.0), (360.0, 560.0), 1.0);
+        let (x, y) = panel_origin(
+            Some((1700.0, 1040.0, 24.0, 40.0)),
+            (0.0, 0.0, 1920.0, 1080.0),
+            (360.0, 560.0),
+            1.0,
+        );
         assert_eq!((x, y), (1532.0, 474.0));
     }
     #[test]
     fn clamped_and_fallback() {
-        let (x, _) = panel_origin(Some((1900.0, 0.0, 20.0, 24.0)), (0.0, 0.0, 1920.0, 1080.0), (360.0, 560.0), 1.0);
+        let (x, _) = panel_origin(
+            Some((1900.0, 0.0, 20.0, 24.0)),
+            (0.0, 0.0, 1920.0, 1080.0),
+            (360.0, 560.0),
+            1.0,
+        );
         assert_eq!(x, 1552.0);
-        assert_eq!(panel_origin(None, (0.0, 0.0, 1920.0, 1080.0), (360.0, 560.0), 1.0), (1548.0, 32.0));
+        assert_eq!(
+            panel_origin(None, (0.0, 0.0, 1920.0, 1080.0), (360.0, 560.0), 1.0),
+            (1548.0, 32.0)
+        );
     }
 }

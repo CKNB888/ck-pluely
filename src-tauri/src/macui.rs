@@ -8,7 +8,6 @@ use tauri::{App, Emitter, Manager, PhysicalPosition, Runtime, WebviewWindow};
 use tauri_nspanel::objc::runtime::{Object, BOOL, YES};
 use tauri_nspanel::objc::{class, msg_send, sel, sel_impl};
 
-
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 struct NSEdgeInsets {
@@ -66,9 +65,13 @@ fn set_level<R: Runtime>(window: &WebviewWindow<R>, level: i64) {
 /// 根据当前模式摆放主条，返回模式名
 pub fn place_main<R: Runtime>(window: &WebviewWindow<R>) -> &'static str {
     let m = mode();
-    let keep = m != "notch"
-        && crate::panel::BAR_POS_SAVED.load(std::sync::atomic::Ordering::Relaxed);
-    let monitor = if keep { None } else { window.primary_monitor().ok().flatten() };
+    let keep =
+        m != "notch" && crate::panel::BAR_POS_SAVED.load(std::sync::atomic::Ordering::Relaxed);
+    let monitor = if keep {
+        None
+    } else {
+        window.primary_monitor().ok().flatten()
+    };
     let size = window.outer_size().ok();
     if let (Some(mon), Some(sz)) = (monitor, size) {
         let mp = mon.position();
@@ -78,7 +81,9 @@ pub fn place_main<R: Runtime>(window: &WebviewWindow<R>) -> &'static str {
         let (x, y) = if m == "notch" {
             (mp.x as f64 + (ms.width as f64 - w) / 2.0, mp.y as f64)
         } else {
-            let rect = *crate::panel::TRAY_RECT.lock().unwrap_or_else(|e| e.into_inner());
+            let rect = *crate::panel::TRAY_RECT
+                .lock()
+                .unwrap_or_else(|e| e.into_inner());
             match rect {
                 Some((tx, ty, tw, th)) => (tx + tw / 2.0 - w / 2.0, ty + th + 6.0 * scale),
                 None => (
@@ -89,7 +94,11 @@ pub fn place_main<R: Runtime>(window: &WebviewWindow<R>) -> &'static str {
         };
         let min_x = mp.x as f64 + 8.0 * scale;
         let max_x = mp.x as f64 + ms.width as f64 - w - 8.0 * scale;
-        let x = if max_x > min_x { x.clamp(min_x, max_x) } else { x };
+        let x = if max_x > min_x {
+            x.clamp(min_x, max_x)
+        } else {
+            x
+        };
         let _ = window.set_position(PhysicalPosition::new(x.round() as i32, y.round() as i32));
     }
     // 刘海模式要盖在菜单栏那一层（NSStatusWindowLevel = 25），菜单栏模式为浮动层（3）
