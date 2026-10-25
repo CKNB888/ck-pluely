@@ -107,6 +107,11 @@ impl SpeakerInput {
         SpeakerStream { inner }
     }
 
+    /// 同 `stream`，但驱动层 panic 会被拦截成错误，不会让程序崩溃。
+    pub fn try_stream(self) -> Result<SpeakerStream, String> {
+        crate::startup::guarded("打开系统音频流", move || self.stream())
+    }
+
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     pub fn stream(self) -> SpeakerStream {
         unimplemented!("SpeakerInput::stream is not supported on this platform")

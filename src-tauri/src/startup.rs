@@ -43,8 +43,22 @@ pub fn begin() {
     std::panic::set_hook(Box::new(|info| {
         let msg = format!("程序崩溃：{info}");
         log(&msg);
-        alert(&msg);
+        if !QUIET.with(|q| q.get()) {
+            alert(&msg);
+        }
     }));
+}
+
+thread_local! {
+    static QUIET: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// 运行一段可能 panic 的代码（例如系统音频驱动调用）：panic 只记日志、不弹窗，返回 Err。
+pub fn guarded<T>(what: &str, f: impl FnOnce() -> T) -> Result<T, String> {
+    QUIET.with(|q| q.set(true));
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f));
+    QUIET.with(|q| q.set(false));
+    r.map_err(|_| format!("{what} 失败（已拦截，程序继续运行）"))
 }
 
 pub fn log(msg: &str) {

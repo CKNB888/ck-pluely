@@ -177,7 +177,7 @@ pub fn write_archive(
         let list: Vec<&ModelEntry> = models.iter().map(|m| &m.1).collect();
         blobs.push((
             "models.json".into(),
-            serde_json::to_vec_pretty(&list).unwrap(),
+            serde_json::to_vec_pretty(&list).map_err(|e| e.to_string())?,
         ));
         if opts.include_models {
             for (p, m) in &models {
@@ -219,7 +219,7 @@ pub fn write_archive(
                 .large_file(true);
             z.start_file("manifest.json", deflate)
                 .map_err(|e| e.to_string())?;
-            z.write_all(&serde_json::to_vec_pretty(&manifest).unwrap())
+            z.write_all(&serde_json::to_vec_pretty(&manifest).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
             for (n, b) in &blobs {
                 z.start_file(n.as_str(), deflate)

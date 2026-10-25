@@ -44,12 +44,33 @@ impl Default for VadConfig {
     }
 }
 
+static STARTING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 #[tauri::command]
 pub async fn start_system_audio_capture(
     app: AppHandle,
     vad_config: Option<VadConfig>,
     device_id: Option<String>,
 ) -> Result<(), String> {
+    // 单一所有者：自动监听、热键、会议切换可能同时触发，只允许一个启动流程在跑
+    struct Starting;
+    impl Drop for Starting {
+        fn drop(&mut self) {
+            STARTING.store(false, std::sync::atomic::Ordering::SeqCst);
+        }
+    }
+    if STARTING
+        .compare_exchange(
+            false,
+            true,
+            std::sync::atomic::Ordering::SeqCst,
+            std::sync::atomic::Ordering::SeqCst,
+        )
+        .is_err()
+    {
+        return Err("Capture already starting".to_string());
+    }
+    let _starting = Starting;
     let state = app.state::<crate::AudioState>();
     crate::meeting::refresh();
 
@@ -80,7 +101,7 @@ pub async fn start_system_audio_capture(
         format!("Failed to access system audio: {}", e)
     })?;
 
-    let stream = input.stream();
+    let stream = input.try_stream()?;
     let sr = stream.sample_rate();
 
     // Validate sample rate
@@ -318,7 +339,9 @@ async fn run_vad_with_recovery(
             } else {
                 device_id.clone()
             };
-            let opened = SpeakerInput::new_with_device(dev).map(|i| i.stream());
+            let opened = SpeakerInput::new_with_device(dev)
+                .map_err(|e| e.to_string())
+                .and_then(|i| i.try_stream());
             match opened {
                 Ok(s) => {
                     let nsr = s.sample_rate();
@@ -743,7 +766,7 @@ pub fn get_audio_sample_rate(_app: AppHandle) -> Result<u32, String> {
         format!("Failed to access system audio: {}", e)
     })?;
 
-    let stream = input.stream();
+    let stream = input.try_stream()?;
     let sr = stream.sample_rate();
 
     Ok(sr)

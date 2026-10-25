@@ -7,6 +7,8 @@ import "./i18n";
 import { I18nRoot } from "./i18n/I18nRoot";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import AppRoutes from "./routes";
+import { ErrorBoundary } from "react-error-boundary";
+import { RootErrorFallback } from "./components/RootErrorFallback";
 import { getVersion } from "@tauri-apps/api/app";
 import { autoBackupOnUpgrade } from "./lib/backup";
 
@@ -30,7 +32,9 @@ if (windowLabel.startsWith("capture-overlay-")) {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
       <I18nRoot>
-        <Overlay monitorIndex={monitorIndex} />
+        <ErrorBoundary FallbackComponent={RootErrorFallback}>
+          <Overlay monitorIndex={monitorIndex} />
+        </ErrorBoundary>
       </I18nRoot>
     </React.StrictMode>
   );
@@ -40,7 +44,9 @@ if (windowLabel.startsWith("capture-overlay-")) {
       <I18nRoot>
         <ThemeProvider>
           <AppProvider>
-            <AppRoutes />
+            <ErrorBoundary FallbackComponent={RootErrorFallback}>
+              <AppRoutes />
+            </ErrorBoundary>
           </AppProvider>
         </ThemeProvider>
       </I18nRoot>

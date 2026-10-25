@@ -299,7 +299,9 @@ impl SpeakerInput {
             _output_time: &cat::AudioTimeStamp,
             ctx: Option<&mut Ctx>,
         ) -> os::Status {
-            let ctx = ctx.unwrap();
+            let Some(ctx) = ctx else {
+                return os::Status::NO_ERR;
+            };
 
             ctx.current_sample_rate.store(
                 device
@@ -400,7 +402,7 @@ fn process_audio_data(ctx: &mut Ctx, data: &[f32]) {
 
     // Wake up consumer if we have new data
     let should_wake = {
-        let mut waker_state = ctx.waker_state.lock().unwrap();
+        let mut waker_state = ctx.waker_state.lock().unwrap_or_else(|e| e.into_inner());
         if !waker_state.has_data {
             waker_state.has_data = true;
             waker_state.waker.take()
@@ -433,7 +435,7 @@ impl Stream for SpeakerStream {
         }
 
         {
-            let mut state = self.waker_state.lock().unwrap();
+            let mut state = self.waker_state.lock().unwrap_or_else(|e| e.into_inner());
             state.has_data = false;
             state.waker = Some(cx.waker().clone());
         }

@@ -899,43 +899,56 @@ export function useSystemAudio() {
   startRef.current = startCapture;
   const stopRef = useRef(stopCapture);
   stopRef.current = stopCapture;
+  // 单一所有者：所有自动启动 / 重启都排进同一条队列，避免自动监听与会议切换竞态导致重复启动
+  const opRef = useRef<Promise<void>>(Promise.resolve());
+  const enqueue = (fn: () => Promise<void>) => {
+    opRef.current = opRef.current.then(fn).catch(() => {});
+    return opRef.current;
+  };
   useEffect(() => {
-    if (!getAutoListen()) return;
-    const timer = setTimeout(async () => {
-      try {
-        if (capturingRef.current) return;
-        const ok = await invoke<boolean>("check_system_audio_access");
-        if (ok) await startRef.current();
-      } catch {
-        /* 自动监听失败不打扰用户，手动开始仍可用 */
-      }
-    }, 1500);
+    let disposed = false;
+    let debounce: ReturnType<typeof setTimeout> | undefined;
+    const timer = getAutoListen()
+      ? setTimeout(() => {
+          void enqueue(async () => {
+            if (disposed || capturingRef.current) return;
+            const ok = await invoke<boolean>("check_system_audio_access");
+            if (ok && !disposed && !capturingRef.current) await startRef.current();
+          });
+        }, 1500)
+      : undefined;
     let un: (() => void) | undefined;
-    listen("ck-meeting-changed", async () => {
-      if (!capturingRef.current) return;
-      try {
-        await stopRef.current();
-        await startRef.current();
-      } catch {
-        /* ignore */
-      }
+    listen("ck-meeting-changed", () => {
+      // 防抖：会议软件启动时常常连续出现多个进程
+      clearTimeout(debounce);
+      debounce = setTimeout(() => {
+        void enqueue(async () => {
+          if (disposed || !capturingRef.current) return;
+          await stopRef.current();
+          if (!disposed) await startRef.current();
+        });
+      }, 2500);
     })
-      .then((f) => (un = f))
+      .then((f) => (disposed ? f() : (un = f)))
       .catch(() => {});
     return () => {
+      disposed = true;
       clearTimeout(timer);
+      clearTimeout(debounce);
       un?.();
     };
   }, []);
 
   useEffect(() => {
-    globalShortcuts.registerSystemAudioCallback(async () => {
-      if (capturing) {
-        await stopCapture();
-      } else {
-        await startCapture();
-      }
-    });
+    globalShortcuts.registerSystemAudioCallback(() =>
+      enqueue(async () => {
+        if (capturingRef.current) {
+          await stopRef.current();
+        } else {
+          await startRef.current();
+        }
+      })
+    );
   }, [startCapture, stopCapture]);
 
   useEffect(() => {

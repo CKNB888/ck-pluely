@@ -157,6 +157,10 @@ fn on_tray_click<R: Runtime>(app: &AppHandle<R>) {
 }
 
 pub fn setup_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+    // 防止重复创建托盘图标（菜单栏出现两个图标）
+    if app.tray_by_id("ck-main").is_some() {
+        return Ok(());
+    }
     let mut builder = TrayIconBuilder::with_id("ck-main")
         .tooltip("CK Pluely")
         .show_menu_on_left_click(false)
