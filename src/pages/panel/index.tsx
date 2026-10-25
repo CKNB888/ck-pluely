@@ -1,3 +1,4 @@
+import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -123,6 +124,10 @@ const PanelPage = () => {
   const [listening, setListening] = useState(false);
   const [recent, setRecent] = useState<ChatConversation[]>([]);
   const [privacy, setPrivacy] = useState<PrivacyStatus | null>(null);
+  const [meeting, setMeeting] = useState<{ app: string | null; mode: string } | null>(null);
+  const [hint, setHint] = useState<null | boolean>(
+    localStorage.getItem("ck_launch_hint_seen") ? null : false
+  );
 
   const refresh = useCallback(() => {
     invoke<boolean>("get_capture_status").then(setListening).catch(() => {});
@@ -130,6 +135,7 @@ const PanelPage = () => {
       .then((all) => setRecent(all.slice(0, 8)))
       .catch(() => setRecent([]));
     invoke<PrivacyStatus>("privacy_status").then(setPrivacy).catch(() => {});
+    invoke<{ app: string | null; mode: string }>("ck_meeting_status").then(setMeeting).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -142,8 +148,20 @@ const PanelPage = () => {
       .catch(() => {});
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && invoke("ck_hide_panel").catch(() => {});
     window.addEventListener("keydown", onKey);
+    let unHint: (() => void) | undefined;
+    let unMeet: (() => void) | undefined;
+    listen<boolean>("ck-launch-hint", (e) => setHint(!!e.payload))
+      .then((f) => (unHint = f))
+      .catch(() => {});
+    listen("ck-meeting-changed", () => refresh())
+      .then((f) => (unMeet = f))
+      .catch(() => {});
+    const poll = setInterval(refresh, 4000);
     return () => {
       un?.();
+      unHint?.();
+      unMeet?.();
+      clearInterval(poll);
       window.removeEventListener("keydown", onKey);
     };
   }, [refresh]);
@@ -197,6 +215,25 @@ const PanelPage = () => {
           </IconButton>
         </div>
       </header>
+      {hint !== null && (
+        <div className="mx-4 mb-2 flex items-start gap-2 rounded-lg bg-primary/10 px-3 py-2 text-[12px] text-primary">
+          <span className="flex-1">
+            {hint
+              ? "菜单栏图标创建失败，已改为在 Dock / 任务栏显示图标。点 Dock 图标或再次打开软件即可调出本面板。"
+              : "CK Pluely 已启动并默认自动监听。以后点菜单栏图标（或再次打开软件 / 点 Dock 图标）即可打开本面板。"}
+          </span>
+          <button
+            type="button"
+            className="font-medium"
+            onClick={() => {
+              localStorage.setItem("ck_launch_hint_seen", "1");
+              setHint(null);
+            }}
+          >
+            知道了
+          </button>
+        </div>
+      )}
 
       <nav className="mx-4 grid grid-cols-4 rounded-lg bg-muted p-0.5 text-[12px]">
         {(
@@ -237,7 +274,13 @@ const PanelPage = () => {
                 <div className="leading-tight">
                   <div className="text-[13px] font-medium">会议实时转写</div>
                   <div className="text-[11px] text-muted-foreground">
-                    {listening ? "正在收听系统声音" : `未开启 · ${hotkey("system_audio")}`}
+                    {listening
+                      ? meeting?.app && meeting.mode === "process"
+                        ? `正在监听：${meeting.app}`
+                        : meeting?.app
+                          ? `正在监听：系统声音（含${meeting.app}）`
+                          : "正在监听：系统声音"
+                      : `未开启 · ${hotkey("system_audio")}`}
                   </div>
                 </div>
               </div>

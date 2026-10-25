@@ -4,6 +4,7 @@ import { useWindowResize, useGlobalShortcuts } from ".";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { useApp } from "@/contexts";
+import { getAutoListen } from "@/lib/auto-listen";
 import { fetchSTT, fetchAIResponse } from "@/lib/functions";
 import {
   DEFAULT_QUICK_ACTIONS,
@@ -890,6 +891,42 @@ export function useSystemAudio() {
     error,
     resizeWindow,
   ]);
+
+  // 启动即自动监听 + 会议软件变化时重启采集（自适应切换到新会议进程）
+  const capturingRef = useRef(false);
+  capturingRef.current = capturing;
+  const startRef = useRef(startCapture);
+  startRef.current = startCapture;
+  const stopRef = useRef(stopCapture);
+  stopRef.current = stopCapture;
+  useEffect(() => {
+    if (!getAutoListen()) return;
+    const timer = setTimeout(async () => {
+      try {
+        if (capturingRef.current) return;
+        const ok = await invoke<boolean>("check_system_audio_access");
+        if (ok) await startRef.current();
+      } catch {
+        /* 自动监听失败不打扰用户，手动开始仍可用 */
+      }
+    }, 1500);
+    let un: (() => void) | undefined;
+    listen("ck-meeting-changed", async () => {
+      if (!capturingRef.current) return;
+      try {
+        await stopRef.current();
+        await startRef.current();
+      } catch {
+        /* ignore */
+      }
+    })
+      .then((f) => (un = f))
+      .catch(() => {});
+    return () => {
+      clearTimeout(timer);
+      un?.();
+    };
+  }, []);
 
   useEffect(() => {
     globalShortcuts.registerSystemAudioCallback(async () => {

@@ -276,6 +276,10 @@ fn setup_dashboard_close_handler<R: Runtime>(window: &WebviewWindow<R>) {
 /// Shows the dashboard window and brings it to focus
 pub fn show_dashboard_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     cancel_dashboard_release();
+    // 菜单栏（Accessory）模式下也要把应用激活到前台，否则引导 / 控制台窗口会开在别的应用后面
+    #[cfg(target_os = "macos")]
+    let _ = app.show();
+    crate::startup::log("show dashboard");
     if let Some(dashboard_window) = app.get_webview_window("dashboard") {
         // Window exists, show and focus it
         crate::privacy::harden(&dashboard_window);

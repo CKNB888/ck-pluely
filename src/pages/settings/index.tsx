@@ -2,6 +2,7 @@ import {
   Theme,
   AlwaysOnTopToggle,
   AppIconToggle,
+  AutoListenToggle,
   AutostartToggle,
   UiLanguage,
   PrivacyCheck,
@@ -30,6 +31,8 @@ const Settings = () => {
 
       {/* Autostart Toggle */}
       <AutostartToggle />
+
+      <AutoListenToggle />
 
       {/* App Icon Toggle */}
       <AppIconToggle />
