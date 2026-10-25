@@ -169,7 +169,7 @@ export const SystemAudio = (props: useSystemAudioType) => {
 
   const getButtonTitle = () => {
     if (setupRequired) return "Setup required - Click for instructions";
-    if (error && !setupRequired) return `Error: ${error}`;
+    if (error && !setupRequired) return `${t("Error:")} ${error}`;
     if (isProcessing) return "Transcribing audio...";
     if (capturing) return "Stop system audio capture";
     return "Start system audio capture";

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { getDatabase } from "./config";
 import type {
   SystemPrompt,
@@ -18,11 +19,11 @@ export async function createSystemPrompt(
   const prompt = input.prompt.trim();
 
   if (!name) {
-    throw new Error("System prompt name cannot be empty");
+    throw new Error(t("System prompt name cannot be empty"));
   }
 
   if (!prompt) {
-    throw new Error("System prompt text cannot be empty");
+    throw new Error(t("System prompt text cannot be empty"));
   }
 
   const result = await db.execute(
@@ -83,7 +84,7 @@ export async function updateSystemPrompt(
   if (input.name !== undefined) {
     const name = input.name.trim();
     if (!name) {
-      throw new Error("System prompt name cannot be empty");
+      throw new Error(t("System prompt name cannot be empty"));
     }
     updates.push("name = ?");
     values.push(name);
@@ -92,7 +93,7 @@ export async function updateSystemPrompt(
   if (input.prompt !== undefined) {
     const prompt = input.prompt.trim();
     if (!prompt) {
-      throw new Error("System prompt text cannot be empty");
+      throw new Error(t("System prompt text cannot be empty"));
     }
     updates.push("prompt = ?");
     values.push(prompt);

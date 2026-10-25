@@ -556,5 +556,20 @@
   "Resume / notes context": "Resume / notes context",
   "Paste your resume, lesson notes or meeting agenda. It is sent with every answer request.": "Paste your resume, lesson notes or meeting agenda. It is sent with every answer request.",
   "Upstream: Pluely by Srikanth Nani": "Upstream: Pluely by Srikanth Nani",
-  "Maintainer: CKNB": "Maintainer: CKNB"
+  "Maintainer: CKNB": "Maintainer: CKNB",
+  "No speech provider selected.": "No speech provider selected.",
+  "Speech provider config not found.": "Speech provider config not found.",
+  "Received empty transcription": "Received empty transcription",
+  "Failed to process speech": "Failed to process speech",
+  "Failed to setup speech listener": "Failed to setup speech listener",
+  "No AI provider selected.": "No AI provider selected.",
+  "AI provider config not found.": "AI provider config not found.",
+  "Failed to get AI response": "Failed to get AI response",
+  "Permission not granted. Please try the manual steps.": "Permission not granted. Please try the manual steps.",
+  "Failed to request access. Please try the manual steps below.": "Failed to request access. Please try the manual steps below.",
+  "Speech transcription timed out (30s)": "Speech transcription timed out (30s)",
+  "Audio file is empty": "Audio file is empty",
+  "User message is required": "User message is required",
+  "System prompt name cannot be empty": "System prompt name cannot be empty",
+  "System prompt text cannot be empty": "System prompt text cannot be empty"
 }

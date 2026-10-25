@@ -20,6 +20,7 @@ import {
 } from "@/lib";
 import { Message } from "@/types/completion";
 import i18n from "i18next";
+import { t } from "@/i18n";
 import {
   COPILOT_KEYS,
   isLikelyQuestion,
@@ -298,7 +299,7 @@ export function useSystemAudio() {
 
             const usePluelyAPI = await shouldUsePluelyAPI();
             if (!selectedSttProvider.provider && !usePluelyAPI) {
-              setError("No speech provider selected.");
+              setError(t("No speech provider selected."));
               return;
             }
 
@@ -307,7 +308,7 @@ export function useSystemAudio() {
             );
 
             if (!providerConfig && !usePluelyAPI) {
-              setError("Speech provider config not found.");
+              setError(t("Speech provider config not found."));
               return;
             }
 
@@ -323,7 +324,7 @@ export function useSystemAudio() {
             let timeoutId: ReturnType<typeof setTimeout> | undefined;
             const timeoutPromise = new Promise<string>((_, reject) => {
               timeoutId = setTimeout(
-                () => reject(new Error("Speech transcription timed out (30s)")),
+                () => reject(new Error(t("Speech transcription timed out (30s)"))),
                 30000
               );
             });
@@ -369,7 +370,7 @@ export function useSystemAudio() {
                   previousMessages
                 );
               } else {
-                setError("Received empty transcription");
+                setError(t("Received empty transcription"));
               }
             } catch (sttError: any) {
               console.error("STT Error:", sttError);
@@ -379,7 +380,7 @@ export function useSystemAudio() {
               clearTimeout(timeoutId);
             }
           } catch (err) {
-            setError("Failed to process speech");
+            setError(t("Failed to process speech"));
           } finally {
             setIsProcessing(false);
           }
@@ -389,7 +390,7 @@ export function useSystemAudio() {
         if (disposed) unlisten();
         else speechUnlisten = unlisten;
       } catch (err) {
-        setError("Failed to setup speech listener");
+        setError(t("Failed to setup speech listener"));
       }
     };
 
@@ -575,7 +576,7 @@ export function useSystemAudio() {
 
         const usePluelyAPI = await shouldUsePluelyAPI();
         if (!selectedAIProvider.provider && !usePluelyAPI) {
-          setError("No AI provider selected.");
+          setError(t("No AI provider selected."));
           return;
         }
 
@@ -583,7 +584,7 @@ export function useSystemAudio() {
           (p) => p.id === selectedAIProvider.provider
         );
         if (!provider && !usePluelyAPI) {
-          setError("AI provider config not found.");
+          setError(t("AI provider config not found."));
           return;
         }
 
@@ -627,7 +628,7 @@ export function useSystemAudio() {
           }));
         }
       } catch (err) {
-        setError("Failed to get AI response");
+        setError(t("Failed to get AI response"));
       } finally {
         setIsAIProcessing(false);
         // No auto-restart - user manually controls when to start next recording
@@ -758,10 +759,10 @@ export function useSystemAudio() {
         await startCapture();
       } else {
         setSetupRequired(true);
-        setError("Permission not granted. Please try the manual steps.");
+        setError(t("Permission not granted. Please try the manual steps."));
       }
     } catch (err) {
-      setError("Failed to request access. Please try the manual steps below.");
+      setError(t("Failed to request access. Please try the manual steps below."));
       setSetupRequired(true);
     }
   }, [startCapture]);

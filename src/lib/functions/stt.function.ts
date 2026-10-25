@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import {
   deepVariableReplacer,
   getByPath,
@@ -77,7 +78,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
 
     // Validate audio file
     const file = audio as File;
-    if (file.size === 0) throw new Error("Audio file is empty");
+    if (file.size === 0) throw new Error(t("Audio file is empty"));
     // maximum size of 10MB
     // const maxSize = 10 * 1024 * 1024;
     // if (file.size > maxSize) {

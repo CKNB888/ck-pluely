@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import {
   buildDynamicMessages,
   deepVariableReplacer,
@@ -237,7 +238,7 @@ export async function* fetchAIResponse(params: {
     }
 
     if (!userMessage) {
-      throw new Error("User message is required");
+      throw new Error(t("User message is required"));
     }
     if (imagesBase64.length > 0 && !provider.curl.includes("{{IMAGE}}")) {
       throw new Error(
