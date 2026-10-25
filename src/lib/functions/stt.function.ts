@@ -1,3 +1,4 @@
+import { localSttMode, localSttReady, localTranscribe } from "@/lib/local-engine";
 import { t } from "@/i18n";
 import {
   deepVariableReplacer,
@@ -53,6 +54,21 @@ export interface STTParams {
  * Transcribes audio and returns either the transcription or an error/warning message as a single string.
  */
 export async function fetchSTT(params: STTParams): Promise<string> {
+  // ck-pluely v2: on-device recognition (offline / privacy) or as a
+  // fallback when the online provider cannot be reached.
+  const mode = localSttMode();
+  if (mode === "local") return localTranscribe(params.audio);
+  try {
+    return await fetchCloudSTT(params);
+  } catch (e) {
+    if (mode === "auto" && (await localSttReady())) {
+      return localTranscribe(params.audio);
+    }
+    throw e;
+  }
+}
+
+async function fetchCloudSTT(params: STTParams): Promise<string> {
   let warnings: string[] = [];
 
   try {

@@ -6,3 +6,4 @@ export * from "./UiLanguage";
 export * from "./PrivacyCheck";
 export * from "./UiStyle";
 export * from "./FullUninstall";
+export * from "./LocalSpeech";

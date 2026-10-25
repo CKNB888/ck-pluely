@@ -28,8 +28,11 @@ import {
   wrapTranscript,
   COPILOT_PENDING_MAX_CHARS,
   buildCopilotPrompt,
+  isLikelyQuestion,
 } from "@/lib/copilot";
 import { QuestionTracker, type QuestionSensitivity } from "@/lib/question-detect";
+import { addEntry, answerLatestQuestion } from "@/lib/class-session";
+import { speakerLabel, type SpeakerTag, type SpeechText } from "@/lib/local-engine";
 
 export type CopilotAnswerMode = "questions" | "always" | "manual";
 
@@ -319,11 +322,69 @@ export function useSystemAudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ck-pluely v2: one place for every system-audio transcript, whether it
+  // came from the online provider or the on-device engine.
+  const handleTranscript = async (transcription: string, tag: SpeakerTag | null) => {
+    setLastTranscription(transcription);
+    setError("");
+
+    // ck-pluely copilot: buffer speech until a question is heard
+    // (or the user presses "Answer now" in manual mode).
+    const combined = `${copilotRef.current.pending} ${transcription}`.trim();
+    const mode = copilotRef.current.answerMode;
+    const hit =
+      mode === "questions"
+        ? trackerRef.current?.push({ text: transcription, at: Date.now() })
+        : null;
+    // class record: who said what, and whether it was a question
+    addEntry({
+      at: Date.now(),
+      speaker: tag ? tag.kind : "unknown",
+      label: tag ? speakerLabel(tag) : "学生",
+      text: transcription,
+      question: mode === "questions" ? !!hit : isLikelyQuestion(transcription, sensitivity),
+    });
+    if (mode === "manual" || (mode === "questions" && !hit)) {
+      copilotRef.current.pending = combined.slice(-COPILOT_PENDING_MAX_CHARS);
+      setPendingTranscript(copilotRef.current.pending);
+      return;
+    }
+    copilotRef.current.pending = "";
+    setPendingTranscript("");
+
+    const effectiveSystemPrompt = withCopilot(
+      useSystemPrompt
+        ? systemPrompt || DEFAULT_SYSTEM_PROMPT
+        : contextContent || DEFAULT_SYSTEM_PROMPT
+    );
+
+    // Newest-first list; keep the last 12 messages (6 turns).
+    const previousMessages = conversation.messages
+      .slice(0, 12)
+      .map((msg) => {
+        return { role: msg.role, content: msg.content };
+      });
+
+    await processWithAI(
+      combined.slice(-COPILOT_PENDING_MAX_CHARS),
+      effectiveSystemPrompt,
+      previousMessages
+    );
+
+  };
+  const handleTranscriptRef = useRef(handleTranscript);
+  handleTranscriptRef.current = handleTranscript;
+  const nextSpeakerRef = useRef<SpeakerTag | null>(null);
+
   // Handle single speech detection event (both VAD and continuous modes).
   // ck-pluely: the handler is refreshed every render through a ref and the
   // listener is registered once, so segments are never lost while
   // re-subscribing and the handler always sees current state/history.
   const handleSpeechDetected = async (base64Audio: string) => {
+          // the label arrives just before its audio; take it now, later
+          // segments may overwrite the ref while this one is transcribed
+          const tag = nextSpeakerRef.current;
+          nextSpeakerRef.current = null;
           try {
             if (!capturing) return;
 
@@ -374,43 +435,7 @@ export function useSystemAudio() {
               ]);
 
               if (transcription.trim()) {
-                setLastTranscription(transcription);
-                setError("");
-
-                // ck-pluely copilot: buffer speech until a question is heard
-                // (or the user presses "Answer now" in manual mode).
-                const combined = `${copilotRef.current.pending} ${transcription}`.trim();
-                const mode = copilotRef.current.answerMode;
-                const hit =
-                  mode === "questions"
-                    ? trackerRef.current?.push({ text: transcription, at: Date.now() })
-                    : null;
-                if (mode === "manual" || (mode === "questions" && !hit)) {
-                  copilotRef.current.pending = combined.slice(-COPILOT_PENDING_MAX_CHARS);
-                  setPendingTranscript(copilotRef.current.pending);
-                  return;
-                }
-                copilotRef.current.pending = "";
-                setPendingTranscript("");
-
-                const effectiveSystemPrompt = withCopilot(
-                  useSystemPrompt
-                    ? systemPrompt || DEFAULT_SYSTEM_PROMPT
-                    : contextContent || DEFAULT_SYSTEM_PROMPT
-                );
-
-                // Newest-first list; keep the last 12 messages (6 turns).
-                const previousMessages = conversation.messages
-                  .slice(0, 12)
-                  .map((msg) => {
-                    return { role: msg.role, content: msg.content };
-                  });
-
-                await processWithAI(
-                  combined.slice(-COPILOT_PENDING_MAX_CHARS),
-                  effectiveSystemPrompt,
-                  previousMessages
-                );
+                await handleTranscriptRef.current(transcription, tag);
               }
               // Empty = silence / filtered Whisper hallucination: ignore quietly.
             } catch (sttError: any) {
@@ -438,10 +463,30 @@ export function useSystemAudio() {
         const unlisten = await listen("speech-detected", (event) => {
           void speechHandlerRef.current(event.payload as string);
         });
+        // on-device engine: label for the next cloud transcript, a finished
+        // local transcript, or the teacher's own voice (never answered)
+        const others = await Promise.all([
+          listen<SpeechText>("speech-speaker", (e) => {
+            nextSpeakerRef.current = e.payload.speaker;
+          }),
+          listen<SpeechText>("speech-text", (e) => {
+            if (e.payload.text.trim()) void handleTranscriptRef.current(e.payload.text, e.payload.speaker);
+          }),
+          listen<SpeechText>("speech-self", (e) => {
+            if (e.payload.text.trim())
+              addEntry({ at: Date.now(), speaker: "me", label: "我", text: e.payload.text, question: false });
+          }),
+          listen<string>("local-error", (e) => setError(String(e.payload))),
+        ]);
+        const base = unlisten;
+        const all = () => {
+          base();
+          others.forEach((f) => f());
+        };
         // If the effect was cleaned up while awaiting, drop this listener
         // right away; otherwise each speech segment is handled twice (#315).
-        if (disposed) unlisten();
-        else speechUnlisten = unlisten;
+        if (disposed) all();
+        else speechUnlisten = all;
       } catch (err) {
         setError(t("Failed to setup speech listener"));
       }
@@ -661,6 +706,7 @@ export function useSystemAudio() {
         }
 
         if (fullResponse && !controller.signal.aborted) {
+          if (isTranscript) answerLatestQuestion(fullResponse);
           const timestamp = Date.now();
           setConversation((prev) => ({
             ...prev,

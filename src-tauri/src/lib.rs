@@ -16,6 +16,7 @@ use tokio::task::JoinHandle;
 mod speaker;
 mod osinfo;
 mod local;
+mod notes;
 mod uninstall;
 #[cfg(target_os = "macos")]
 mod macui;
@@ -120,6 +121,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
+            notes::ck_export_notes,
             local::commands::local_status,
             local::commands::local_set_settings,
             local::commands::local_download,
