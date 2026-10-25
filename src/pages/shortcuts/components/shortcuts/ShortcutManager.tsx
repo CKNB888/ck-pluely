@@ -130,8 +130,7 @@ export const ShortcutManager = () => {
             {t("Keyboard Shortcuts")}
           </h3>
           <p className="text-sm text-muted-foreground">
-            {actions.length} {t("shortcut")}
-            {actions.length !== 1 ? "s" : ""} {t("configured")}
+            {t("{{count}} shortcuts configured", { count: actions.length })}
             {!hasActiveLicense && t(" • Get a license to customize shortcuts")}
           </p>
         </div>

@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import {
   Dialog,
   DialogContent,
@@ -68,7 +69,9 @@ export const CreateEditDialog = ({
                   : t("Define a new AI behavior and personality.")}
               </DialogDescription>
             </div>
-            <GenerateSystemPrompt onGenerate={onGenerate} />
+            {!CK_HIDE_UPSTREAM_PAID && (
+              <GenerateSystemPrompt onGenerate={onGenerate} />
+            )}
           </div>
         </DialogHeader>
         <div className="space-y-4 py-4 px-6 overflow-y-auto flex-1">

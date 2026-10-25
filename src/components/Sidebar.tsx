@@ -60,13 +60,15 @@ export const Sidebar = () => {
       </nav>
 
       <div className="flex flex-col space-y-1 px-3  pb-3">
-        <div className="flex flex-row justify-evenly items-center gap-2 mb-3">
+        <div className="flex flex-row flex-wrap justify-center items-center gap-1.5 mb-3">
           {footerLinks.map((item, index) => (
             <Button
               key={`${item.title}-${index}`}
               title={t(String(item.title))}
-              size="sm"
+              aria-label={t(String(item.title))}
+              size="icon"
               variant="outline"
+              className="size-7"
               onClick={() => openUrl(item.link)}
             >
               <item.icon className="size-3 lg:size-4 transition-all duration-300" />

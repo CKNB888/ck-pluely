@@ -1,6 +1,6 @@
 import { t } from "@/i18n";
 import { getDatabase } from "./config";
-import { ChatConversation } from "@/types";
+import { ChatConversation, ChatMessage } from "@/types";
 import { safeLocalStorage } from "@/lib";
 
 // Legacy localStorage key for migration purposes
@@ -360,6 +360,42 @@ export async function saveConversation(
   } catch (error) {
     console.error("Failed to save conversation:", error);
     throw error;
+  }
+}
+
+/**
+ * Append-only save for live sessions: upserts the conversation row and inserts
+ * only the given (new) messages. Unlike updateConversation it never deletes
+ * existing rows, so the caller may keep just a bounded window in memory.
+ */
+export async function appendConversationMessages(
+  conversation: ChatConversation,
+  newMessages: ChatMessage[]
+): Promise<void> {
+  if (!conversation.id) throw new Error(t("Invalid conversation data"));
+  const db = await getDatabase();
+  const existing = await getConversationById(conversation.id);
+  if (!existing) {
+    await createConversation({ ...conversation, messages: newMessages });
+    return;
+  }
+  await db.execute(
+    "UPDATE conversations SET title = ?, updated_at = ? WHERE id = ?",
+    [conversation.title, conversation.updatedAt, conversation.id]
+  );
+  for (const message of newMessages) {
+    if (!validateMessage(message)) continue;
+    await db.execute(
+      "INSERT OR IGNORE INTO messages (id, conversation_id, role, content, timestamp, attached_files) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        message.id,
+        conversation.id,
+        message.role,
+        message.content,
+        message.timestamp,
+        message.attachedFiles ? JSON.stringify(message.attachedFiles) : null,
+      ]
+    );
   }
 }
 

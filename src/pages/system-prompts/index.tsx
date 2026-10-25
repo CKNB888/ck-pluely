@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import {
   Input,
   Card,
@@ -297,7 +298,7 @@ const SystemPrompts = () => {
       />
 
       {/* Pluely Default Prompts */}
-      <PluelyPrompts />
+      {!CK_HIDE_UPSTREAM_PAID && <PluelyPrompts />}
     </PageLayout>
   );
 };

@@ -102,9 +102,8 @@ export const ScreenshotConfigs = ({
               <div className="flex items-center gap-2">
                 <div className="text-sm font-medium">
                   {screenshotConfiguration.mode === "auto"
-                    ? t("Auto")
-                    : t("Manual")}{" "}
-                  {t("Mode")}
+                    ? t("Auto Mode")
+                    : t("Manual Mode")}
                 </div>
               </div>
             </SelectTrigger>

@@ -642,5 +642,17 @@
   "No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.": "还没有填写 API Key。请在「AI 服务商」中填写（Groq 可免费试用；国内可用 DeepSeek、通义千问、Kimi、智谱 GLM、豆包），然后点「测试连接」。",
   "No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection.": "还没有填写语音识别的 API Key。请在「语音识别服务商」中填写（推荐 Groq），然后点「测试连接」。",
   "Copied": "复制成功",
-  "Copy failed": "复制失败"
+  "Copy failed": "复制失败",
+  "System Settings → Sound → Input": "系统设置 → 声音 → 输入",
+  "System Settings → Sound → Output": "系统设置 → 声音 → 输出",
+  "Settings → System → Sound → Input": "设置 → 系统 → 声音 → 输入",
+  "Settings → System → Sound → Output": "设置 → 系统 → 声音 → 输出",
+  "Sound Settings → Input Devices": "声音设置 → 输入设备",
+  "Sound Settings → Output Devices": "声音设置 → 输出设备",
+  "your system's sound settings": "系统的声音设置",
+  "Model": "模型",
+  "{{count}} shortcuts configured": "已配置 {{count}} 个快捷键",
+  "System audio interrupted, reconnecting…": "系统音频中断，正在自动重连…",
+  "Failed to process audio": "音频处理失败",
+  "Follows your operating system's light/dark setting": "跟随操作系统的浅色/深色设置自动切换"
 }

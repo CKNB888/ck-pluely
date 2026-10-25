@@ -210,9 +210,16 @@ export const Providers = ({
             return (
               <div className="space-y-1" key={variable?.key}>
                 <Header
-                  title={variable?.value || ""}
+                  title={
+                    variable?.key?.toLowerCase() === "model"
+                      ? t("Model")
+                      : variable?.value || ""
+                  }
                   description={t("add your preferred {{v0}} for {{v1}}", {
-                    v0: variable?.key?.replace(/_/g, " "),
+                    v0:
+                      variable?.key?.toLowerCase() === "model"
+                        ? t("Model")
+                        : variable?.key?.replace(/_/g, " "),
 
                     v1: allAiProviders?.find(
                       (p) => p?.id === selectedAIProvider?.provider

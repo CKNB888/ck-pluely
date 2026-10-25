@@ -13,7 +13,9 @@ import {
   safeLocalStorage,
   shouldUsePluelyAPI,
   generateConversationTitle,
-  saveConversation,
+  appendConversationMessages,
+  capNewestFirst,
+  diffUnsaved,
   CONVERSATION_SAVE_DEBOUNCE_MS,
   generateConversationId,
   generateMessageId,
@@ -174,6 +176,10 @@ export function useSystemAudio() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef<boolean>(false);
+  // Ids of in-memory messages already written to the DB (bounded: pruned to
+  // the in-memory window after each save).
+  const persistedIdsRef = useRef<Set<string>>(new Set());
+  const persistedConvRef = useRef<string>("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Load context settings and VAD config from localStorage on mount
@@ -228,6 +234,8 @@ export function useSystemAudio() {
     let stopUnlisten: (() => void) | undefined;
     let errorUnlisten: (() => void) | undefined;
     let discardedUnlisten: (() => void) | undefined;
+    let recoveringUnlisten: (() => void) | undefined;
+    let recoveredUnlisten: (() => void) | undefined;
     let disposed = false;
 
     const setupContinuousListeners = async () => {
@@ -254,10 +262,24 @@ export function useSystemAudio() {
         errorUnlisten = await listen("audio-encoding-error", (event) => {
           const errorMsg = event.payload as string;
           console.error("Audio encoding error:", errorMsg);
-          setError(`Failed to process audio: ${errorMsg}`);
+          // Backend messages that are already user-facing (Chinese) are shown
+          // as-is; only raw technical ones get the generic prefix.
+          setError(
+            /[\u4e00-\u9fff]/.test(errorMsg)
+              ? errorMsg
+              : `${t("Failed to process audio")}: ${errorMsg}`
+          );
           setIsProcessing(false);
           setIsAIProcessing(false);
           setIsRecordingInContinuousMode(false);
+        });
+
+        // Device lost / sleep-wake: backend is re-opening the stream.
+        recoveringUnlisten = await listen("capture-recovering", () => {
+          setError(t("System audio interrupted, reconnecting…"));
+        });
+        recoveredUnlisten = await listen("capture-recovered", () => {
+          setError("");
         });
 
         // Speech discarded (too short)
@@ -277,6 +299,8 @@ export function useSystemAudio() {
         stopUnlisten?.();
         errorUnlisten?.();
         discardedUnlisten?.();
+        recoveringUnlisten?.();
+        recoveredUnlisten?.();
       }
     };
 
@@ -289,7 +313,10 @@ export function useSystemAudio() {
       if (stopUnlisten) stopUnlisten();
       if (errorUnlisten) errorUnlisten();
       if (discardedUnlisten) discardedUnlisten();
+      recoveringUnlisten?.();
+      recoveredUnlisten?.();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle single speech detection event (both VAD and continuous modes).
@@ -506,7 +533,8 @@ export function useSystemAudio() {
     let updatedMessages = [...conversation.messages];
 
     if (lastTranscription && lastTranscription.trim()) {
-      const lastMessage = updatedMessages[updatedMessages.length - 1];
+      // messages are stored newest-first
+      const lastMessage = updatedMessages[0];
       // Only add if it's not already the last message
       if (!lastMessage || lastMessage.content !== lastTranscription) {
         const timestamp = Date.now();
@@ -521,7 +549,7 @@ export function useSystemAudio() {
         // Update conversation state with the latest transcription
         setConversation((prev) => ({
           ...prev,
-          messages: [userMessage, ...prev.messages],
+          messages: capNewestFirst([userMessage, ...prev.messages]),
           updatedAt: timestamp,
           title: prev.title || generateConversationTitle(lastTranscription),
         }));
@@ -636,7 +664,7 @@ export function useSystemAudio() {
           const timestamp = Date.now();
           setConversation((prev) => ({
             ...prev,
-            messages: [
+            messages: capNewestFirst([
               {
                 id: generateMessageId("user", timestamp),
                 role: "user" as const,
@@ -650,7 +678,7 @@ export function useSystemAudio() {
                 timestamp: timestamp + 1,
               },
               ...prev.messages,
-            ],
+            ]),
             updatedAt: timestamp,
             title: prev.title || generateConversationTitle(transcription),
           }));
@@ -857,7 +885,18 @@ export function useSystemAudio() {
 
       try {
         isSavingRef.current = true;
-        await saveConversation(conversation);
+        if (persistedConvRef.current !== conversation.id) {
+          persistedConvRef.current = conversation.id;
+          persistedIdsRef.current = new Set();
+        }
+        const { fresh, prune } = diffUnsaved(
+          conversation.messages,
+          persistedIdsRef.current
+        );
+        if (fresh.length > 0) {
+          await appendConversationMessages(conversation, fresh);
+        }
+        persistedIdsRef.current = prune(fresh);
       } catch (error) {
         console.error("Failed to save system audio conversation:", error);
       } finally {

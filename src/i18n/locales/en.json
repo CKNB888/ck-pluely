@@ -642,5 +642,17 @@
   "No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.": "No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.",
   "No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection.": "No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection.",
   "Copied": "Copied",
-  "Copy failed": "Copy failed"
+  "Copy failed": "Copy failed",
+  "System Settings → Sound → Input": "System Settings → Sound → Input",
+  "System Settings → Sound → Output": "System Settings → Sound → Output",
+  "Settings → System → Sound → Input": "Settings → System → Sound → Input",
+  "Settings → System → Sound → Output": "Settings → System → Sound → Output",
+  "Sound Settings → Input Devices": "Sound Settings → Input Devices",
+  "Sound Settings → Output Devices": "Sound Settings → Output Devices",
+  "your system's sound settings": "your system's sound settings",
+  "Model": "Model",
+  "{{count}} shortcuts configured": "{{count}} shortcuts configured",
+  "System audio interrupted, reconnecting…": "System audio interrupted, reconnecting…",
+  "Failed to process audio": "Failed to process audio",
+  "Follows your operating system's light/dark setting": "Follows your operating system's light/dark setting"
 }

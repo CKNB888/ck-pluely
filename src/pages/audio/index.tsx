@@ -11,23 +11,23 @@ const getOsInstructions = () => {
   switch (platform) {
     case "macos":
       return {
-        mic: "System Preferences → Sound → Input",
-        audio: "System Preferences → Sound → Output",
+        mic: t("System Settings → Sound → Input"),
+        audio: t("System Settings → Sound → Output"),
       };
     case "windows":
       return {
-        mic: "Settings → System → Sound → Input",
-        audio: "Settings → System → Sound → Output",
+        mic: t("Settings → System → Sound → Input"),
+        audio: t("Settings → System → Sound → Output"),
       };
     case "linux":
       return {
-        mic: "Sound Settings → Input Devices",
-        audio: "Sound Settings → Output Devices",
+        mic: t("Sound Settings → Input Devices"),
+        audio: t("Sound Settings → Output Devices"),
       };
     default:
       return {
-        mic: "your system's sound settings",
-        audio: "your system's sound settings",
+        mic: t("your system's sound settings"),
+        audio: t("your system's sound settings"),
       };
   }
 };

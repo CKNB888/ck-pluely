@@ -46,10 +46,13 @@ export const DEFAULT_SHORTCUT_ACTIONS: ShortcutAction[] = [
     id: "move_window",
     name: "Move Window",
     description: "Move overlay with arrow keys (hold to move continuously)",
+    // v1.0.5: Ctrl/⌘+arrows is system-wide word / line navigation (and
+    // ⌘⌥+arrows switches browser tabs), so a global grab would break text
+    // editing everywhere. Use the same three-modifier chord as the others.
     defaultKey: {
-      macos: "cmd",
-      windows: "ctrl",
-      linux: "ctrl",
+      macos: "cmd+alt+shift",
+      windows: "ctrl+alt+shift",
+      linux: "ctrl+alt+shift",
     },
   },
   {
@@ -112,3 +115,10 @@ export const LEGACY_DEFAULT_KEYS: Record<string, string[]> = {
   screenshot: ["ctrl+shift+s", "cmd+shift+s"],
 };
 export const SHORTCUTS_MIGRATION_KEY = "ck_shortcuts_migrated_v104";
+
+/** v1.0.5: move_window used bare Ctrl/⌘ (+arrows). It was never registered
+ *  before (license gate), so moving it to the new default is safe. */
+export const LEGACY_DEFAULT_KEYS_V105: Record<string, string[]> = {
+  move_window: ["ctrl", "cmd"],
+};
+export const SHORTCUTS_MIGRATION_KEY_V105 = "ck_shortcuts_migrated_v105";

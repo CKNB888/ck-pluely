@@ -74,7 +74,7 @@ pub async fn start_system_audio_capture(
         *vad_cfg = config;
     }
 
-    let input = SpeakerInput::new_with_device(device_id).map_err(|e| {
+    let input = SpeakerInput::new_with_device(device_id.clone()).map_err(|e| {
         error!("Failed to create speaker input: {}", e);
         format!("Failed to access system audio: {}", e)
     })?;
@@ -110,7 +110,7 @@ pub async fn start_system_audio_capture(
     let state_clone = app.state::<crate::AudioState>();
     let task = tokio::spawn(async move {
         if vad_config.enabled {
-            run_vad_capture(app_clone.clone(), stream, sr, vad_config).await;
+            run_vad_with_recovery(app_clone.clone(), stream, sr, vad_config, device_id).await;
         } else {
             run_continuous_capture(app_clone.clone(), stream, sr, vad_config).await;
         }
@@ -254,11 +254,106 @@ async fn run_vad_capture(
             }
         }
     }
-    // 音频流意外结束（设备被拔出/失效）：告知前端，而不是一直显示“正在监听”
-    let _ = app.emit(
-        "audio-encoding-error",
-        "系统音频采集已中断（设备被拔出或不可用），请检查播放设备后重新开始监听",
-    );
+}
+
+/// Id of the current default output device (None if it cannot be read).
+async fn default_output_id() -> Option<String> {
+    tokio::task::spawn_blocking(|| {
+        crate::speaker::list_output_devices()
+            .ok()
+            .and_then(|d| d.into_iter().find(|d| d.is_default).map(|d| d.id))
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+/// VAD capture that survives sleep/wake, unplugging and default-device
+/// changes: when the stream ends it is re-opened with back-off. The user only
+/// sees a short "reconnecting" notice if the first re-open fails, and a final
+/// friendly error if all attempts fail - never a raw backend error.
+async fn run_vad_with_recovery(
+    app: AppHandle,
+    first: crate::speaker::SpeakerStream,
+    first_sr: u32,
+    config: VadConfig,
+    device_id: Option<String>,
+) {
+    use super::recovery::*;
+    let mut next = Some((first, first_sr));
+    loop {
+        let Some((stream, sr)) = next.take() else { break };
+        let end = EndCell::default();
+
+        // Follow default-output changes (Windows/Linux open a concrete endpoint).
+        let watcher = if device_id.is_none() && !cfg!(target_os = "macos") {
+            let end_w = end.clone();
+            Some(tokio::spawn(async move {
+                let initial = default_output_id().await;
+                if initial.is_none() {
+                    return;
+                }
+                loop {
+                    tokio::time::sleep(Duration::from_secs(3)).await;
+                    let now = default_output_id().await;
+                    if now.is_some() && now != initial {
+                        end_w.set(EndReason::DefaultChanged);
+                        return;
+                    }
+                }
+            }))
+        } else {
+            None
+        };
+
+        let sup = Supervised::new(stream, end.clone(), stall_limit());
+        run_vad_capture(app.clone(), sup, sr, config.clone()).await;
+        if let Some(w) = watcher {
+            w.abort();
+        }
+        let reason = end.get().unwrap_or(EndReason::DeviceLost);
+        warn!("system audio stream ended ({:?}); re-opening", reason);
+
+        // Give the OS a moment to settle after wake / route change.
+        let mut announced = false;
+        for (attempt, delay) in RETRY_DELAYS_MS.iter().enumerate() {
+            tokio::time::sleep(Duration::from_millis(*delay)).await;
+            let dev = if attempt >= FALLBACK_TO_DEFAULT_AFTER {
+                None
+            } else {
+                device_id.clone()
+            };
+            let opened = SpeakerInput::new_with_device(dev).map(|i| i.stream());
+            match opened {
+                Ok(s) => {
+                    let nsr = s.sample_rate();
+                    if (8000..=96000).contains(&nsr) {
+                        if announced {
+                            let _ = app.emit("capture-recovered", ());
+                        }
+                        next = Some((s, nsr));
+                        break;
+                    }
+                    warn!("re-opened stream has invalid sample rate {}", nsr);
+                }
+                Err(e) => {
+                    warn!("re-open attempt {} failed: {}", attempt + 1, e);
+                }
+            }
+            if !announced {
+                announced = true;
+                let _ = app.emit("capture-recovering", ());
+            }
+        }
+        if next.is_none() {
+            // 所有重连尝试均失败：给出友好提示，而不是一直显示“正在监听”
+            let _ = app.emit(
+                "audio-encoding-error",
+                "系统音频采集已中断（设备被拔出或不可用），请检查播放设备后重新开始监听",
+            );
+            break;
+        }
+    }
 }
 
 // Continuous capture (VAD disabled)

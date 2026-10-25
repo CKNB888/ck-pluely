@@ -3,6 +3,8 @@ import {
   DEFAULT_SHORTCUT_ACTIONS,
   LEGACY_DEFAULT_KEYS,
   SHORTCUTS_MIGRATION_KEY,
+  LEGACY_DEFAULT_KEYS_V105,
+  SHORTCUTS_MIGRATION_KEY_V105,
 } from "@/config";
 import {
   ShortcutsConfig,
@@ -51,8 +53,20 @@ export const getDefaultShortcutsConfig = (): ShortcutsConfig => {
 /**
  * Get shortcuts configuration from localStorage
  */
+const SHORTCUT_MIGRATIONS: { flag: string; legacy: Record<string, string[]> }[] = [
+  { flag: SHORTCUTS_MIGRATION_KEY, legacy: LEGACY_DEFAULT_KEYS },
+  { flag: SHORTCUTS_MIGRATION_KEY_V105, legacy: LEGACY_DEFAULT_KEYS_V105 },
+];
+
 export const getShortcutsConfig = (): ShortcutsConfig => {
   try {
+    // Read the migration flags BEFORE the stored config. Overlay and dashboard
+    // load concurrently; the window that migrates writes the config first and
+    // the flag second, so a window that sees a flag also sees migrated data.
+    const migrations = SHORTCUT_MIGRATIONS.map((m) => ({
+      ...m,
+      done: localStorage.getItem(m.flag) === "1",
+    }));
     const stored = localStorage.getItem(STORAGE_KEYS.SHORTCUTS);
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -62,12 +76,13 @@ export const getShortcutsConfig = (): ShortcutsConfig => {
         bindings: { ...defaults.bindings, ...parsed.bindings },
         customActions: parsed.customActions || [],
       };
-      // One-time migration (v1.0.3/v1.0.4): bindings still on an old
-      // built-in default move to the new default. Runs once, so a user who
-      // re-selects an old combo afterwards keeps it.
-      if (localStorage.getItem(SHORTCUTS_MIGRATION_KEY) !== "1") {
-        let changed = false;
-        for (const [action, oldKeys] of Object.entries(LEGACY_DEFAULT_KEYS)) {
+      // One-time migrations: bindings still on an old built-in default move
+      // to the new default. Each runs once, so a user who re-selects an old
+      // combo afterwards keeps it.
+      let changed = false;
+      for (const m of migrations) {
+        if (m.done) continue;
+        for (const [action, oldKeys] of Object.entries(m.legacy)) {
           const b = config.bindings[action];
           const def = defaults.bindings[action];
           if (b && def && oldKeys.includes((b.key || "").toLowerCase()) && b.key !== def.key) {
@@ -75,8 +90,10 @@ export const getShortcutsConfig = (): ShortcutsConfig => {
             changed = true;
           }
         }
-        if (changed) setShortcutsConfig(config);
-        localStorage.setItem(SHORTCUTS_MIGRATION_KEY, "1");
+      }
+      if (changed) setShortcutsConfig(config);
+      for (const m of migrations) {
+        if (!m.done) localStorage.setItem(m.flag, "1");
       }
       return config;
     }

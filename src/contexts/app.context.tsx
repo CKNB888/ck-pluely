@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import {
   loadSelectedWithSecrets,
   saveSelectedWithSecrets,
@@ -136,6 +137,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     DEFAULT_CUSTOMIZABLE_STATE
   );
   const [hasActiveLicense, setHasActiveLicense] = useState<boolean>(false);
+  // ck-pluely: there is no upstream license service in this build, so the
+  // features that run purely on the user's machine / own API keys (theme,
+  // response settings, shortcut customisation, window dragging, selection
+  // screenshots, move-window hotkeys, chat follow-ups) are always available.
+  // Upstream-hosted services stay hidden behind CK_HIDE_UPSTREAM_PAID.
+  const localFeaturesUnlocked = hasActiveLicense || CK_HIDE_UPSTREAM_PAID;
   const [supportsImages, setSupportsImagesState] = useState<boolean>(() => {
     const stored = safeLocalStorage.getItem(STORAGE_KEYS.SUPPORTS_IMAGES);
     return stored === null ? true : stored === "true";
@@ -178,7 +185,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const syncLicenseState = async () => {
       try {
         await invoke("set_license_status", {
-          hasLicense: hasActiveLicense,
+          hasLicense: localFeaturesUnlocked,
         });
 
         const config = getShortcutsConfig();
@@ -189,7 +196,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
 
     syncLicenseState();
-  }, [hasActiveLicense]);
+  }, [localFeaturesUnlocked]);
 
   // Function to load AI, STT, system prompt and screenshot config data from storage
   const loadData = () => {
@@ -699,7 +706,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     loadData,
     pluelyApiEnabled,
     setPluelyApiEnabled,
-    hasActiveLicense,
+    hasActiveLicense: localFeaturesUnlocked,
     setHasActiveLicense,
     getActiveLicenseStatus,
     selectedAudioDevices,

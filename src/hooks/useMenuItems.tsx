@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import {
   Settings,
   Code,
@@ -76,7 +77,7 @@ export const useMenuItems = () => {
   ];
 
   const footerItems = [
-    ...(hasActiveLicense
+    ...(hasActiveLicense && !CK_HIDE_UPSTREAM_PAID
       ? [
           {
             icon: MailIcon,

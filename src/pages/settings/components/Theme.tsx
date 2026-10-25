@@ -60,7 +60,9 @@ export const Theme = () => {
                   ? t(
                       "Using light theme for better visibility in bright environments"
                     )
-                  : t("Using dark theme for comfortable viewing in low light")}
+                  : theme === "dark"
+                    ? t("Using dark theme for comfortable viewing in low light")
+                    : t("Follows your operating system's light/dark setting")}
               </p>
             </div>
           </div>

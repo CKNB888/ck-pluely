@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [loadingActivity, setLoadingActivity] = useState(false);
 
   const fetchActivity = useCallback(async () => {
-    if (!hasActiveLicense) {
+    if (!hasActiveLicense || CK_HIDE_UPSTREAM_PAID) {
       setActivity({ data: [], total_tokens_used: 0 });
       return;
     }
