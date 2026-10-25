@@ -53,7 +53,9 @@ export const RecordingPanel = ({
                     className="flex-1 gap-1.5"
                     size="sm"
                   >
-                    <MicIcon className="w-3.5 h-3.5" />{t("Start Recording")}</Button>
+                    <MicIcon className="w-3.5 h-3.5" />
+                    {t("Start Recording")}
+                  </Button>
                 ) : (
                   <>
                     <Button
@@ -62,13 +64,17 @@ export const RecordingPanel = ({
                       size="sm"
                       className="flex-1 gap-1"
                     >
-                      <XIcon className="w-3 h-3" />{t("Discard")}</Button>
+                      <XIcon className="w-3 h-3" />
+                      {t("Discard")}
+                    </Button>
                     <Button
                       onClick={onStopAndSend}
                       size="sm"
                       className="flex-1 gap-1"
                     >
-                      <StopCircleIcon className="w-3 h-3" />{t("Stop & Send")}</Button>
+                      <StopCircleIcon className="w-3 h-3" />
+                      {t("Stop & Send")}
+                    </Button>
                   </>
                 )}
               </div>
@@ -86,9 +92,13 @@ export const RecordingPanel = ({
                   </div>
                   <div className="flex justify-between text-[9px] text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />{t("Recording")} {recordingProgress}s
-                                          </span>
-                    <span>{maxDuration}{t("s max")}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                      {t("Recording")} {recordingProgress}s
+                    </span>
+                    <span>
+                      {maxDuration}
+                      {t("s max")}
+                    </span>
                   </div>
                 </div>
               )}
@@ -103,17 +113,23 @@ export const RecordingPanel = ({
                     /{" "}
                     <kbd className="px-1 py-0.5 rounded bg-muted font-mono">
                       Enter
-                    </kbd>{" "}{t("start")}</span>
+                    </kbd>{" "}
+                    {t("start")}
+                  </span>
                 ) : (
                   <>
                     <span>
                       <kbd className="px-1 py-0.5 rounded bg-muted font-mono">
                         Enter
-                      </kbd>{" "}{t("send")}</span>
+                      </kbd>{" "}
+                      {t("send")}
+                    </span>
                     <span>
                       <kbd className="px-1 py-0.5 rounded bg-muted font-mono">
                         Esc
-                      </kbd>{" "}{t("discard")}</span>
+                      </kbd>{" "}
+                      {t("discard")}
+                    </span>
                   </>
                 )}
               </div>

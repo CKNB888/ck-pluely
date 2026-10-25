@@ -251,7 +251,9 @@ export const PluelyPrompts = () => {
             {lastUpdated && (
               <div className="flex justify-end items-center gap-1 text-[10px] text-muted-foreground">
                 <ClockIcon className="size-2" />
-                <span>{t("Last updated:")} {moment(lastUpdated).fromNow()}</span>
+                <span>
+                  {t("Last updated:")} {moment(lastUpdated).fromNow()}
+                </span>
               </div>
             )}
           </div>

@@ -59,8 +59,12 @@ export function Usage({
       <CardHeader className="flex flex-row items-stretch border-b !p-0 ">
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-0">
-            <CardTitle className="text-md lg:text-lg">{t("Pluely Usage")}</CardTitle>
-            <CardDescription className="text-xs lg:text-sm">{t("Your current monthly usage of Pluely's API")}</CardDescription>
+            <CardTitle className="text-md lg:text-lg">
+              {t("Pluely Usage")}
+            </CardTitle>
+            <CardDescription className="text-xs lg:text-sm">
+              {t("Your current monthly usage of Pluely's API")}
+            </CardDescription>
           </div>
 
           <Button

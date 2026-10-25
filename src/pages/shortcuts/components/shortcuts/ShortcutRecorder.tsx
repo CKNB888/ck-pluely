@@ -205,7 +205,9 @@ export const ShortcutRecorder = ({
           disabled={disabled || recordedKeys.length < minKeys}
           title={t("Save shortcut")}
         >
-          <Check className="h-4 w-4" />{t("Save")}</Button>
+          <Check className="h-4 w-4" />
+          {t("Save")}
+        </Button>
         <Button
           size="sm"
           variant="outline"
@@ -213,7 +215,9 @@ export const ShortcutRecorder = ({
           disabled={disabled}
           title={t("Cancel")}
         >
-          <X className="h-4 w-4" />{t("Cancel")}</Button>
+          <X className="h-4 w-4" />
+          {t("Cancel")}
+        </Button>
       </div>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
@@ -221,13 +225,17 @@ export const ShortcutRecorder = ({
       {isRecording && !error && (
         <p className="text-xs text-muted-foreground">
           {isMoveWindow
-            ? t("Press modifier keys (e.g., Cmd+Shift). Arrow keys work automatically.")
+            ? t(
+                "Press modifier keys (e.g., Cmd+Shift). Arrow keys work automatically."
+              )
             : t("Press a key combination now (e.g., Cmd+Shift+K)")}
         </p>
       )}
 
       {recordedKeys.length >= minKeys && !error && (
-        <p className="text-xs text-green-600">{t("✓ Shortcut captured! Click \"Save\" to apply.")}</p>
+        <p className="text-xs text-green-600">
+          {t('✓ Shortcut captured! Click "Save" to apply.')}
+        </p>
       )}
     </div>
   );

@@ -184,7 +184,9 @@ export const AudioRecorder = ({
             <AudioVisualizer stream={audioStream} isRecording={true} />
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">{t("Initializing...")}</div>
+          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+            {t("Initializing...")}
+          </div>
         )}
       </div>
       <div className="flex items-center justify-between px-4 py-2.5 border-t bg-muted/5">

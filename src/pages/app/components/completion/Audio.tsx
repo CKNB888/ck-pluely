@@ -53,7 +53,9 @@ export const Audio = ({
         sideOffset={8}
       >
         <div className="text-sm select-none">
-          <div className="font-semibold text-orange-600 mb-1">{t("Speech Provider Configuration Required")}</div>
+          <div className="font-semibold text-orange-600 mb-1">
+            {t("Speech Provider Configuration Required")}
+          </div>
           <p className="text-muted-foreground">
             {!speechProviderStatus ? (
               <>
@@ -64,9 +66,11 @@ export const Audio = ({
                   )}
                 </div>
 
-                <span className="block mt-2">{t(
-                  "Please go to settings and configure your speech provider to enable voice input."
-                )}</span>
+                <span className="block mt-2">
+                  {t(
+                    "Please go to settings and configure your speech provider to enable voice input."
+                  )}
+                </span>
               </>
             ) : null}
           </p>

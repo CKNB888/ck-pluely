@@ -349,9 +349,8 @@ export const useChatCompletion = (
             await saveConversation(conversation);
 
             // Reload conversation from database to ensure consistency
-            const updatedConversation = await getConversationById(
-              conversationId
-            );
+            const updatedConversation =
+              await getConversationById(conversationId);
             if (updatedConversation) {
               setMessages(updatedConversation);
             }

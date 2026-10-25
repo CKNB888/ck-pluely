@@ -72,7 +72,8 @@ export const GenerateSystemPrompt = ({
           variant="outline"
           className="w-fit"
         >
-          <SparklesIcon className="h-4 w-4" /> {t("Generate with AI")}</Button>
+          <SparklesIcon className="h-4 w-4" /> {t("Generate with AI")}
+        </Button>
       </PopoverTrigger>
       <PopoverContent
         align="end"
@@ -81,8 +82,14 @@ export const GenerateSystemPrompt = ({
       >
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium mb-1">{t("Generate a system prompt")}</p>
-            <p className="text-xs text-muted-foreground">{t("Describe the AI behavior you want, and we'll generate a prompt for you.")}</p>
+            <p className="text-sm font-medium mb-1">
+              {t("Generate a system prompt")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "Describe the AI behavior you want, and we'll generate a prompt for you."
+              )}
+            </p>
           </div>
 
           <Textarea
@@ -108,17 +115,23 @@ export const GenerateSystemPrompt = ({
             >
               {isGenerating ? (
                 <>
-                  <SparklesIcon className="h-4 w-4 animate-pulse" />{t("Generating...")}</>
+                  <SparklesIcon className="h-4 w-4 animate-pulse" />
+                  {t("Generating...")}
+                </>
               ) : (
                 <>
-                  <SparklesIcon className="h-4 w-4" />{t("Generate")}</>
+                  <SparklesIcon className="h-4 w-4" />
+                  {t("Generate")}
+                </>
               )}
             </Button>
           ) : (
             <div className="w-full flex flex-col gap-3">
-              <p className="text-sm font-medium text-muted-foreground">{t(
-                "You need an active license to use this feature. Click the button below to get a license."
-              )}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {t(
+                  "You need an active license to use this feature. Click the button below to get a license."
+                )}
+              </p>
               <GetLicense
                 buttonText={t("Get License")}
                 buttonClassName="w-full"

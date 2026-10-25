@@ -30,14 +30,19 @@ const Promote = () => {
     <Card className="relative w-full">
       <CardContent className="flex flex-col gap-4 p-4 py-0 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2 md:max-w-[70%]">
-          <CardTitle className="text-xs lg:text-sm">{t("Promote Pluely, Earn Rewards")}</CardTitle>
-          <CardDescription className="text-[10px] lg:text-xs">{t(
-            "Share Pluely on social, hit 5K impressions, and we'll send you a $5–$10 coupon for a monthly plan. Email your post link to"
-          )}{" "}
+          <CardTitle className="text-xs lg:text-sm">
+            {t("Promote Pluely, Earn Rewards")}
+          </CardTitle>
+          <CardDescription className="text-[10px] lg:text-xs">
+            {t(
+              "Share Pluely on social, hit 5K impressions, and we'll send you a $5–$10 coupon for a monthly plan. Email your post link to"
+            )}{" "}
             <a
               className="text-primary underline underline-offset-4"
               href="mailto:support@pluely.com"
-            >{t("support@pluely.com")}</a>
+            >
+              {t("support@pluely.com")}
+            </a>
             .
           </CardDescription>
         </div>
@@ -46,7 +51,9 @@ const Promote = () => {
             href="https://pluely.com/promote"
             rel="noopener noreferrer"
             target="_blank"
-          >{t("Pluely.com/promote")}</a>
+          >
+            {t("Pluely.com/promote")}
+          </a>
         </Button>
       </CardContent>
       <button

@@ -61,7 +61,9 @@ export const CreateSystemPrompt = ({
                 variant="outline"
                 onClick={onClose}
                 disabled={isSaving}
-              >{t("Close")}</Button>
+              >
+                {t("Close")}
+              </Button>
               <Button
                 className="w-1/3"
                 variant="destructive"
@@ -87,7 +89,9 @@ export const CreateSystemPrompt = ({
               variant="outline"
               onClick={onClose}
               disabled={isSaving}
-            >{t("Cancel")}</Button>
+            >
+              {t("Cancel")}
+            </Button>
             <Button
               className="w-1/2"
               onClick={onSave}

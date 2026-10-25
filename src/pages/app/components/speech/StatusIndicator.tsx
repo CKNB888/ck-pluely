@@ -33,7 +33,9 @@ export const StatusIndicator = ({
       ) : isAIProcessing ? (
         <div className="flex items-center gap-2 animate-pulse">
           <LoaderIcon className="w-4 h-4 animate-spin" />
-          <span className="text-xs font-medium">{t("Generating response...")}</span>
+          <span className="text-xs font-medium">
+            {t("Generating response...")}
+          </span>
         </div>
       ) : isProcessing ? (
         <div className="flex items-center gap-2 animate-pulse">

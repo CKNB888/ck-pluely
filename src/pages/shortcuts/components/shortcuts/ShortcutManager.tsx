@@ -126,9 +126,13 @@ export const ShortcutManager = () => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-md lg:text-lg font-semibold flex items-center gap-2">
-            <Keyboard className="size-5 lg:size-5" />{t("Keyboard Shortcuts")}</h3>
+            <Keyboard className="size-5 lg:size-5" />
+            {t("Keyboard Shortcuts")}
+          </h3>
           <p className="text-sm text-muted-foreground">
-            {actions.length} {t("shortcut")}{actions.length !== 1 ? "s" : ""}{" "}{t("configured")}{!hasActiveLicense && t(" • Get a license to customize shortcuts")}
+            {actions.length} {t("shortcut")}
+            {actions.length !== 1 ? "s" : ""} {t("configured")}
+            {!hasActiveLicense && t(" • Get a license to customize shortcuts")}
           </p>
         </div>
         <div className="flex gap-2">
@@ -152,7 +156,9 @@ export const ShortcutManager = () => {
             disabled={isApplying}
             title={t("Reset all shortcuts to platform defaults")}
           >
-            <RotateCcw className="size-3 lg:size-4" />{t("Reset")}</Button>
+            <RotateCcw className="size-3 lg:size-4" />
+            {t("Reset")}
+          </Button>
         </div>
       </div>
 
@@ -178,10 +184,14 @@ export const ShortcutManager = () => {
           <div className="flex items-start gap-3">
             <Lock className="size-4 lg:size-5 text-primary mt-0.5" />
             <div className="flex-1 space-y-2">
-              <p className="text-xs lg:text-sm font-medium">{t("Unlock Shortcut Customization")}</p>
-              <p className="text-[10px] lg:text-xs text-muted-foreground">{t(
-                "You can enable/disable shortcuts, but need a active license to customize the key bindings."
-              )}</p>
+              <p className="text-xs lg:text-sm font-medium">
+                {t("Unlock Shortcut Customization")}
+              </p>
+              <p className="text-[10px] lg:text-xs text-muted-foreground">
+                {t(
+                  "You can enable/disable shortcuts, but need a active license to customize the key bindings."
+                )}
+              </p>
               <GetLicense
                 buttonText={t("Get License")}
                 buttonClassName="w-full mt-2"
@@ -280,7 +290,9 @@ export const ShortcutManager = () => {
                           ? t("License required to customize")
                           : t("Change this shortcut")
                       }
-                    >{t("Change")}</Button>
+                    >
+                      {t("Change")}
+                    </Button>
                   </div>
                 </div>
               )}
@@ -290,7 +302,9 @@ export const ShortcutManager = () => {
       </div>
 
       {/* Footer Note */}
-      <p className="text-xs text-muted-foreground text-center pt-2">{t("💡 Shortcuts work globally, even when the app is hidden")}</p>
+      <p className="text-xs text-muted-foreground text-center pt-2">
+        {t("💡 Shortcuts work globally, even when the app is hidden")}
+      </p>
     </div>
   );
 };

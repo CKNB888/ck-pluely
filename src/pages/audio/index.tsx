@@ -45,15 +45,20 @@ const Audio = () => {
 
       <div className="text-xs text-amber-600 bg-amber-500/10 p-3 rounded-md mb-4 space-y-2">
         <p>
-          <strong>{t("⚠️ If selected devices don't work:")}</strong> {t("Please verify your default system audio settings. Go to")}{" "}
+          <strong>{t("⚠️ If selected devices don't work:")}</strong>{" "}
+          {t("Please verify your default system audio settings. Go to")}{" "}
           <strong>{osInstructions.mic}</strong> {t("for microphone and")}{" "}
-          <strong>{osInstructions.audio}</strong> {t(
+          <strong>{osInstructions.audio}</strong>{" "}
+          {t(
             "for speakers/headphones. Ensure the correct devices are set as default in your operating system."
-          )}</p>
+          )}
+        </p>
         <p className="text-amber-600/80">
-          <strong>{t("Note:")}</strong> {t(
+          <strong>{t("Note:")}</strong>{" "}
+          {t(
             "If the selected device fails or is unavailable, Pluely will automatically fall back to your system's default audio devices."
-          )}</p>
+          )}
+        </p>
       </div>
     </PageLayout>
   );

@@ -36,14 +36,22 @@ export const CursorSelection = ({ className }: CursorSelectionProps) => {
               <SelectValue placeholder={t("Select a cursor type")} />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
-              <SelectItem value="invisible" disabled={platform === "linux"}>{t("Invisible (")}<MousePointer2 className="size-3 px-0" />){" "}
+              <SelectItem value="invisible" disabled={platform === "linux"}>
+                {t("Invisible (")}
+                <MousePointer2 className="size-3 px-0" />){" "}
                 {platform === "linux" && (
-                  <span className="text-xs text-muted-foreground">{t("Not supported on Linux")}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Not supported on Linux")}
+                  </span>
                 )}
               </SelectItem>
-              <SelectItem value="default">{t("Default (")}<MousePointer className="size-3" />)
+              <SelectItem value="default">
+                {t("Default (")}
+                <MousePointer className="size-3" />)
               </SelectItem>
-              <SelectItem value="auto">{t("Auto (")}<MousePointer className="size-3" />/
+              <SelectItem value="auto">
+                {t("Auto (")}
+                <MousePointer className="size-3" />/
                 <TextCursor className="size-3" /> /
                 <Pointer className="size-3" />)
               </SelectItem>

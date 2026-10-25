@@ -39,10 +39,14 @@ export const DragButton = () => {
         >
           <div className="flex flex-col gap-2 w-116">
             <div className="flex flex-col gap-1 pb-2">
-              <p className="text-md font-medium">{t("You need an active license to use this feature.")}</p>
-              <p className="text-sm font-medium text-muted-foreground">{t(
-                "Once you complete your purchase, you'll receive a license key via email. Paste in the Settings → Pluely Access section to activate."
-              )}</p>
+              <p className="text-md font-medium">
+                {t("You need an active license to use this feature.")}
+              </p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {t(
+                  "Once you complete your purchase, you'll receive a license key via email. Paste in the Settings → Pluely Access section to activate."
+                )}
+              </p>
             </div>
             <GetLicense setState={setIsOpen} />
           </div>

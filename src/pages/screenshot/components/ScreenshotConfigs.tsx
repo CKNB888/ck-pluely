@@ -29,8 +29,12 @@ export const ScreenshotConfigs = ({
               title={t("Capture Method")}
               description={
                 screenshotConfiguration.enabled
-                  ? t("Screenshot Mode: Quickly capture the entire screen with one click.")
-                  : t("Selection Mode: Click and drag to select a specific area to capture.")
+                  ? t(
+                      "Screenshot Mode: Quickly capture the entire screen with one click."
+                    )
+                  : t(
+                      "Selection Mode: Click and drag to select a specific area to capture."
+                    )
               }
             />
           </div>
@@ -60,7 +64,9 @@ export const ScreenshotConfigs = ({
                   <MousePointer2Icon className="size-4" />
                   <div className="font-medium">{t("Selection Mode")}</div>
                   {!hasActiveLicense && (
-                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">{t("You need an active license to use Selection Mode.")}</span>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                      {t("You need an active license to use Selection Mode.")}
+                    </span>
                   )}
                 </div>
               </SelectItem>
@@ -80,11 +86,11 @@ export const ScreenshotConfigs = ({
               description={
                 screenshotConfiguration.mode === "manual"
                   ? t(
-                  "Screenshots will be captured and automatically added to your attached files. You can then submit them with your own prompt. you can capture multiple screenshots and submit them later."
-                )
+                      "Screenshots will be captured and automatically added to your attached files. You can then submit them with your own prompt. you can capture multiple screenshots and submit them later."
+                    )
                   : t(
-                  "Screenshots will be automatically submitted to AI using your custom prompt. No manual intervention required. only one screenshot can be submitted at a time."
-                )
+                      "Screenshots will be automatically submitted to AI using your custom prompt. No manual intervention required. only one screenshot can be submitted at a time."
+                    )
               }
             />
           </div>
@@ -95,7 +101,11 @@ export const ScreenshotConfigs = ({
             <SelectTrigger className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors">
               <div className="flex items-center gap-2">
                 <div className="text-sm font-medium">
-                  {screenshotConfiguration.mode === "auto" ? t("Auto") : t("Manual")}{" "}{t("Mode")}</div>
+                  {screenshotConfiguration.mode === "auto"
+                    ? t("Auto")
+                    : t("Manual")}{" "}
+                  {t("Mode")}
+                </div>
               </div>
             </SelectTrigger>
             <SelectContent>
@@ -114,12 +124,18 @@ export const ScreenshotConfigs = ({
           <div className="space-y-2">
             <Label className="text-sm font-medium">{t("Auto Prompt")}</Label>
             <Input
-              placeholder={t("Enter prompt for automatic screenshot analysis...")}
+              placeholder={t(
+                "Enter prompt for automatic screenshot analysis..."
+              )}
               value={screenshotConfiguration.autoPrompt}
               onChange={(e) => handleScreenshotPromptChange(e.target.value)}
               className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
             />
-            <p className="text-xs text-muted-foreground">{t("This prompt will be used automatically when screenshots are taken")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "This prompt will be used automatically when screenshots are taken"
+              )}
+            </p>
           </div>
         )}
       </div>
@@ -130,9 +146,13 @@ export const ScreenshotConfigs = ({
           💡 <strong>{t("Tip:")}</strong>{" "}
           {screenshotConfiguration.enabled
             ? t("Screenshot mode captures the full screen with one click.")
-            : t("Selection mode lets you choose specific areas to capture.")}{" "}{t(
-          "Auto mode is great for quick analysis, manual mode gives you more control."
-        )}</p>
+            : t(
+                "Selection mode lets you choose specific areas to capture."
+              )}{" "}
+          {t(
+            "Auto mode is great for quick analysis, manual mode gives you more control."
+          )}
+        </p>
       </div>
     </div>
   );

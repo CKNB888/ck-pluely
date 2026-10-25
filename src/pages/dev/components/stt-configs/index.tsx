@@ -10,7 +10,9 @@ export const STTProviders = (settings: UseSettingsReturn) => {
     <div id="stt-providers" className="space-y-3">
       <Header
         title={t("STT Providers")}
-        description={t("Select your preferred STT service provider to get started.")}
+        description={t(
+          "Select your preferred STT service provider to get started."
+        )}
         isMainTitle
       />
 
