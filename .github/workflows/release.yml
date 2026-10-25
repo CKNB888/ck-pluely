@@ -133,7 +133,7 @@ jobs:
           test -d "$APP" || { echo "::error::.app not found"; exit 1; }
           ARCH=$([ "${{ matrix.target }}" = aarch64-apple-darwin ] && echo aarch64 || echo x64)
           PKG="ck-pluely_${V}_macos_${ARCH}.pkg"
-          pkgbuild --component "$APP" --install-location /Applications "$PKG"
+          pkgbuild --component "$APP" --identifier io.github.cknb6.ckpluely --install-location /Applications "$PKG"
           if [ -n "$TAG" ]; then gh release upload "$TAG" "$PKG" --clobber --repo "$GITHUB_REPOSITORY"; fi
       - uses: actions/upload-artifact@v4
         if: startsWith(matrix.platform, 'macos')

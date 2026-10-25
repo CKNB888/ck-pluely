@@ -2,7 +2,7 @@ import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { GetLicense, MacOsVersionNotice } from "@/components";
-import { PluelyApiSetup, Usage } from "./components";
+import { Overview, PluelyApiSetup, Usage } from "./components";
 import { PageLayout } from "@/layouts";
 import { useApp } from "@/contexts";
 
@@ -62,6 +62,7 @@ const Dashboard = () => {
       rightSlot={!hasActiveLicense ? <GetLicense /> : null}
     >
       <MacOsVersionNotice />
+      <Overview />
       {/* Pluely API Setup */}
       <PluelyApiSetup />
 

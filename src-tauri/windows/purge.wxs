@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="CkPurgeMarker" Guid="6E3B9C1A-5D2F-4E8B-9A7C-2F1D0B4C8E21">
+        <RegistryValue Root="HKMU" Key="Software\CKNB\CK Pluely" Name="Purge" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <CustomAction Id="CkPurgeUserData" Directory="TARGETDIR" Impersonate="yes" Execute="immediate" Return="ignore"
+      ExeCommand="cmd.exe /c rmdir /s /q &quot;[AppDataFolder]io.github.cknb6.ckpluely&quot; &amp; rmdir /s /q &quot;[LocalAppDataFolder]io.github.cknb6.ckpluely&quot; &amp; reg delete &quot;HKCU\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v &quot;CK Pluely&quot; /f" />
+    <InstallExecuteSequence>
+      <Custom Action="CkPurgeUserData" After="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+    </InstallExecuteSequence>
+  </Fragment>
+</Wix>

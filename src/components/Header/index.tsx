@@ -35,7 +35,7 @@ export const Header = ({
           rightSlot ? "flex-row justify-between items-center" : "flex-col"
         } ${
           isMainTitle && (showBorder || !rightSlot)
-            ? "border-b border-input/50 pb-2"
+            ? "border-b pb-3"
             : ""
         }`,
         className
@@ -52,8 +52,8 @@ export const Header = ({
             className={`${cn(
               "font-semibold line-clamp-1",
               isMainTitle
-                ? "text-md lg:text-lg"
-                : "text-xs lg:text-sm transition-all duration-300"
+                ? "text-[15px] tracking-tight"
+                : "text-[13px]"
             )} ${titleClassName}`}
           >
             {t(title)}
@@ -62,8 +62,8 @@ export const Header = ({
             className={cn(
               `select-none text-muted-foreground leading-relaxed ${
                 isMainTitle
-                  ? "text-xs lg:text-sm"
-                  : "text-[10px] lg:text-xs transition-all duration-300"
+                  ? "text-[12.5px]"
+                  : "text-[12px]"
               } ${descriptionClassName}`
             )}
           >

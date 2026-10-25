@@ -5,3 +5,4 @@ export * from "./Theme";
 export * from "./UiLanguage";
 export * from "./PrivacyCheck";
 export * from "./UiStyle";
+export * from "./FullUninstall";

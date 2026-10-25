@@ -6,6 +6,7 @@ import {
   UiLanguage,
   PrivacyCheck,
   UiStyle,
+  FullUninstall,
 } from "./components";
 import { PageLayout } from "@/layouts";
 
@@ -33,6 +34,8 @@ const Settings = () => {
 
       {/* Always On Top Toggle */}
       <AlwaysOnTopToggle />
+
+      <FullUninstall />
 
     </PageLayout>
   );

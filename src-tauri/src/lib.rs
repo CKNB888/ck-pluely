@@ -15,6 +15,7 @@ use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
 mod speaker;
 mod osinfo;
+mod uninstall;
 #[cfg(target_os = "macos")]
 mod macui;
 mod panel;
@@ -132,6 +133,8 @@ pub fn run() {
             ck::ck_secret_get,
             ck::ck_secret_set,
             ck::ck_secret_delete,
+            uninstall::ck_full_uninstall,
+            uninstall::ck_uninstall_paths,
             ck::ck_macos_version,
             window::set_window_height,
             window::open_dashboard,
