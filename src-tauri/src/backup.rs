@@ -540,7 +540,7 @@ pub fn ck_backup_list<R: Runtime>(app: AppHandle<R>) -> Result<Vec<AutoBackup>, 
                 .collect()
         })
         .unwrap_or_default();
-    v.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+    v.sort_by_key(|a| std::cmp::Reverse(a.created_at));
     Ok(v)
 }
 

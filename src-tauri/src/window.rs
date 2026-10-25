@@ -131,9 +131,11 @@ pub fn toggle_dashboard(app: tauri::AppHandle) -> Result<(), String> {
                 dashboard_window
                     .hide()
                     .map_err(|e| format!("Failed to hide dashboard window: {}", e))?;
+                schedule_dashboard_release(&app);
             }
             Ok(false) => {
                 // Window is hidden, show and focus it
+                cancel_dashboard_release();
                 dashboard_window
                     .show()
                     .map_err(|e| format!("Failed to show dashboard window: {}", e))?;
@@ -218,23 +220,58 @@ pub fn create_dashboard_window<R: Runtime>(
     Ok(window)
 }
 
+/// 控制台关闭后隐藏多久就彻底销毁（释放它独占的 WebView 进程，约 150–180 MB）。
+pub const DASHBOARD_RELEASE_SECS: u64 = 300;
+
+static DASHBOARD_HIDE_GEN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// 控制台被隐藏时调用：若 DASHBOARD_RELEASE_SECS 内没有再次打开，就销毁窗口。
+/// 下次打开时 show_dashboard_window 会重新创建（约 0.3–0.6 秒）。
+pub fn schedule_dashboard_release<R: Runtime>(app: &AppHandle<R>) {
+    use std::sync::atomic::Ordering;
+    let gen = DASHBOARD_HIDE_GEN.fetch_add(1, Ordering::SeqCst) + 1;
+    let app = app.clone();
+    std::thread::spawn(move || {
+        // CK_DASHBOARD_RELEASE_SECS 仅用于测试内存回收
+        let secs = std::env::var("CK_DASHBOARD_RELEASE_SECS")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(DASHBOARD_RELEASE_SECS);
+        std::thread::sleep(std::time::Duration::from_secs(secs));
+        if DASHBOARD_HIDE_GEN.load(Ordering::SeqCst) != gen {
+            return; // 期间又被打开 / 再次隐藏过，以最新一次为准
+        }
+        if let Some(w) = app.get_webview_window("dashboard") {
+            if w.is_visible().ok() == Some(false) {
+                let _ = w.destroy();
+            }
+        }
+    });
+}
+
+/// 控制台重新显示时调用，取消待执行的销毁。
+pub fn cancel_dashboard_release() {
+    DASHBOARD_HIDE_GEN.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+}
+
 /// Sets up the close event handler for the dashboard window
 fn setup_dashboard_close_handler<R: Runtime>(window: &WebviewWindow<R>) {
     let window_clone = window.clone();
     window.on_window_event(move |event| {
         if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-            // Prevent the window from being destroyed
+            // 先隐藏（再次打开是瞬间的），一段时间不用再销毁以释放内存
             api.prevent_close();
-            // Hide the window instead
             if let Err(e) = window_clone.hide() {
                 eprintln!("Failed to hide dashboard window on close: {}", e);
             }
+            schedule_dashboard_release(window_clone.app_handle());
         }
     });
 }
 
 /// Shows the dashboard window and brings it to focus
 pub fn show_dashboard_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
+    cancel_dashboard_release();
     if let Some(dashboard_window) = app.get_webview_window("dashboard") {
         // Window exists, show and focus it
         crate::privacy::harden(&dashboard_window);

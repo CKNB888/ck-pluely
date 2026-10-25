@@ -597,9 +597,11 @@ fn handle_toggle_dashboard<R: Runtime>(app: &AppHandle<R>) {
                 if let Err(e) = dashboard_window.hide() {
                     eprintln!("Failed to hide dashboard window: {}", e);
                 }
+                crate::window::schedule_dashboard_release(app);
             }
             Ok(false) => {
                 // Window is hidden, show and focus it
+                crate::window::cancel_dashboard_release();
                 if let Err(e) = dashboard_window.show() {
                     eprintln!("Failed to show dashboard window: {}", e);
                 }
