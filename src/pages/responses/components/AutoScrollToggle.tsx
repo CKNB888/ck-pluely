@@ -50,10 +50,10 @@ export const AutoScrollToggle = () => {
           onCheckedChange={handleSwitchChange}
           disabled={!hasActiveLicense}
           title={t("Toggle to {{v0}} auto-scroll", {
-            v0: !autoScroll ? "enable" : "disable"
+            v0: autoScroll ? t("Disable") : t("Enable")
           })}
           aria-label={t("Toggle to {{v0}} auto-scroll", {
-            v0: autoScroll ? "disable" : "enable"
+            v0: autoScroll ? t("Disable") : t("Enable")
           })}
         />
       </div>

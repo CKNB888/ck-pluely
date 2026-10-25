@@ -40,10 +40,10 @@ export const AlwaysOnTopToggle = ({ className }: AlwaysOnTopToggleProps) => {
           checked={customizable.alwaysOnTop.isEnabled}
           onCheckedChange={handleSwitchChange}
           title={t("Toggle to {{v0}} always on top", {
-            v0: !customizable.alwaysOnTop.isEnabled ? t("Enabled") : t("Disabled")
+            v0: customizable.alwaysOnTop.isEnabled ? t("Disable") : t("Enable")
           })}
           aria-label={t("Toggle to {{v0}} always on top", {
-            v0: customizable.alwaysOnTop.isEnabled ? t("Enabled") : t("Disabled")
+            v0: customizable.alwaysOnTop.isEnabled ? t("Disable") : t("Enable")
           })}
         />
       </div>
