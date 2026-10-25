@@ -79,11 +79,17 @@ export const useApp = () => {
       (event) => {
         const platform = navigator.platform.toLowerCase();
         if (typeof event.payload === "boolean" && platform.includes("win")) {
-          setIsHidden(!event.payload);
+          // payload is the new "hidden" state emitted by the backend
+          const hidden = event.payload;
+          setIsHidden(hidden);
           // find popover open and close it
           const popover = document.getElementById("popover-content");
+          if (popover && !hidden) {
+            // restore the popover so it can be opened again after showing
+            popover.style.removeProperty("display");
+          }
           // set display to none, change data-state to closed
-          if (popover) {
+          if (popover && hidden) {
             popover.style.setProperty("display", "none", "important");
             // update the data-state to closed
             popover.setAttribute("data-state", "closed");
