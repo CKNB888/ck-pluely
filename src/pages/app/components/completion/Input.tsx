@@ -9,6 +9,7 @@ import {
   Markdown,
   Switch,
   CopyButton,
+  TokenUsage,
 } from "@/components";
 import { UseCompletionReturn } from "@/types";
 import { MessageHistory } from "./MessageHistory";
@@ -126,6 +127,7 @@ export const Input = ({
                   }}
                 />
               </div>
+              <TokenUsage />
               <CopyButton content={response} />
               <Button
                 size="icon"

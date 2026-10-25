@@ -655,5 +655,13 @@
   "System audio interrupted, reconnecting…": "系统音频中断，正在自动重连…",
   "Failed to process audio": "音频处理失败",
   "Follows your operating system's light/dark setting": "跟随操作系统的浅色/深色设置自动切换",
-  "Open the setup guide again": "重新打开新手引导"
+  "Open the setup guide again": "重新打开新手引导",
+  "Session tokens (click to reset)": "本次会话 token 用量（点击清零）",
+  "Input": "输入",
+  "Cached": "缓存命中",
+  "Output": "输出",
+  "Last answer": "上一条回答",
+  "first token": "首字",
+  "Some numbers are estimates (provider sent no usage).": "部分数字为估算（服务商未返回用量）。",
+  "cache": "缓存"
 }

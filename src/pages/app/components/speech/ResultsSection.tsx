@@ -1,5 +1,5 @@
 import { ChatConversation } from "@/types";
-import { Markdown, Switch, CopyButton } from "@/components";
+import { Markdown, Switch, CopyButton, TokenUsage } from "@/components";
 import { BotIcon, HeadphonesIcon, Loader2, PenLineIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +43,7 @@ export const ResultsSection = ({
           </h4>
         </div>
         <div className="flex items-center gap-2 select-none">
+          <TokenUsage />
           <span className="text-[9px] text-muted-foreground/50 bg-muted/50 px-1 rounded">
             {modKey}+K
           </span>

@@ -655,5 +655,13 @@
   "System audio interrupted, reconnecting…": "System audio interrupted, reconnecting…",
   "Failed to process audio": "Failed to process audio",
   "Follows your operating system's light/dark setting": "Follows your operating system's light/dark setting",
-  "Open the setup guide again": "Open the setup guide again"
+  "Open the setup guide again": "Open the setup guide again",
+  "Session tokens (click to reset)": "Session tokens (click to reset)",
+  "Input": "Input",
+  "Cached": "Cached",
+  "Output": "Output",
+  "Last answer": "Last answer",
+  "first token": "first token",
+  "Some numbers are estimates (provider sent no usage).": "Some numbers are estimates (provider sent no usage).",
+  "cache": "cache"
 }
