@@ -1,5 +1,7 @@
 # Pluely v1 🚀
 
+**English** | [简体中文](./README.zh-CN.md)
+
 _One overlay, no tab, no trace._
 
 <a href="https://pluely.com/">
@@ -135,6 +137,10 @@ Pluely v1 and later are proprietary, closed-source software distributed as binar
 - **[Tauri](https://tauri.app/)** - Amazing desktop framework
 - **[tauri-nspanel](https://github.com/ahkohd/tauri-nspanel)** - macOS native panel integration for Tauri
 - **[shadcn/ui](https://ui.shadcn.com/)** - Beautiful UI components
+
+### Contributors
+
+- [CKNB](https://github.com/cknb6) - multi-language (i18n) support, Simplified Chinese translation and bug fixes
 
 ---
 
