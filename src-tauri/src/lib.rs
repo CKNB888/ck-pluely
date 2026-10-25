@@ -19,6 +19,7 @@ mod local;
 mod notes;
 mod uninstall;
 mod backup;
+mod net;
 #[cfg(target_os = "macos")]
 mod macui;
 mod panel;
@@ -125,6 +126,10 @@ pub fn run() {
             privacy::privacy_status,
             notes::ck_export_notes,
             notes::ck_check_update,
+            net::ck_http_fetch,
+            net::ck_http_body,
+            net::ck_http_abort,
+            net::ck_http_prewarm,
             backup::ck_backup_export,
             backup::ck_backup_inspect,
             backup::ck_backup_apply,

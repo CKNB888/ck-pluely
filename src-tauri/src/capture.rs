@@ -229,18 +229,7 @@ pub async fn capture_selected_area(
     // Crop the image to the selected area
     let cropped = monitor_info.image.view(x, y, width, height).to_image();
 
-    // Encode to PNG and base64
-    let mut png_buffer = Vec::new();
-    PngEncoder::new(&mut png_buffer)
-        .write_image(
-            cropped.as_raw(),
-            cropped.width(),
-            cropped.height(),
-            ColorType::Rgba8.into(),
-        )
-        .map_err(|e| format!("Failed to encode to PNG: {}", e))?;
-
-    let base64_str = base64::engine::general_purpose::STANDARD.encode(png_buffer);
+    let base64_str = vision_png_base64(cropped)?;
 
     captured_monitors.clear();
     drop(captured_monitors);
@@ -374,19 +363,52 @@ pub async fn capture_to_base64(window: tauri::WebviewWindow) -> Result<String, S
         let image = monitor
             .capture_image()
             .map_err(|e| format!("Failed to capture image: {}", e))?;
-        let mut png_buffer = Vec::new();
-        PngEncoder::new(&mut png_buffer)
-            .write_image(
-                image.as_raw(),
-                image.width(),
-                image.height(),
-                ColorType::Rgba8.into(),
-            )
-            .map_err(|e| format!("Failed to encode to PNG: {}", e))?;
-        let base64_str = base64::engine::general_purpose::STANDARD.encode(png_buffer);
+        let base64_str = vision_png_base64(image)?;
 
         Ok(base64_str)
     })
     .await
     .map_err(|e| format!("Task panicked: {}", e))?
+}
+
+/// 发给视觉模型的截图：长边超过 1568 像素时等比缩小。
+/// 视觉模型按分辨率计费 / 切块（OpenAI、Anthropic 都会把大图缩到约 1568 以内），
+/// 先在本机缩小可以少传数 MB、少算图片 token，识别效果基本不变。
+/// 仍用 PNG：各服务商模板里写的是 image/png，Anthropic 会校验类型。
+pub const VISION_MAX_EDGE: u32 = 1568;
+
+pub fn vision_png_base64(img: image::RgbaImage) -> Result<String, String> {
+    let img = downscale_for_vision(img);
+    let mut png_buffer = Vec::new();
+    PngEncoder::new(&mut png_buffer)
+        .write_image(img.as_raw(), img.width(), img.height(), ColorType::Rgba8.into())
+        .map_err(|e| format!("截图编码失败：{}", e))?;
+    Ok(base64::engine::general_purpose::STANDARD.encode(png_buffer))
+}
+
+pub fn downscale_for_vision(img: image::RgbaImage) -> image::RgbaImage {
+    let (w, h) = (img.width(), img.height());
+    let long = w.max(h);
+    if long <= VISION_MAX_EDGE {
+        return img;
+    }
+    let scale = VISION_MAX_EDGE as f64 / long as f64;
+    let nw = ((w as f64 * scale).round() as u32).max(1);
+    let nh = ((h as f64 * scale).round() as u32).max(1);
+    image::imageops::resize(&img, nw, nh, image::imageops::FilterType::Triangle)
+}
+
+#[cfg(test)]
+mod vision_tests {
+    use super::*;
+    #[test]
+    fn downscales_only_large_images() {
+        let big = image::RgbaImage::new(3840, 2160);
+        let s = downscale_for_vision(big);
+        assert_eq!((s.width(), s.height()), (1568, 882));
+        let small = image::RgbaImage::new(800, 600);
+        assert_eq!(downscale_for_vision(small).dimensions(), (800, 600));
+        let tall = image::RgbaImage::new(1000, 4000);
+        assert_eq!(downscale_for_vision(tall).dimensions(), (392, 1568));
+    }
 }
