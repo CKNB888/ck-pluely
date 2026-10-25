@@ -373,7 +373,7 @@ export const PluelyApiSetup = () => {
                               {model?.provider}
                             </div>
                           ) : (
-                            <div className="text-xs text-red-600 bg-white rounded-full px-2">
+                            <div className="text-xs text-red-600 dark:text-red-400 bg-white rounded-full px-2">
                               {t("Not Available")}
                             </div>
                           )}

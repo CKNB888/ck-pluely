@@ -4243,7 +4243,7 @@ dependencies = [
 
 [[package]]
 name = "pluely"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -4273,6 +4273,7 @@ dependencies = [
  "tauri-plugin-opener",
  "tauri-plugin-posthog",
  "tauri-plugin-shell",
+ "tauri-plugin-single-instance",
  "tauri-plugin-sql",
  "tauri-plugin-updater",
  "tokio",
@@ -6460,6 +6461,21 @@ dependencies = [
  "tauri-plugin",
  "thiserror 2.0.14",
  "tokio",
+]
+
+[[package]]
+name = "tauri-plugin-single-instance"
+version = "2.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd707f8c86b4e3004e2c141fa24351f1909ba40ce1b8437e30d5ed5277dd3710"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "thiserror 2.0.14",
+ "tracing",
+ "windows-sys 0.60.2",
+ "zbus 5.9.0",
 ]
 
 [[package]]

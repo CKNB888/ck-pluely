@@ -26,7 +26,7 @@ export const MacOsVersionNotice = () => {
   if (!version || !isBelowMacOs142(version)) return null;
 
   return (
-    <div className="text-xs text-red-600 bg-red-500/10 p-3 rounded-md mb-4">
+    <div className="text-xs text-red-600 dark:text-red-400 bg-red-500/10 p-3 rounded-md mb-4">
       <strong>
         {t("Your macOS version is {{v0}}.", { v0: version })}
       </strong>{" "}

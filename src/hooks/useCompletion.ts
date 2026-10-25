@@ -788,11 +788,13 @@ export const useCompletion = () => {
       const scrollElement = scrollAreaRef.current.querySelector(
         "[data-radix-scroll-area-viewport]"
       );
+      // Follow the stream only while the reader is at the bottom; if they
+      // scrolled up to re-read, leave them there. Instant scroll: a smooth
+      // animation per chunk lags behind and fights the user.
       if (scrollElement) {
-        scrollElement.scrollTo({
-          top: scrollElement.scrollHeight,
-          behavior: "smooth",
-        });
+        const gap =
+          scrollElement.scrollHeight - scrollElement.scrollTop - scrollElement.clientHeight;
+        if (gap < 160) scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
   }, [state.response, keepEngaged]);

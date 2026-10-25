@@ -66,7 +66,7 @@ export const PrivacyCheck = () => {
     t("Pluely shows no system notifications, so AI content never appears in notification banners.")
   );
   notes.push(
-    t("Hide-all hotkey (default Ctrl+Alt+Shift+H / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.")
+    t("Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.")
   );
 
   return (

@@ -51,6 +51,40 @@ pub fn position_window_top_center(
     Ok(())
 }
 
+/// Moves the window back onto a screen when less than a sliver of it is
+/// visible on any monitor (monitor unplugged, resolution/DPI change, or moved
+/// off-screen with the move-window hotkeys).
+pub fn ensure_on_screen<R: Runtime>(window: &WebviewWindow<R>) {
+    let (Ok(pos), Ok(size), Ok(monitors)) = (
+        window.outer_position(),
+        window.outer_size(),
+        window.available_monitors(),
+    ) else {
+        return;
+    };
+    if monitors.is_empty() {
+        return;
+    }
+    let (w, h) = (size.width as i32, size.height as i32);
+    let visible = monitors.iter().any(|m| {
+        let (mp, ms) = (m.position(), m.size());
+        let ix = (pos.x + w).min(mp.x + ms.width as i32) - pos.x.max(mp.x);
+        let iy = (pos.y + h).min(mp.y + ms.height as i32) - pos.y.max(mp.y);
+        ix >= 80 && iy >= 24
+    });
+    if visible {
+        return;
+    }
+    let target = window.primary_monitor().ok().flatten().or_else(|| monitors.into_iter().next());
+    if let Some(m) = target {
+        let (mp, ms) = (m.position(), m.size());
+        let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
+            x: mp.x + (ms.width as i32 - w) / 2,
+            y: mp.y + TOP_OFFSET,
+        }));
+    }
+}
+
 /// Future function for centering window completely (both X and Y)
 #[allow(dead_code)]
 pub fn center_window_completely(window: &WebviewWindow) -> Result<(), Box<dyn std::error::Error>> {

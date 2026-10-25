@@ -629,7 +629,7 @@ export function useSystemAudio() {
             setLastAIResponse((prev) => prev + chunk);
           }
         } catch (aiError: any) {
-          setError(aiError.message || "Failed to get AI response");
+          setError(aiError.message || t("Failed to get AI response"));
         }
 
         if (fullResponse && !controller.signal.aborted) {

@@ -90,9 +90,12 @@ export const useChatCompletion = (
 
   const scrollToBottom = () => {
     const responseSettings = getResponseSettings();
-    if (responseSettings.autoScroll) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
+    if (!responseSettings.autoScroll) return;
+    const end = messagesEndRef.current;
+    const viewport = end?.closest("[data-radix-scroll-area-viewport]") as HTMLElement | null;
+    // Don't yank the reader back down while they are reading earlier text.
+    if (viewport && viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight > 160) return;
+    end?.scrollIntoView({ behavior: "auto", block: "end" });
   };
 
   const setInput = useCallback((value: string) => {

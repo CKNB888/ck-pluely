@@ -40,6 +40,26 @@ pub fn run() {
     // `mut` is only needed on macOS (nspanel plugin / panel setup).
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut builder = tauri::Builder::default()
+        // Must be the first plugin (tauri-plugin-single-instance docs). A
+        // second launch would register the same global hotkeys and open a
+        // second overlay; instead bring the running instance forward.
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                #[cfg(target_os = "windows")]
+                let hidden = *app
+                    .state::<shortcuts::WindowVisibility>()
+                    .is_hidden
+                    .lock()
+                    .unwrap_or_else(|e| e.into_inner());
+                #[cfg(not(target_os = "windows"))]
+                let hidden = !window.is_visible().unwrap_or(false);
+                if hidden {
+                    shortcuts::handle_toggle_window(app);
+                } else {
+                    let _ = window.set_focus();
+                }
+            }
+        }))
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:pluely.db", db::migrations())

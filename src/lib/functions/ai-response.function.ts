@@ -275,6 +275,14 @@ export async function* fetchAIResponse(params: {
       ),
       SYSTEM_PROMPT: enhancedSystemPrompt || "",
     };
+    // Keyless first run: say what to do instead of surfacing an HTTP 401.
+    if (
+      provider?.curl?.includes("{{API_KEY}}") &&
+      !String((allVariables as Record<string, string>).API_KEY ?? "").trim()
+    ) {
+      yield t("No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.");
+      return;
+    }
 
     const templateBody = bodyObj;
     // Build the request for one API key (several keys rotate on 401/429).

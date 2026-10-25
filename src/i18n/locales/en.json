@@ -615,7 +615,7 @@
   "Recommended on this Mac: share a single window (e.g. the slides/browser window) instead of the whole screen, and keep the hide-all hotkey ready.": "Recommended on this Mac: share a single window (e.g. the slides/browser window) instead of the whole screen, and keep the hide-all hotkey ready.",
   "Linux has no system API to hide windows from screen sharing. Share a single window instead of the whole screen, or use the hide-all hotkey.": "Linux has no system API to hide windows from screen sharing. Share a single window instead of the whole screen, or use the hide-all hotkey.",
   "Pluely shows no system notifications, so AI content never appears in notification banners.": "Pluely shows no system notifications, so AI content never appears in notification banners.",
-  "Hide-all hotkey (default Ctrl+Alt+Shift+H / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.": "Hide-all hotkey (default Ctrl+Alt+Shift+H / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.",
+  "Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.": "Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.",
   "Privacy self-check": "Privacy self-check",
   "What is protected from screen sharing on this system, and its limits": "What is protected from screen sharing on this system, and its limits",
   "Re-check and re-apply protection": "Re-check and re-apply protection",
@@ -638,5 +638,9 @@
   "Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.": "Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.",
   "{{v0}}/{{v1}} API keys work.": "{{v0}}/{{v1}} API keys work.",
   "Failing: {{v0}}": "Failing: {{v0}}",
-  "API key — separate several keys with commas to rotate on rate limits": "API key — separate several keys with commas to rotate on rate limits"
+  "API key — separate several keys with commas to rotate on rate limits": "API key — separate several keys with commas to rotate on rate limits",
+  "No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.": "No API key yet. Add one under AI Providers (Groq is free to start; DeepSeek, Qwen, Kimi, GLM and Doubao work in mainland China), then click Test connection.",
+  "No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection.": "No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection.",
+  "Copied": "Copied",
+  "Copy failed": "Copy failed"
 }

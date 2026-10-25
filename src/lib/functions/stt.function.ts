@@ -66,7 +66,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
 
     if (!provider) throw new Error(t("Provider not provided"));
     if (!selectedProvider) throw new Error(t("Selected provider not provided"));
-    if (!audio) throw new Error("Audio file is required");
+    if (!audio) throw new Error(t("Audio file is empty"));
 
     let curlJson: any;
     try {
@@ -92,6 +92,9 @@ export async function fetchSTT(params: STTParams): Promise<string> {
         ])
       ),
     };
+    if (provider.curl.includes("{{API_KEY}}") && !String(allVariables.API_KEY ?? "").trim()) {
+      throw new Error(t("No speech-recognition API key yet. Add one under Speech-to-Text (Groq is recommended), then click Test connection."));
+    }
 
     // ck-pluely: skip clips that are too short / silent (Whisper invents
     // "Thank you." or subtitle credits for them) and enforce the 25 MB limit.

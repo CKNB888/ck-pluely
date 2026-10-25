@@ -1,7 +1,7 @@
 {
   "name": "ck-pluely",
   "private": false,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CK Pluely：中文优先的开源实时 AI 会议/面试/课堂助手（基于 Srikanth Nani 的 Pluely，GPL-3.0）",
   "author": {
     "name": "Srikanth Nani",

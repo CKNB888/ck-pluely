@@ -104,7 +104,7 @@ const View = () => {
           >
             {isAttached ? (
               <>
-                <Check className="size-3 lg:size-4 text-green-600" />
+                <Check className="size-3 lg:size-4 text-green-600 dark:text-green-400" />
                 {t("Attached")}
               </>
             ) : (
@@ -123,7 +123,7 @@ const View = () => {
           >
             {isDownloaded ? (
               <>
-                <Check className="size-3 lg:size-4 text-green-600" />
+                <Check className="size-3 lg:size-4 text-green-600 dark:text-green-400" />
                 {t("Downloaded")}
               </>
             ) : (

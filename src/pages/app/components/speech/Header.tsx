@@ -61,7 +61,7 @@ const STATUS_CONFIG: Record<
   },
   recording: {
     label: "Recording",
-    color: "text-red-600",
+    color: "text-red-600 dark:text-red-400",
     bgColor: "bg-red-100",
     icon: <MicIcon className="w-3 h-3" />,
   },
@@ -79,7 +79,7 @@ const STATUS_CONFIG: Record<
   },
   error: {
     label: "Error",
-    color: "text-red-600",
+    color: "text-red-600 dark:text-red-400",
     bgColor: "bg-red-100",
     icon: <AlertCircleIcon className="w-3 h-3" />,
   },

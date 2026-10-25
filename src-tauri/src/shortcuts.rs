@@ -187,7 +187,7 @@ pub fn stop_all_move_windows<R: Runtime>(app: &AppHandle<R>) {
 }
 
 /// Handle app toggle (hide/show) with input focus and app icon management
-fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
+pub(crate) fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
     // Get the main window
     let Some(window) = app.get_webview_window("main") else {
         return;
@@ -205,6 +205,7 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
 
         if !*is_hidden {
             crate::privacy::harden(&window);
+            crate::window::ensure_on_screen(&window);
             if let Err(e) = window.show() {
                 eprintln!("Failed to show window: {}", e);
             }
@@ -233,6 +234,7 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
         }
         Ok(false) => {
             // Window is hidden, show it and handle app icon based on user settings
+            crate::window::ensure_on_screen(&window);
             if let Err(e) = window.show() {
                 eprintln!("Failed to show window: {}", e);
             }
@@ -651,6 +653,7 @@ fn handle_move_window<R: Runtime>(app: &AppHandle<R>, direction: &str) {
                 {
                     eprintln!("Failed to set window position: {}", e);
                 }
+                crate::window::ensure_on_screen(&window);
             }
             Err(e) => {
                 eprintln!("Failed to get window position: {}", e);

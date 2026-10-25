@@ -233,7 +233,7 @@ export const ShortcutRecorder = ({
       )}
 
       {recordedKeys.length >= minKeys && !error && (
-        <p className="text-xs text-green-600">
+        <p className="text-xs text-green-600 dark:text-green-400">
           {t('✓ Shortcut captured! Click "Save" to apply.')}
         </p>
       )}

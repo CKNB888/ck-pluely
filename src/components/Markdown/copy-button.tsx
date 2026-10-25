@@ -11,7 +11,7 @@ type CopyButtonProps = {
 };
 
 export function CopyButton({ content, copyMessage }: CopyButtonProps) {
-  const { isCopied, handleCopy } = useCopyToClipboard({
+  const { isCopied, copyFailed, handleCopy } = useCopyToClipboard({
     text: content,
     copyMessage,
   });
@@ -22,6 +22,7 @@ export function CopyButton({ content, copyMessage }: CopyButtonProps) {
       size="icon"
       className="relative h-6 w-6"
       aria-label={t("Copy to clipboard")}
+      title={isCopied ? t("Copied") : copyFailed ? t("Copy failed") : t("Copy to clipboard")}
       onClick={handleCopy}
     >
       <div className="absolute inset-0 flex items-center justify-center">

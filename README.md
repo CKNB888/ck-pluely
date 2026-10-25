@@ -47,13 +47,13 @@
 
 1. **安装**：在 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载对应系统的安装包（macOS .dmg/.pkg、Windows .msi/.exe、Linux .deb/.rpm/.AppImage）。macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`。
 2. **打开悬浮条**：启动后屏幕顶部出现悬浮条，`Ctrl+\`（macOS 为 `Cmd+\`）显示 / 隐藏。
-3. **打开控制台**：按 `Ctrl+Shift+D` 打开控制台窗口。
+3. **打开控制台**：按 `Ctrl+Alt+Shift+D`（macOS `⌘⌥⇧D`）打开控制台窗口。
 4. **确认界面语言**：「应用设置 → 界面语言」，默认简体中文，可切换为 English 或跟随系统。
 5. **配置 AI 服务商**：「开发者空间」中选择服务商（Groq、OpenAI、Claude、Gemini、DeepSeek、通义千问、智谱等），填入 API Key 和模型名。密钥只保存在本机。
 6. **配置语音识别**：同一页下方选择语音识别服务商并填写 Key。
 7. **调整提示词与回答**：在「系统提示词」中选择或新建提示词；在「回答设置」中设置回答长度与语言。
 8. **授予权限**：在「音频」中选择麦克风与系统音频，macOS 需授予麦克风、屏幕录制权限。
-9. **开始使用**：在悬浮条输入问题，或用 `Ctrl+Shift+S` 截图提问、`Ctrl+Shift+A` 语音输入、`Ctrl+Shift+M` 捕获系统音频。
+9. **开始使用**：在悬浮条输入问题，或用 `Ctrl+Alt+Shift+S` 截图提问、`Ctrl+Alt+Shift+R` 语音输入、`Ctrl+Alt+Shift+M` 捕获系统音频（macOS 把 Ctrl+Alt 换成 ⌘⌥）；显示/隐藏悬浮条 `Ctrl+Alt+\`，一键隐藏全部 `Ctrl+Alt+Shift+X`（macOS `⌘⌥⇧H`）。默认快捷键都用三个修饰键，避开腾讯会议、钉钉、飞书、微信、QQ、Zoom 的常用快捷键；欧洲键盘布局（AltGr = Ctrl+Alt）用户如与输入字符冲突，请在「快捷键」页改键。
 10. **回看记录**：在「聊天记录」中查看历史对话。
 
 ## 下载与安装
