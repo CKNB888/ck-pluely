@@ -11,7 +11,7 @@ import {
 } from "@/components";
 import {
   CheckCircle2,
-  Sparkles,
+  PenLine,
   BotIcon,
   LockIcon,
   ClockIcon,
@@ -211,7 +211,7 @@ export const PluelyPrompts = () => {
         />
         <Empty
           isLoading={true}
-          icon={Sparkles}
+          icon={PenLine}
           title={t("Loading prompts...")}
           description={t("Fetching Pluely default prompts")}
         />

@@ -14,7 +14,7 @@ import {
   MousePointerClickIcon,
   PartyPopperIcon,
   ShieldCheckIcon,
-  SparklesIcon,
+  PenLineIcon,
   XCircleIcon,
 } from "lucide-react";
 import { Button, Input } from "@/components";
@@ -81,7 +81,7 @@ async function requestMac(step: StepId) {
 }
 
 const STEP_META: Record<StepId, { icon: React.ElementType; title: string }> = {
-  welcome: { icon: SparklesIcon, title: "欢迎使用 CK Pluely" },
+  welcome: { icon: PenLineIcon, title: "欢迎使用 CK Pluely" },
   privacy: { icon: EyeOffIcon, title: "默认对屏幕共享隐身" },
   mic: { icon: MicIcon, title: "允许使用麦克风" },
   screen: { icon: MonitorIcon, title: "允许屏幕与系统录音" },

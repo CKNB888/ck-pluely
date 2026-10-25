@@ -6,7 +6,7 @@ import {
   GetLicense,
   Textarea,
 } from "@/components";
-import { SparklesIcon } from "lucide-react";
+import { PenLineIcon } from "lucide-react";
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useApp } from "@/contexts";
@@ -72,7 +72,7 @@ export const GenerateSystemPrompt = ({
           variant="outline"
           className="w-fit"
         >
-          <SparklesIcon className="h-4 w-4" /> {t("Generate with AI")}
+          <PenLineIcon className="h-4 w-4" /> {t("Generate with AI")}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -115,12 +115,12 @@ export const GenerateSystemPrompt = ({
             >
               {isGenerating ? (
                 <>
-                  <SparklesIcon className="h-4 w-4 animate-pulse" />
+                  <PenLineIcon className="h-4 w-4 animate-pulse" />
                   {t("Generating...")}
                 </>
               ) : (
                 <>
-                  <SparklesIcon className="h-4 w-4" />
+                  <PenLineIcon className="h-4 w-4" />
                   {t("Generate")}
                 </>
               )}

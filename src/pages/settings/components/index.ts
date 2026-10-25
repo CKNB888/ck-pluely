@@ -4,3 +4,4 @@ export * from "./AutostartToggle";
 export * from "./Theme";
 export * from "./UiLanguage";
 export * from "./PrivacyCheck";
+export * from "./UiStyle";

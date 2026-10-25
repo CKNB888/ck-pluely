@@ -1,11 +1,13 @@
-import { SparklesIcon } from "lucide-react";
-import { Button } from "@/components";
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useMenuItems, useVersion } from "@/hooks";
+import logo from "@/assets/logo.svg";
 
 import { t } from "@/i18n";
+
+const itemClass =
+  "flex h-8 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
 export const Sidebar = () => {
   const { version, isLoading } = useVersion();
@@ -14,44 +16,39 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const activeRoute = useLocation().pathname;
   return (
-    <aside className="flex w-56 flex-col select-none pt-2">
-      {/* Logo */}
+    <aside className="flex w-52 flex-col select-none border-r bg-sidebar pt-2">
       <div
         onClick={() => navigate("/dashboard")}
-        className="flex h-16 items-center px-4 pt-10 gap-1.5"
+        className="flex items-center gap-2.5 px-4 pb-4 pt-10"
       >
-        <div className="flex size-6 lg:size-7 items-center justify-center rounded-lg bg-primary">
-          <SparklesIcon className="size-4 lg:size-5 text-primary-foreground transition-all duration-300" />
-        </div>
-        <div className="flex flex-col">
-          <h1 className="text-xs lg:text-md font-semibold text-foreground transition-all duration-300">
-            {t("Pluely")}
-          </h1>
-          <span className="text-[8px] lg:text-[10px] text-muted-foreground -mt-1 block">
-            {isLoading ? t("Loading...") : `(v${version})`}
+        <img src={logo} alt="" className="size-7 rounded-[7px]" />
+        <div className="flex flex-col leading-tight">
+          <span className="text-[13px] font-semibold text-foreground">CK Pluely</span>
+          <span className="text-[11px] text-muted-foreground">
+            {isLoading ? t("Loading...") : `v${version}`}
           </span>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-6">
+      <nav className="flex-1 space-y-0.5 px-2.5 py-2">
         {menu.map((item, index) => (
           <button
             onClick={() => navigate(item.href)}
             key={`${item.label}-${index}`}
             className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-xs lg:text-sm text-sidebar-foreground/70 transition-all duration-300 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              itemClass,
+              "justify-between",
               activeRoute.includes(item.href)
-                ? "font-medium bg-sidebar-accent text-sidebar-accent-foreground"
+                ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                 : ""
             )}
           >
-            <div className="flex items-center gap-3">
-              <item.icon className="size-3 lg:size-4 transition-all duration-300" />
+            <span className="flex items-center gap-2.5">
+              <item.icon className="size-4 text-muted-foreground" />
               {t(String(item.label))}
-            </div>
+            </span>
             {item.count ? (
-              <span className="flex size-5 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
+              <span className="min-w-5 rounded px-1 text-center text-[11px] tabular-nums text-muted-foreground">
                 {item.count}
               </span>
             ) : null}
@@ -59,26 +56,19 @@ export const Sidebar = () => {
         ))}
       </nav>
 
-      <div className="flex flex-col space-y-1 px-3  pb-3">
-        <div className="flex flex-row flex-wrap justify-center items-center gap-1.5 mb-3">
-          {footerLinks.map((item, index) => (
-            <Button
-              key={`${item.title}-${index}`}
-              title={t(String(item.title))}
-              aria-label={t(String(item.title))}
-              size="icon"
-              variant="outline"
-              className="size-7"
-              onClick={() => openUrl(item.link)}
-            >
-              <item.icon className="size-3 lg:size-4 transition-all duration-300" />
-            </Button>
-          ))}
-        </div>
-        <p className="mb-2 px-2 text-center text-[10px] leading-snug text-sidebar-foreground/50 select-none">
-          基于 Pluely（作者 Srikanth Nani，GPL-3.0）修改
-        </p>
-
+      <div className="flex flex-col gap-0.5 border-t px-2.5 py-2">
+        {footerLinks.map((item, index) => (
+          <button
+            key={`${item.title}-${index}`}
+            type="button"
+            title="GitHub"
+            onClick={() => openUrl(item.link)}
+            className={itemClass}
+          >
+            <item.icon className="size-4 text-muted-foreground" />
+            GitHub
+          </button>
+        ))}
         {footerItems.map((item, index) => (
           <a
             href={item.href}
@@ -86,14 +76,10 @@ export const Sidebar = () => {
             target="_blank"
             rel="noopener noreferrer"
             key={`${item.label}-${index}`}
-            className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-xs lg:text-sm text-sidebar-foreground/70 transition-all duration-300 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            )}
+            className={itemClass}
           >
-            <div className="flex items-center gap-3">
-              <item.icon className="size-3 lg:size-4 transition-all duration-300" />
-              {t(String(item.label))}
-            </div>
+            <item.icon className="size-4 text-muted-foreground" />
+            {t(String(item.label))}
           </a>
         ))}
       </div>

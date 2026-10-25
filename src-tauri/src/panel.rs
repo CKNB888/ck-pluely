@@ -206,6 +206,13 @@ pub fn ck_panel_action(app: AppHandle, action: String) {
                 }
             }
         }
+        "hide_bar" => {
+            if let Some(w) = app.get_webview_window("main") {
+                if w.is_visible().unwrap_or(false) {
+                    crate::shortcuts::handle_toggle_window(&app);
+                }
+            }
+        }
         other => crate::shortcuts::handle_shortcut_action(&app, other),
     }
 }

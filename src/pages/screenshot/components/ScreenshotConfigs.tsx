@@ -142,7 +142,7 @@ export const ScreenshotConfigs = ({
       {/* Tips */}
       <div className="text-xs text-muted-foreground/70">
         <p>
-          💡 <strong>{t("Tip:")}</strong>{" "}
+          <strong>{t("Tip:")}</strong>{" "}
           {screenshotConfiguration.enabled
             ? t("Screenshot mode captures the full screen with one click.")
             : t(

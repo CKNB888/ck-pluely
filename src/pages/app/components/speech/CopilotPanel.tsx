@@ -1,7 +1,7 @@
 // ck-pluely: real-time copilot controls (answer mode, preset, resume/notes).
 import { useState } from "react";
 import { Button } from "@/components";
-import { SparklesIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { PenLineIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { CopilotAnswerMode } from "@/hooks/useSystemAudio";
@@ -51,7 +51,7 @@ export const CopilotPanel = (p: Props) => {
   return (
     <div className="space-y-2 rounded-lg border border-input/50 p-3">
       <div className="flex items-center gap-2 text-sm font-medium">
-        <SparklesIcon className="h-4 w-4" />
+        <PenLineIcon className="h-4 w-4" />
         {t("Copilot")}
       </div>
       <div className="flex flex-wrap gap-1.5">

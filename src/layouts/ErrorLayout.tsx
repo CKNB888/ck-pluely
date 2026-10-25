@@ -1,5 +1,5 @@
 import { Button, Card, DragButton } from "@/components";
-import { RefreshCcwIcon, SparklesIcon } from "lucide-react";
+import { RefreshCcwIcon, PenLineIcon } from "lucide-react";
 
 import { t } from "@/i18n";
 
@@ -7,7 +7,7 @@ export const ErrorLayout = ({ isCompact }: { isCompact?: boolean }) => {
   return isCompact ? (
     <Card className="flex flex-row w-screen h-screen items-center justify-between p-4">
       <div className="flex size-8 items-center justify-center rounded-xl bg-foreground">
-        <SparklesIcon className="size-5 text-background" />
+        <PenLineIcon className="size-5 text-background" />
       </div>
       <p className="text-sm md:text-xl">
         {t("Oops! Something went wrong. Click reload to restart the app.")}
@@ -26,7 +26,7 @@ export const ErrorLayout = ({ isCompact }: { isCompact?: boolean }) => {
         <div className="absolute top-1/4 left-0 right-0 flex justify-center items-center transform hover:scale-105 transition-transform duration-200">
           <div className="flex h-16 items-center px-4 pt-10 gap-2">
             <div className="flex size-6 items-center justify-center rounded-lg bg-foreground">
-              <SparklesIcon className="size-4 text-background" />
+              <PenLineIcon className="size-4 text-background" />
             </div>
             <h1 className="text-md font-semibold text-foreground">
               {t("Pluely")}

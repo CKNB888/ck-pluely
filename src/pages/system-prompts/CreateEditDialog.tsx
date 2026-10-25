@@ -11,7 +11,7 @@ import {
   Textarea,
 } from "@/components";
 import { GenerateSystemPrompt } from "./Generate";
-import { SparklesIcon } from "lucide-react";
+import { PenLineIcon } from "lucide-react";
 
 import { t } from "@/i18n";
 
@@ -118,7 +118,7 @@ export const CreateEditDialog = ({
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}>
             {isSaving ? (
               <>
-                <SparklesIcon className="h-4 w-4 animate-pulse" />
+                <PenLineIcon className="h-4 w-4 animate-pulse" />
                 {isEditing ? t("Updating...") : t("Creating...")}
               </>
             ) : isEditing ? (

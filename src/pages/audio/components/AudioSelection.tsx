@@ -229,7 +229,7 @@ export const AudioSelection = () => {
         {/* Tips */}
         <div className="text-xs text-muted-foreground/70">
           <p>
-            💡 <strong>{t("Tip:")}</strong>{" "}
+            <strong>{t("Tip:")}</strong>{" "}
             {t(
               "When you select a microphone, the app will immediately switch to that device. You can verify by hovering over the microphone button in the main interface - it will show the active device name."
             )}
@@ -334,7 +334,7 @@ export const AudioSelection = () => {
         {/* Tips */}
         <div className="text-xs text-muted-foreground/70">
           <p>
-            💡 <strong>{t("Tip:")}</strong>{" "}
+            <strong>{t("Tip:")}</strong>{" "}
             {t(
               "System audio capture allows you to record audio playing through your speakers or headphones. This is useful for capturing conversation audio or system sounds along with your voice."
             )}

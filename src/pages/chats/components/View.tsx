@@ -14,7 +14,7 @@ import {
   MessageCircleIcon,
   MessageCircleReplyIcon,
   Trash2,
-  SparklesIcon,
+  PenLineIcon,
   UserIcon,
   SendIcon,
   Check,
@@ -183,7 +183,7 @@ const View = () => {
                   {!isUser && (
                     <div className="flex-shrink-0">
                       <div className="size-7 lg:size-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <SparklesIcon className="size-3 lg:size-4 text-primary" />
+                        <PenLineIcon className="size-3 lg:size-4 text-primary" />
                       </div>
                     </div>
                   )}

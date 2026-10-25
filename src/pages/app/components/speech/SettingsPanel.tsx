@@ -16,7 +16,7 @@ import {
 import {
   ChevronDownIcon,
   SettingsIcon,
-  WandIcon,
+  PenLineIcon,
   RotateCcwIcon,
   ChevronUpIcon,
 } from "lucide-react";
@@ -249,7 +249,7 @@ export const SettingsPanel = ({
                     onValueChange={handleTemplateSelection}
                   >
                     <SelectTrigger className="w-auto h-7 text-xs">
-                      <WandIcon className="w-3 h-3 mr-1.5" />
+                      <PenLineIcon className="w-3 h-3 mr-1.5" />
                       <SelectValue placeholder={t("Templates")} />
                     </SelectTrigger>
                     <SelectContent>

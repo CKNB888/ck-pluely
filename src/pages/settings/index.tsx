@@ -5,6 +5,7 @@ import {
   AutostartToggle,
   UiLanguage,
   PrivacyCheck,
+  UiStyle,
 } from "./components";
 import { PageLayout } from "@/layouts";
 
@@ -15,6 +16,8 @@ const Settings = () => {
     <PageLayout title={t("Settings")} description={t("Manage your settings")}>
       {/* Interface Language */}
       <UiLanguage />
+
+      <UiStyle />
 
       {/* Theme */}
       <Theme />
@@ -31,17 +34,6 @@ const Settings = () => {
       {/* Always On Top Toggle */}
       <AlwaysOnTopToggle />
 
-      <p className="pt-4 text-center text-[11px] text-muted-foreground/70 select-none">
-        {t("Translation & fixes by")}{" "}
-        <a
-          href="https://github.com/CKNB888"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline-offset-2 hover:underline hover:text-foreground"
-        >
-          CKNB
-        </a>
-      </p>
     </PageLayout>
   );
 };

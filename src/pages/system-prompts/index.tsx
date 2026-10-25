@@ -20,7 +20,7 @@ import {
   Pencil,
   Trash2,
   CheckCircle2,
-  WandSparklesIcon,
+  PenLineIcon,
 } from "lucide-react";
 import { DeleteSystemPrompt } from "./Delete";
 import { CreateEditDialog } from "./CreateEditDialog";
@@ -197,7 +197,7 @@ const SystemPrompts = () => {
       {filteredPrompts.length === 0 ? (
         <Empty
           isLoading={isLoading}
-          icon={WandSparklesIcon}
+          icon={PenLineIcon}
           title={t("No prompts found")}
           description={t("Create a new prompt to get started")}
         />
