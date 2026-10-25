@@ -1,5 +1,8 @@
 import React from "react";
-import { Streamdown } from "streamdown";
+import { Streamdown, defaultRemarkPlugins } from "streamdown";
+import remarkMark from "./remark-mark";
+
+const REMARK = [...Object.values(defaultRemarkPlugins), remarkMark];
 import "katex/dist/katex.min.css";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
@@ -17,6 +20,8 @@ export function Markdown({
       isAnimating={isStreaming}
       shikiTheme={["github-light", "github-dark"]}
       components={COMPONENTS as any}
+      remarkPlugins={REMARK as any}
+      className="ck-md"
       controls={{
         table: true,
         code: true,

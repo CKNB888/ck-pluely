@@ -277,3 +277,48 @@ html.ck-panel-root body {
   border-radius: 14px;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.08);
 }
+
+/* ck-pluely v2.1：高对比答案排版（浅色 / 深色都清晰） */
+.ck-md mark,
+.ck-md .ck-mark {
+  background: #fde047;
+  color: #111827;
+  padding: 0 0.2em;
+  border-radius: 3px;
+  font-weight: 600;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.dark .ck-md mark,
+.dark .ck-md .ck-mark {
+  background: #facc15;
+  color: #0b0f19;
+}
+.ck-md strong {
+  font-weight: 700;
+  color: var(--foreground);
+}
+/* 第一段以加粗开头 = 结论行：加左侧强调条 */
+.ck-md > p:first-child:has(> strong:first-child),
+.ck-md > div:first-child > p:first-child:has(> strong:first-child) {
+  border-left: 3px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  padding: 0.35em 0.6em;
+  border-radius: 4px;
+  font-size: 1.05em;
+}
+.ck-md > p:first-child > strong:first-child,
+.ck-md > div:first-child > p:first-child > strong:first-child {
+  color: var(--primary);
+}
+.dark .ck-md > p:first-child > strong:first-child,
+.dark .ck-md > div:first-child > p:first-child > strong:first-child {
+  color: #93c5fd;
+}
+.ck-md h3,
+.ck-md h4 {
+  font-weight: 700;
+  margin-top: 0.6em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.15em;
+}
