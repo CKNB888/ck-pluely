@@ -11,6 +11,7 @@ A real-time assistant for interviews, classroom Q&A and meetings: it captures th
 - Classroom mode: bold conclusion line, at most 3 points, ==highlights==, 10 subject presets, LaTeX and code
 - Question list with export; screenshot, voice and text questions; many chat providers
 - **v2.1.0** pooled HTTP/2 client with prewarm (Groq median time-to-first-token 863 → 397 ms), per-mode output caps and low reasoning effort (output tokens per answer 410 → 184), usage badge
+- **v2.1.0** auto-listen on launch with meeting-app detection (Tencent Meeting, DingTalk, Feishu, WeCom, Zoom, Teams…; per-process capture on macOS 14.4+ / Windows 10 2004+), panel shows the source; fixed "nothing happens on launch" (panel shows on launch/reopen, startup log + error dialogs)
 - **v2.1.0** backup and restore: `.ckbak` with manifest and SHA-256 checksums, diff preview, safety backup and rollback, optional password-encrypted API keys, automatic backup before upgrades
 
 ## Install / upgrade

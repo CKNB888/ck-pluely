@@ -51,6 +51,11 @@ pub const KNOWN: &[KnownApp] = &[
         bundles: &["com.microsoft.teams"],
     },
     KnownApp {
+        name: "华为云 WeLink",
+        procs: &["welink", "cloudlink"],
+        bundles: &["com.huawei.welink", "com.huawei.CloudLink"],
+    },
+    KnownApp {
         name: "Webex",
         procs: &["webex", "ciscowebex", "atmgr"],
         bundles: &["com.cisco.webexmeetingsapp", "Cisco-Systems.Spark"],
@@ -200,6 +205,7 @@ mod tests {
             "Microsoft Teams"
         );
         assert_eq!(KNOWN[classify("QQ").unwrap()].name, "QQ");
+        assert_eq!(KNOWN[classify("WeLink.exe").unwrap()].name, "华为云 WeLink");
         assert!(classify("QQMusic").is_none());
         assert!(classify("zoomit.exe").is_none());
         assert!(classify("firefox").is_none());
