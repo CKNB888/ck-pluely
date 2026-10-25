@@ -594,5 +594,14 @@
   "Best for quick answers, summaries, and when you need to save time": "Best for quick answers, summaries, and when you need to save time",
   "AI determines the best length based on your question's complexity": "AI determines the best length based on your question's complexity",
   "Toggle to make App Icon Visible": "Toggle to make App Icon Visible",
-  "Toggle to make App Icon Hidden": "Toggle to make App Icon Hidden"
+  "Toggle to make App Icon Hidden": "Toggle to make App Icon Hidden",
+  "Test connection": "Test connection",
+  "Testing…": "Testing…",
+  "Connected.": "Connected.",
+  "Connected. {{v0}} models available.": "Connected. {{v0}} models available.",
+  "Endpoint reachable, but it has no model list; enter the model name manually.": "Endpoint reachable, but it has no model list; enter the model name manually.",
+  "This provider does not support connection test; enter the model name manually.": "This provider does not support connection test; enter the model name manually.",
+  "Connection timed out. Check your network or proxy.": "Connection timed out. Check your network or proxy.",
+  "Pick a model from the list (or type it below)": "Pick a model from the list (or type it below)",
+  "Invalid cURL command": "Invalid cURL command"
 }

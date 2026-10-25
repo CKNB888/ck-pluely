@@ -1,3 +1,4 @@
+import { ProviderCheck } from "../shared/ProviderCheck";
 import { Button, Header, Input, Selection, TextInput } from "@/components";
 import { UseSettingsReturn } from "@/types";
 import curl2Json, { ResultJSON } from "@bany/curl-to-json";
@@ -180,6 +181,18 @@ export const Providers = ({
           </div>
         </div>
       ) : null}
+
+      <ProviderCheck
+        curl={allSttProviders?.find((p) => p?.id === selectedSttProvider?.provider)?.curl}
+        variables={selectedSttProvider?.variables || {}}
+        onPickModel={(model) => {
+          if (!selectedSttProvider) return;
+          onSetSelectedSttProvider({
+            ...selectedSttProvider,
+            variables: { ...selectedSttProvider.variables, model },
+          });
+        }}
+      />
 
       <div className="space-y-4 mt-2">
         {sttVariables

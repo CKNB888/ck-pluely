@@ -594,5 +594,14 @@
   "Best for quick answers, summaries, and when you need to save time": "适合快速问答、摘要，节省时间",
   "AI determines the best length based on your question's complexity": "由 AI 根据问题复杂度决定最佳长度",
   "Toggle to make App Icon Visible": "切换以显示应用图标",
-  "Toggle to make App Icon Hidden": "切换以隐藏应用图标"
+  "Toggle to make App Icon Hidden": "切换以隐藏应用图标",
+  "Test connection": "测试连接",
+  "Testing…": "测试中…",
+  "Connected.": "连接成功。",
+  "Connected. {{v0}} models available.": "连接成功，可用模型 {{v0}} 个。",
+  "Endpoint reachable, but it has no model list; enter the model name manually.": "接口可以访问，但不提供模型列表，请手动填写模型名称。",
+  "This provider does not support connection test; enter the model name manually.": "该服务商不支持测试连接，请手动填写模型名称。",
+  "Connection timed out. Check your network or proxy.": "连接超时，请检查网络或代理设置。",
+  "Pick a model from the list (or type it below)": "从列表中选择模型（也可在下方手动填写）",
+  "Invalid cURL command": "cURL 命令无效"
 }
