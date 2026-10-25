@@ -7,6 +7,7 @@ export type OnboardingOs = "macos" | "windows" | "linux";
 export type PermState = "granted" | "denied" | "unknown";
 
 export type StepId =
+  | "voiceprint"
   | "welcome"
   | "privacy"
   | "mic"
@@ -34,14 +35,14 @@ export function buildSteps(os: OnboardingOs): StepId[] {
       : os === "windows"
       ? ["mic", "audio"]
       : ["audio"];
-  return ["welcome", "privacy", ...perms, "apikey", "hotkeys", "selfcheck", "done"];
+  return ["welcome", "privacy", ...perms, "apikey", "hotkeys", "voiceprint", "selfcheck", "done"];
 }
 
 export const isPermissionStep = (s: StepId) =>
   s === "mic" || s === "screen" || s === "accessibility" || s === "audio";
 
 /** 可以不授权直接下一步的步骤：辅助功能只在部分功能需要；没有播放设备只影响「系统声音」 */
-export const isOptionalStep = (s: StepId) => s === "accessibility" || s === "audio";
+export const isOptionalStep = (s: StepId) => s === "accessibility" || s === "audio" || s === "voiceprint";
 
 /** 某个权限步骤当前状态 */
 export function stepState(step: StepId, snap: PermissionSnapshot): PermState {

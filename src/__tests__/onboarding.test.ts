@@ -23,12 +23,12 @@ const snap = (p: Partial<PermissionSnapshot> = {}): PermissionSnapshot => ({
 describe("onboarding steps", () => {
   it("one step per permission, per OS", () => {
     expect(buildSteps("macos")).toEqual([
-      "welcome", "privacy", "mic", "screen", "accessibility", "apikey", "hotkeys", "selfcheck", "done",
+      "welcome", "privacy", "mic", "screen", "accessibility", "apikey", "hotkeys", "voiceprint", "selfcheck", "done",
     ]);
     expect(buildSteps("windows")).toContain("audio");
     expect(buildSteps("windows")).not.toContain("screen");
     expect(buildSteps("linux")).toEqual([
-      "welcome", "privacy", "audio", "apikey", "hotkeys", "selfcheck", "done",
+      "welcome", "privacy", "audio", "apikey", "hotkeys", "voiceprint", "selfcheck", "done",
     ]);
   });
 

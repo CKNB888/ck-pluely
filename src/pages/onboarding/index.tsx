@@ -1,3 +1,4 @@
+import { VoiceprintStep } from "@/components/local/VoiceprintStep";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { invoke } from "@tauri-apps/api/core";
@@ -15,6 +16,7 @@ import {
   PartyPopperIcon,
   ShieldCheckIcon,
   PenLineIcon,
+  AudioLinesIcon,
   XCircleIcon,
 } from "lucide-react";
 import { Button, Input } from "@/components";
@@ -82,6 +84,7 @@ async function requestMac(step: StepId) {
 
 const STEP_META: Record<StepId, { icon: React.ElementType; title: string }> = {
   welcome: { icon: PenLineIcon, title: "欢迎使用 CK Pluely" },
+  voiceprint: { icon: AudioLinesIcon, title: "录入你的声音（可选）" },
   privacy: { icon: EyeOffIcon, title: "默认对屏幕共享隐身" },
   mic: { icon: MicIcon, title: "允许使用麦克风" },
   screen: { icon: MonitorIcon, title: "允许屏幕与系统录音" },
@@ -299,6 +302,8 @@ function StepBody({
       return <ApiKeyBody />;
     case "hotkeys":
       return <HotkeysBody os={os} />;
+    case "voiceprint":
+      return <VoiceprintStep />;
     case "selfcheck":
       return <SelfCheckBody />;
     case "done":
