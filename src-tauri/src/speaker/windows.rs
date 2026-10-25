@@ -198,7 +198,7 @@ impl SpeakerStream {
                         d
                     }
                     None => {
-                        get_default_device(&Direction::Render).expect("No default render device")
+                        get_default_device(&Direction::Render).map_err(|e| anyhow::anyhow!("未找到默认播放设备，请在系统声音设置中选择扬声器或耳机 / No default render device: {e}"))?
                     }
                 },
                 None => get_default_device(&Direction::Render)?,

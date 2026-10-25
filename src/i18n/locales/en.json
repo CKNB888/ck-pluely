@@ -571,5 +571,12 @@
   "Audio file is empty": "Audio file is empty",
   "User message is required": "User message is required",
   "System prompt name cannot be empty": "System prompt name cannot be empty",
-  "System prompt text cannot be empty": "System prompt text cannot be empty"
+  "System prompt text cannot be empty": "System prompt text cannot be empty",
+  "Invalid endpoint URL: {{v0}}": "Invalid endpoint URL: {{v0}}",
+  "Only http(s) endpoints are allowed: {{v0}}": "Only http(s) endpoints are allowed: {{v0}}",
+  "Authentication failed (HTTP {{v0}}). Check your API key.": "Authentication failed (HTTP {{v0}}). Check your API key.",
+  "Endpoint or model not found (HTTP 404). Check the URL and model name.": "Endpoint or model not found (HTTP 404). Check the URL and model name.",
+  "Rate limited or out of quota (HTTP 429). Try again later.": "Rate limited or out of quota (HTTP 429). Try again later.",
+  "Provider server error (HTTP {{v0}}). Try again later.": "Provider server error (HTTP {{v0}}). Try again later.",
+  "Network error: {{v0}}. Check your connection or proxy.": "Network error: {{v0}}. Check your connection or proxy."
 }

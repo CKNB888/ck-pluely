@@ -7,7 +7,7 @@ import {
   getStreamingContent,
 } from "./common.function";
 import { Message, TYPE_PROVIDER } from "@/types";
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { ckFetch, friendlyHttpError } from "./net";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import curl2Json from "@bany/curl-to-json";
@@ -292,7 +292,8 @@ export async function* fetchAIResponse(params: {
       }
     }
 
-    const fetchFunction = url?.includes("http") ? fetch : tauriFetch;
+    // ck-pluely: was inverted (always used WebView fetch → CORS failures).
+    const fetchFunction = (u: string, i: RequestInit) => ckFetch(u, i);
 
     let response;
     try {
@@ -321,6 +322,8 @@ export async function* fetchAIResponse(params: {
       try {
         errorText = await response.text();
       } catch {}
+      const hint = friendlyHttpError(response.status);
+      if (hint) yield `${hint}\n\n`;
       yield `API request failed: ${response.status} ${response.statusText}${
         errorText ? ` - ${errorText}` : ""
       }`;

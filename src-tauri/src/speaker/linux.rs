@@ -118,7 +118,9 @@ pub fn get_input_devices() -> Result<Vec<AudioDevice>> {
     context.disconnect();
     mainloop.quit(pulse::def::Retval(0));
 
-    Ok(Rc::try_unwrap(devices).unwrap().into_inner())
+    Ok(Rc::try_unwrap(devices)
+        .map_err(|_| anyhow::anyhow!("读取音频设备列表失败 / failed to enumerate audio devices"))?
+        .into_inner())
 }
 
 pub fn get_output_devices() -> Result<Vec<AudioDevice>> {
@@ -216,7 +218,9 @@ pub fn get_output_devices() -> Result<Vec<AudioDevice>> {
     context.disconnect();
     mainloop.quit(pulse::def::Retval(0));
 
-    Ok(Rc::try_unwrap(devices).unwrap().into_inner())
+    Ok(Rc::try_unwrap(devices)
+        .map_err(|_| anyhow::anyhow!("读取音频设备列表失败 / failed to enumerate audio devices"))?
+        .into_inner())
 }
 
 pub struct SpeakerInput {
@@ -231,7 +235,8 @@ impl SpeakerInput {
                 let monitor = format!("{}.monitor", id);
                 Some(monitor)
             }
-            _ => None,
+            // Default: monitor of the default sink (not the default mic source).
+            _ => Some("@DEFAULT_MONITOR@".to_string()),
         };
         Ok(Self { source_name })
     }

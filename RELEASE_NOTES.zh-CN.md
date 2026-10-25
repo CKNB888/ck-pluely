@@ -19,3 +19,16 @@
 
 ## 安装
 见 README「下载与安装」。macOS 未公证：`xattr -cr "/Applications/CK Pluely.app"`。
+
+## 安全与网络加固（v1.0.0 追加）
+- AI / 语音识别请求统一走 Tauri HTTP 插件（原逻辑判断反了，导致总走 WebView fetch 被 CORS 拦截），带 10 秒连接超时、429/5xx 自动重试两次，支持系统 HTTP(S)_PROXY。
+- 401/403/404/429/5xx 给出中文提示。
+- 开启 CSP；Markdown 中只允许打开 http(s)/mailto 链接。
+- 移除 updater 与 posthog 权限，前端遥测关闭。
+- Rust 音频采集中的 expect/unwrap 改为返回中文错误；Linux 默认采集 @DEFAULT_MONITOR@。
+
+## 需真机验证
+- macOS 系统音频采集需 14.2+（Core Audio Tap）；更低版本只能用麦克风与截图。
+- macOS 15+ 的 ScreenCaptureKit 可能无视 `sharingType=none`，隐身效果需在腾讯会议 / Zoom / 飞书中实测。
+- 未签名构建首次打开需右键“打开”或 `xattr -cr`。
+- 流式输出经 Tauri HTTP 插件的表现需在各服务商实测。

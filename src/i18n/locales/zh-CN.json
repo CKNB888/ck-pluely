@@ -571,5 +571,12 @@
   "Audio file is empty": "音频文件为空",
   "User message is required": "消息内容不能为空",
   "System prompt name cannot be empty": "提示词名称不能为空",
-  "System prompt text cannot be empty": "提示词内容不能为空"
+  "System prompt text cannot be empty": "提示词内容不能为空",
+  "Invalid endpoint URL: {{v0}}": "接口地址无效：{{v0}}",
+  "Only http(s) endpoints are allowed: {{v0}}": "只允许 http(s) 接口地址：{{v0}}",
+  "Authentication failed (HTTP {{v0}}). Check your API key.": "鉴权失败（HTTP {{v0}}），请检查 API Key。",
+  "Endpoint or model not found (HTTP 404). Check the URL and model name.": "接口或模型不存在（HTTP 404），请检查接口地址和模型名称。",
+  "Rate limited or out of quota (HTTP 429). Try again later.": "请求过于频繁或额度不足（HTTP 429），请稍后再试。",
+  "Provider server error (HTTP {{v0}}). Try again later.": "服务商服务器错误（HTTP {{v0}}），请稍后再试。",
+  "Network error: {{v0}}. Check your connection or proxy.": "网络错误：{{v0}}。请检查网络或代理设置。"
 }

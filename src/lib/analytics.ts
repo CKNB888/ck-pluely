@@ -1,5 +1,7 @@
 import { PostHog } from "tauri-plugin-posthog-api";
 
+const CK_TELEMETRY_ENABLED = false;
+
 /**
  * Event names for tracking
  */
@@ -17,6 +19,8 @@ export const captureEvent = async (
   eventName: string,
   properties?: Record<string, any>
 ) => {
+  // ck-pluely: telemetry is disabled in this fork (no data leaves the device).
+  if (!CK_TELEMETRY_ENABLED) return;
   try {
     await PostHog.capture(eventName, properties || {});
   } catch (error) {

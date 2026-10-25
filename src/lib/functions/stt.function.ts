@@ -4,7 +4,7 @@ import {
   getByPath,
   blobToBase64,
 } from "./common.function";
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { ckFetch, friendlyHttpError } from "./net";
 import { invoke } from "@tauri-apps/api/core";
 
 import { TYPE_PROVIDER } from "@/types";
@@ -186,7 +186,8 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       body = JSON.stringify(deepVariableReplacer(dataObj, allVariables));
     }
 
-    const fetchFunction = url?.includes("http") ? fetch : tauriFetch;
+    // ck-pluely: was inverted (always used WebView fetch → CORS failures).
+    const fetchFunction = (u: string, i: RequestInit) => ckFetch(u, i);
 
     // Send request
     let response: Response;
@@ -212,7 +213,8 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       } catch {
         errMsg = errText || response.statusText;
       }
-      throw new Error(`HTTP ${response.status}: ${errMsg}`);
+      const hint = friendlyHttpError(response.status);
+      throw new Error(`${hint ? hint + " " : ""}HTTP ${response.status}: ${errMsg}`);
     }
 
     const responseText = await response.text();

@@ -175,7 +175,7 @@ impl SpeakerInput {
                 match find_output_device_by_uid(uid) {
                     Some(device) => device,
                     None => {
-                        ca::System::default_output_device().expect("No default output device found")
+                        ca::System::default_output_device().map_err(|e| anyhow::anyhow!("未找到默认输出设备，请在系统声音设置中选择扬声器或耳机 / No default output device: {e:?}"))?
                     }
                 }
             }
@@ -194,7 +194,10 @@ impl SpeakerInput {
 
         let sub_tap = cf::DictionaryOf::with_keys_values(
             &[ca::sub_device_keys::uid()],
-            &[tap.uid().unwrap().as_type_ref()],
+            &[tap
+                .uid()
+                .map_err(|e| anyhow::anyhow!("系统录音权限未开启：系统设置 → 隐私与安全性 → 录屏与系统录音 / Audio tap unavailable: {e:?}"))?
+                .as_type_ref()],
         );
 
         let agg_desc = cf::DictionaryOf::with_keys_values(

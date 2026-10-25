@@ -37,7 +37,8 @@ const COMPONENTS = {
   a: ({ children, href, ...props }: any) => {
     const handleClick = async (e: React.MouseEvent) => {
       e.preventDefault();
-      if (href) {
+      // ck-pluely: only open web links from model output (no file:// etc.).
+      if (href && /^(https?:|mailto:)/i.test(href)) {
         try {
           await openUrl(href);
         } catch (error) {
