@@ -9,6 +9,7 @@ import {
   FullUninstall,
   LocalSpeech,
   Display,
+  Backup,
 } from "./components";
 import { PageLayout } from "@/layouts";
 
@@ -40,6 +41,8 @@ const Settings = () => {
       <AlwaysOnTopToggle />
 
       <LocalSpeech />
+
+      <Backup />
 
       <FullUninstall />
 

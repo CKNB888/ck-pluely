@@ -8,3 +8,4 @@ export * from "./UiStyle";
 export * from "./FullUninstall";
 export * from "./LocalSpeech";
 export * from "./Display";
+export * from "./Backup";

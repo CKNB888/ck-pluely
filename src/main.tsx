@@ -7,6 +7,18 @@ import "./i18n";
 import { I18nRoot } from "./i18n/I18nRoot";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import AppRoutes from "./routes";
+import { getVersion } from "@tauri-apps/api/app";
+import { autoBackupOnUpgrade } from "./lib/backup";
+
+/** 升级后首次启动：在新版本改写任何设置之前先做一份自动备份（最多等 3 秒）。 */
+async function preUpgradeBackup() {
+  try {
+    const v = await getVersion();
+    await Promise.race([autoBackupOnUpgrade(v), new Promise((r) => setTimeout(r, 3000))]);
+  } catch {
+    /* 备份失败不影响启动 */
+  }
+}
 
 const currentWindow = getCurrentWindow();
 const windowLabel = currentWindow.label;
@@ -23,7 +35,7 @@ if (windowLabel.startsWith("capture-overlay-")) {
     </React.StrictMode>
   );
 } else {
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  const render = () => ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
       <I18nRoot>
         <ThemeProvider>
@@ -34,4 +46,6 @@ if (windowLabel.startsWith("capture-overlay-")) {
       </I18nRoot>
     </React.StrictMode>
   );
+  if (windowLabel === "main") preUpgradeBackup().finally(render);
+  else render();
 }
