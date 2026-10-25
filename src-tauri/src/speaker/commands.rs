@@ -254,6 +254,11 @@ async fn run_vad_capture(
             }
         }
     }
+    // 音频流意外结束（设备被拔出/失效）：告知前端，而不是一直显示“正在监听”
+    let _ = app.emit(
+        "audio-encoding-error",
+        "系统音频采集已中断（设备被拔出或不可用），请检查播放设备后重新开始监听",
+    );
 }
 
 // Continuous capture (VAD disabled)

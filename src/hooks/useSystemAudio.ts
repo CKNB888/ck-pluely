@@ -23,11 +23,11 @@ import i18n from "i18next";
 import { t } from "@/i18n";
 import {
   COPILOT_KEYS,
-  isLikelyQuestion,
   wrapTranscript,
   COPILOT_PENDING_MAX_CHARS,
   buildCopilotPrompt,
 } from "@/lib/copilot";
+import { QuestionTracker, type QuestionSensitivity } from "@/lib/question-detect";
 
 export type CopilotAnswerMode = "questions" | "always" | "manual";
 
@@ -119,6 +119,19 @@ export function useSystemAudio() {
   const [copilotNotes, setCopilotNotesState] = useState<string>(
     () => safeLocalStorage.getItem(COPILOT_KEYS.NOTES) || ""
   );
+  const [sensitivity, setSensitivityState] = useState<QuestionSensitivity>(() => {
+    const v = safeLocalStorage.getItem(COPILOT_KEYS.SENSITIVITY);
+    return v === "conservative" || v === "sensitive" ? v : "standard";
+  });
+  // One tracker per hook: merges fragments split by short pauses and stops
+  // the same question from being answered twice.
+  const trackerRef = useRef<QuestionTracker | null>(null);
+  if (!trackerRef.current) trackerRef.current = new QuestionTracker({ sensitivity });
+  trackerRef.current.opts.sensitivity = sensitivity;
+  const setSensitivity = useCallback((v: QuestionSensitivity) => {
+    setSensitivityState(v);
+    safeLocalStorage.setItem(COPILOT_KEYS.SENSITIVITY, v);
+  }, []);
   const [pendingTranscript, setPendingTranscript] = useState<string>("");
   const copilotRef = useRef({
     answerMode,
@@ -341,10 +354,11 @@ export function useSystemAudio() {
                 // (or the user presses "Answer now" in manual mode).
                 const combined = `${copilotRef.current.pending} ${transcription}`.trim();
                 const mode = copilotRef.current.answerMode;
-                if (
-                  mode === "manual" ||
-                  (mode === "questions" && !isLikelyQuestion(combined))
-                ) {
+                const hit =
+                  mode === "questions"
+                    ? trackerRef.current?.push({ text: transcription, at: Date.now() })
+                    : null;
+                if (mode === "manual" || (mode === "questions" && !hit)) {
                   copilotRef.current.pending = combined.slice(-COPILOT_PENDING_MAX_CHARS);
                   setPendingTranscript(copilotRef.current.pending);
                   return;
@@ -1001,6 +1015,7 @@ export function useSystemAudio() {
 
   const clearPending = useCallback(() => {
     copilotRef.current.pending = "";
+    trackerRef.current?.reset();
     setPendingTranscript("");
   }, []);
 
@@ -1011,6 +1026,8 @@ export function useSystemAudio() {
     setCopilotPreset,
     copilotNotes,
     setCopilotNotes,
+    sensitivity,
+    setSensitivity,
     pendingTranscript,
     answerNow,
     clearPending,

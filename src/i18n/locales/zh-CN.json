@@ -621,5 +621,19 @@
   "What is protected from screen sharing on this system, and its limits": "本系统下共享屏幕时哪些内容受保护，以及局限",
   "Re-check and re-apply protection": "重新检测并施加保护",
   "Hide all windows now": "立即隐藏全部窗口",
-  "Operating system": "操作系统"
+  "Operating system": "操作系统",
+  "No data from provider for {{v0}}s": "服务商 {{v0}} 秒内没有返回数据，已停止等待。请检查网络/代理后重试。",
+  "Create custom shortcut": "创建自定义快捷键",
+  "Failed to retrieve created system prompt": "无法读取刚创建的系统提示词",
+  "No fields to update": "没有需要更新的字段",
+  "System prompt not found after update": "更新后找不到该系统提示词",
+  "System prompt not found": "找不到该系统提示词",
+  "Invalid conversation data": "对话数据无效",
+  "Conversation not found": "找不到该对话",
+  "Provider not provided": "未选择服务商",
+  "Selected provider not provided": "未选择服务商配置",
+  "Question detection": "问题识别灵敏度",
+  "Conservative": "保守",
+  "Standard": "标准",
+  "Sensitive": "灵敏"
 }

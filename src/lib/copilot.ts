@@ -1,10 +1,12 @@
 // ck-pluely: interview / class / meeting copilot helpers.
 import { safeLocalStorage } from "@/lib/storage";
+import { detectQuestion, type QuestionSensitivity } from "@/lib/question-detect";
 
 export const COPILOT_KEYS = {
   AUTO_ANSWER: "ck_copilot_auto_answer",
   PRESET: "ck_copilot_preset",
   NOTES: "ck_copilot_notes",
+  SENSITIVITY: "ck_copilot_sensitivity",
 };
 
 export type CopilotPresetId = "interview" | "class" | "meeting" | "none";
@@ -27,21 +29,12 @@ export const COPILOT_PRESETS: Record<
   },
 };
 
-// ck-pluely: no bare 哪/几 (几乎、哪怕 are not questions) and no 解释/说说
-// on their own ("我解释一下" is a statement); require a question shape.
-const ZH_QUESTION =
-  /[？?]|吗[。！!]?$|吗[，,]|呢[？?。]?$|什么|怎么|怎样|如何|为什么|为何|哪(个|些|里|儿|种|位|年|天)|几(个|种|点|年|次|天|位|岁|号)|多少|多久|多长|是否|能否|可否|可不可以|能不能|会不会|是不是|有没有|请问|介绍一下|讲一下|讲讲|说一下|谈谈|聊聊|请(你)?解释|解释一下(你|您)|举个例子/;
-const EN_QUESTION =
-  /\?|^(what|why|how|when|where|who|which|whose|tell me|describe|explain|walk me through)\b|^(can|could|would|will|do|does|did|is|are|was|were|should|have|has)\s+(you|we|i|they|he|she|it|there|this|that|your)\b/i;
-
 /** Heuristic: does this transcript chunk contain a question worth answering? */
-export function isLikelyQuestion(text: string): boolean {
-  const t = (text || "").trim();
-  if (t.length < 2) return false;
-  if (ZH_QUESTION.test(t)) return true;
-  return t
-    .split(/(?<=[.!?。！？])\s+/)
-    .some((s) => EN_QUESTION.test(s.trim()));
+export function isLikelyQuestion(
+  text: string,
+  sensitivity: QuestionSensitivity = "standard"
+): boolean {
+  return detectQuestion(text, sensitivity).isQuestion;
 }
 
 export function loadBool(key: string, fallback: boolean): boolean {

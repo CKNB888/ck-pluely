@@ -38,7 +38,7 @@ export async function createSystemPrompt(
   );
 
   if (!inserted[0]) {
-    throw new Error("Failed to retrieve created system prompt");
+    throw new Error(t("Failed to retrieve created system prompt"));
   }
 
   return inserted[0];
@@ -100,7 +100,7 @@ export async function updateSystemPrompt(
   }
 
   if (updates.length === 0) {
-    throw new Error("No fields to update");
+    throw new Error(t("No fields to update"));
   }
 
   values.push(id);
@@ -116,7 +116,7 @@ export async function updateSystemPrompt(
   );
 
   if (!result[0]) {
-    throw new Error("System prompt not found after update");
+    throw new Error(t("System prompt not found after update"));
   }
 
   return result[0];
@@ -132,6 +132,6 @@ export async function deleteSystemPrompt(id: number): Promise<void> {
   ]);
 
   if (result.rowsAffected === 0) {
-    throw new Error("System prompt not found");
+    throw new Error(t("System prompt not found"));
   }
 }

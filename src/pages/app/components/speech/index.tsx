@@ -362,6 +362,8 @@ export const SystemAudio = (props: useSystemAudioType) => {
                       setCopilotPreset={props.setCopilotPreset}
                       copilotNotes={props.copilotNotes}
                       setCopilotNotes={props.setCopilotNotes}
+                      sensitivity={props.sensitivity}
+                      setSensitivity={props.setSensitivity}
                       pendingTranscript={props.pendingTranscript}
                       answerNow={props.answerNow}
                       clearPending={props.clearPending}

@@ -9,6 +9,8 @@ import {
 } from "./common.function";
 import { Message, TYPE_PROVIDER } from "@/types";
 import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
+
+const STREAM_IDLE_TIMEOUT_MS = 90_000;
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import curl2Json from "@bany/curl-to-json";
@@ -384,9 +386,21 @@ export async function* fetchAIResponse(params: {
       }
 
       let readResult;
+      let idleTimer: ReturnType<typeof setTimeout> | undefined;
       try {
-        readResult = await reader.read();
+        // 流式响应空闲超时：服务商/代理卡住时不再无限等待
+        readResult = await Promise.race([
+          reader.read(),
+          new Promise<never>((_, reject) => {
+            idleTimer = setTimeout(
+              () => reject(new Error(t("No data from provider for {{v0}}s", { v0: STREAM_IDLE_TIMEOUT_MS / 1000 }))),
+              STREAM_IDLE_TIMEOUT_MS
+            );
+          }),
+        ]);
       } catch (readError) {
+        reader.cancel().catch(() => {});
+        clearTimeout(idleTimer);
         // Check if aborted
         if (
           signal?.aborted ||
@@ -399,6 +413,7 @@ export async function* fetchAIResponse(params: {
         });
         return;
       }
+      clearTimeout(idleTimer);
       const { done, value } = readResult;
       if (done) break;
 

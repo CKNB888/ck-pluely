@@ -5,6 +5,7 @@ import { SparklesIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { t } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { CopilotAnswerMode } from "@/hooks/useSystemAudio";
+import type { QuestionSensitivity } from "@/lib/question-detect";
 
 type Props = {
   answerMode: CopilotAnswerMode;
@@ -13,6 +14,8 @@ type Props = {
   setCopilotPreset: (p: string) => void;
   copilotNotes: string;
   setCopilotNotes: (n: string) => void;
+  sensitivity: QuestionSensitivity;
+  setSensitivity: (v: QuestionSensitivity) => void;
   pendingTranscript: string;
   answerNow: () => void;
   clearPending: () => void;
@@ -23,6 +26,11 @@ const MODES: { id: CopilotAnswerMode; label: string }[] = [
   { id: "questions", label: "Auto-answer questions" },
   { id: "always", label: "Answer everything" },
   { id: "manual", label: "Manual" },
+];
+const SENSITIVITIES: { id: QuestionSensitivity; label: string }[] = [
+  { id: "conservative", label: "Conservative" },
+  { id: "standard", label: "Standard" },
+  { id: "sensitive", label: "Sensitive" },
 ];
 const PRESETS = [
   { id: "none", label: "My system prompt" },
@@ -58,6 +66,23 @@ export const CopilotPanel = (p: Props) => {
           </button>
         ))}
       </div>
+      {p.answerMode === "questions" ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs text-muted-foreground">
+            {t("Question detection")}
+          </span>
+          {SENSITIVITIES.map((x) => (
+            <button
+              key={x.id}
+              type="button"
+              className={chip(p.sensitivity === x.id)}
+              onClick={() => p.setSensitivity(x.id)}
+            >
+              {t(x.label)}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-1.5">
         {PRESETS.map((x) => (
           <button

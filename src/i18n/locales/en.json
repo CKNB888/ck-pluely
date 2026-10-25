@@ -621,5 +621,19 @@
   "What is protected from screen sharing on this system, and its limits": "What is protected from screen sharing on this system, and its limits",
   "Re-check and re-apply protection": "Re-check and re-apply protection",
   "Hide all windows now": "Hide all windows now",
-  "Operating system": "Operating system"
+  "Operating system": "Operating system",
+  "No data from provider for {{v0}}s": "No data from provider for {{v0}}s",
+  "Create custom shortcut": "Create custom shortcut",
+  "Failed to retrieve created system prompt": "Failed to retrieve created system prompt",
+  "No fields to update": "No fields to update",
+  "System prompt not found after update": "System prompt not found after update",
+  "System prompt not found": "System prompt not found",
+  "Invalid conversation data": "Invalid conversation data",
+  "Conversation not found": "Conversation not found",
+  "Provider not provided": "Provider not provided",
+  "Selected provider not provided": "Selected provider not provided",
+  "Question detection": "Question detection",
+  "Conservative": "Conservative",
+  "Standard": "Standard",
+  "Sensitive": "Sensitive"
 }

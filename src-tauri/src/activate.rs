@@ -199,7 +199,12 @@ pub async fn activate_license_api(
 
     // Generate UUID for instance name
     let instance_name = Uuid::new_v4().to_string();
-    let machine_id: String = app.machine_uid().get_machine_uid().unwrap().id.unwrap();
+    let machine_id: String = app
+        .machine_uid()
+        .get_machine_uid()
+        .map_err(|e| format!("无法获取设备标识：{}", e))?
+        .id
+        .ok_or_else(|| "无法获取设备标识".to_string())?;
     let app_version: String = env!("CARGO_PKG_VERSION").to_string();
     // Prepare activation request
     let activation_request = ActivationRequest {
@@ -257,7 +262,12 @@ pub async fn deactivate_license_api(app: AppHandle) -> Result<ActivationResponse
     // Get payment endpoint and API access key from environment
     let payment_endpoint = get_payment_endpoint()?;
     let api_access_key = get_api_access_key()?;
-    let machine_id: String = app.machine_uid().get_machine_uid().unwrap().id.unwrap();
+    let machine_id: String = app
+        .machine_uid()
+        .get_machine_uid()
+        .map_err(|e| format!("无法获取设备标识：{}", e))?
+        .id
+        .ok_or_else(|| "无法获取设备标识".to_string())?;
     let (license_key, instance_id, _) = get_stored_credentials(&app).await?;
     let app_version: String = env!("CARGO_PKG_VERSION").to_string();
     let deactivation_request = ActivationRequest {
@@ -313,7 +323,12 @@ pub async fn validate_license_api(app: AppHandle) -> Result<ValidateResponse, St
     // Get payment endpoint and API access key from environment
     let payment_endpoint = get_payment_endpoint()?;
     let api_access_key = get_api_access_key()?;
-    let machine_id: String = app.machine_uid().get_machine_uid().unwrap().id.unwrap();
+    let machine_id: String = app
+        .machine_uid()
+        .get_machine_uid()
+        .map_err(|e| format!("无法获取设备标识：{}", e))?
+        .id
+        .ok_or_else(|| "无法获取设备标识".to_string())?;
     let (license_key, instance_id, _) = get_stored_credentials(&app).await?;
     let app_version: String = env!("CARGO_PKG_VERSION").to_string();
     let validate_request = ActivationRequest {

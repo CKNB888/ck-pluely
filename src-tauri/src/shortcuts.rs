@@ -196,7 +196,7 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
     #[cfg(target_os = "windows")]
     {
         let state = app.state::<WindowVisibility>();
-        let mut is_hidden = state.is_hidden.lock().unwrap();
+        let mut is_hidden = state.is_hidden.lock().unwrap_or_else(|e| e.into_inner());
         *is_hidden = !*is_hidden;
 
         if let Err(e) = window.emit("toggle-window-visibility", *is_hidden) {
@@ -215,7 +215,6 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
                 eprintln!("Failed to emit focus-text-input event: {}", e);
             }
         }
-        return;
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -223,8 +222,9 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
         Ok(true) => {
             #[cfg(target_os = "macos")]
             {
-                let panel = app.get_webview_window("main").unwrap();
-                let _ = panel.hide();
+                if let Some(panel) = app.get_webview_window("main") {
+                    let _ = panel.hide();
+                }
             }
             // Window is visible, hide it and handle app icon based on user settings
             if let Err(e) = window.hide() {
@@ -243,11 +243,12 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
 
             #[cfg(target_os = "macos")]
             {
-                let panel = app.get_webview_panel("main").unwrap();
-                panel.show();
+                if let Ok(panel) = app.get_webview_panel("main") {
+                    panel.show();
+                }
             }
             // Emit event to focus text input
-            window.emit("focus-text-input", json!({})).unwrap();
+            let _ = window.emit("focus-text-input", json!({}));
         }
         Err(e) => {
             eprintln!("Failed to check window visibility: {}", e);

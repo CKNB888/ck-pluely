@@ -94,9 +94,6 @@ fn find_device_by_id(direction: &Direction, device_id: &str) -> Option<wasapi::D
         if let Ok(device) = collection.get_device_at_index(i) {
             if let Ok(id) = device.get_id() {
                 if id == device_id {
-                    let name = device
-                        .get_friendlyname()
-                        .unwrap_or_else(|_| "Unknown".to_string());
                     return Some(device);
                 }
             }
@@ -191,22 +188,13 @@ impl SpeakerStream {
         let init_result = (|| -> Result<_> {
             let device = match device_id {
                 Some(ref id) => match find_device_by_id(&Direction::Render, id) {
-                    Some(d) => {
-                        let name = d
-                            .get_friendlyname()
-                            .unwrap_or_else(|_| "Unknown".to_string());
-                        d
-                    }
+                    Some(d) => d,
                     None => {
                         get_default_device(&Direction::Render).map_err(|e| anyhow::anyhow!("未找到默认播放设备，请在系统声音设置中选择扬声器或耳机 / No default render device: {e}"))?
                     }
                 },
                 None => get_default_device(&Direction::Render)?,
             };
-
-            let device_name = device
-                .get_friendlyname()
-                .unwrap_or_else(|_| "Unknown".to_string());
 
             let mut audio_client = device.get_iaudioclient()?;
 
@@ -237,45 +225,50 @@ impl SpeakerStream {
             Ok((h_event, render_client, sample_rate)) => {
                 let _ = init_tx.send(Ok(sample_rate));
 
+                // 回环采集在没有声音播放时不会触发事件：等待超时只说明“静音”，
+                // 不能当作故障退出（否则会议中 3 秒没人说话就停止采集）。
+                // 连续读取失败（如设备被拔出 / 失效）才结束，并唤醒消费者让上层感知。
+                let mut read_failures = 0u32;
                 loop {
                     {
-                        let state = waker_state.lock().unwrap();
+                        let state = waker_state.lock().unwrap_or_else(|e| e.into_inner());
                         if state.shutdown {
                             break;
                         }
                     }
 
-                    if h_event.wait_for_event(3000).is_err() {
-                        error!("Pluely timeout error, stopping capture");
-                        break;
+                    if h_event.wait_for_event(1000).is_err() {
+                        continue;
                     }
 
                     let mut temp_queue = VecDeque::new();
                     if let Err(e) = render_client.read_from_device_to_deque(&mut temp_queue) {
+                        read_failures += 1;
                         error!("Pluely Failed to read audio data: {}", e);
+                        if read_failures >= 20 {
+                            error!("audio device unavailable, stopping capture");
+                            break;
+                        }
+                        std::thread::sleep(std::time::Duration::from_millis(50));
                         continue;
                     }
+                    read_failures = 0;
 
                     if temp_queue.is_empty() {
                         continue;
                     }
 
                     let mut samples = Vec::new();
-                    while temp_queue.len() >= 4 {
-                        let bytes = [
-                            temp_queue.pop_front().unwrap(),
-                            temp_queue.pop_front().unwrap(),
-                            temp_queue.pop_front().unwrap(),
-                            temp_queue.pop_front().unwrap(),
-                        ];
-                        let sample = f32::from_le_bytes(bytes);
-                        samples.push(sample);
+                    let bytes = temp_queue.make_contiguous();
+                    samples.reserve(bytes.len() / 4);
+                    for b in bytes.as_chunks::<4>().0 {
+                        samples.push(f32::from_le_bytes(*b));
                     }
 
                     if !samples.is_empty() {
                         // Consistent buffer overflow handling
                         let dropped = {
-                            let mut queue = sample_queue.lock().unwrap();
+                            let mut queue = sample_queue.lock().unwrap_or_else(|e| e.into_inner());
                             let max_buffer_size = 131072; // 128KB buffer (matching macOS)
 
                             queue.extend(samples.iter());
@@ -298,7 +291,7 @@ impl SpeakerStream {
 
                         // Wake up consumer
                         {
-                            let mut state = waker_state.lock().unwrap();
+                            let mut state = waker_state.lock().unwrap_or_else(|e| e.into_inner());
                             if !state.has_data {
                                 state.has_data = true;
                                 if let Some(waker) = state.waker.take() {
@@ -316,6 +309,16 @@ impl SpeakerStream {
             }
         }
 
+        // 采集线程结束：标记关闭并唤醒消费者，流随之结束而不是永远挂起
+        {
+            let mut state = waker_state.lock().unwrap_or_else(|e| e.into_inner());
+            state.shutdown = true;
+            if let Some(waker) = state.waker.take() {
+                drop(state);
+                waker.wake();
+            }
+        }
+
         Ok(())
     }
 }
@@ -324,7 +327,7 @@ impl SpeakerStream {
 impl Drop for SpeakerStream {
     fn drop(&mut self) {
         {
-            let mut state = self.waker_state.lock().unwrap();
+            let mut state = self.waker_state.lock().unwrap_or_else(|e| e.into_inner());
             state.shutdown = true;
         }
 
@@ -346,21 +349,21 @@ impl Stream for SpeakerStream {
         cx: &mut std::task::Context<'_>,
     ) -> Poll<Option<Self::Item>> {
         {
-            let state = self.waker_state.lock().unwrap();
+            let state = self.waker_state.lock().unwrap_or_else(|e| e.into_inner());
             if state.shutdown {
                 return Poll::Ready(None);
             }
         }
 
         {
-            let mut queue = self.sample_queue.lock().unwrap();
+            let mut queue = self.sample_queue.lock().unwrap_or_else(|e| e.into_inner());
             if let Some(sample) = queue.pop_front() {
                 return Poll::Ready(Some(sample));
             }
         }
 
         {
-            let mut state = self.waker_state.lock().unwrap();
+            let mut state = self.waker_state.lock().unwrap_or_else(|e| e.into_inner());
             if state.shutdown {
                 return Poll::Ready(None);
             }
@@ -370,7 +373,7 @@ impl Stream for SpeakerStream {
         }
 
         {
-            let mut queue = self.sample_queue.lock().unwrap();
+            let mut queue = self.sample_queue.lock().unwrap_or_else(|e| e.into_inner());
             match queue.pop_front() {
                 Some(sample) => Poll::Ready(Some(sample)),
                 None => Poll::Pending,

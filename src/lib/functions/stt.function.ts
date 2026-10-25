@@ -61,8 +61,8 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       return await fetchPluelySTT(audio);
     }
 
-    if (!provider) throw new Error("Provider not provided");
-    if (!selectedProvider) throw new Error("Selected provider not provided");
+    if (!provider) throw new Error(t("Provider not provided"));
+    if (!selectedProvider) throw new Error(t("Selected provider not provided"));
     if (!audio) throw new Error("Audio file is required");
 
     let curlJson: any;

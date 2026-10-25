@@ -300,7 +300,12 @@ async fn fetch_api_response_config(
     // Get environment variables
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
-    let machine_id: String = app.machine_uid().get_machine_uid().unwrap().id.unwrap();
+    let machine_id: String = app
+        .machine_uid()
+        .get_machine_uid()
+        .map_err(|e| format!("无法获取设备标识：{}", e))?
+        .id
+        .ok_or_else(|| "无法获取设备标识".to_string())?;
 
     // Get stored credentials
     let (license_key, instance_id, _) = get_stored_credentials(app).await?;
@@ -537,7 +542,7 @@ pub async fn chat_stream_response(
             user_content.push(serde_json::json!({
                 "type": "image_url",
                 "image_url": {
-                    "url": format!("data:image/jpeg;base64,{}", image_data.as_str().unwrap())
+                    "url": format!("data:image/jpeg;base64,{}", image_data.as_str().unwrap_or_default())
                 }
             }));
         } else if image_data.is_array() {
@@ -1026,7 +1031,12 @@ pub async fn create_system_prompt(
     let app_endpoint = get_app_endpoint()?;
     let api_access_key = get_api_access_key()?;
     let (license_key, instance_id, _) = get_stored_credentials(&app).await?;
-    let machine_id: String = app.machine_uid().get_machine_uid().unwrap().id.unwrap();
+    let machine_id: String = app
+        .machine_uid()
+        .get_machine_uid()
+        .map_err(|e| format!("无法获取设备标识：{}", e))?
+        .id
+        .ok_or_else(|| "无法获取设备标识".to_string())?;
     let app_version: String = app.package_info().version.to_string();
     // Make HTTP request to models endpoint
     let client = reqwest::Client::new();

@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 import { getDatabase } from "./config";
 import { ChatConversation } from "@/types";
 import { safeLocalStorage } from "@/lib";
@@ -92,7 +93,7 @@ export async function createConversation(
   conversation: ChatConversation
 ): Promise<ChatConversation> {
   if (!validateConversation(conversation)) {
-    throw new Error("Invalid conversation data");
+    throw new Error(t("Invalid conversation data"));
   }
 
   const db = await getDatabase();
@@ -256,7 +257,7 @@ export async function updateConversation(
   conversation: ChatConversation
 ): Promise<ChatConversation> {
   if (!validateConversation(conversation)) {
-    throw new Error("Invalid conversation data");
+    throw new Error(t("Invalid conversation data"));
   }
 
   const db = await getDatabase();
@@ -269,7 +270,7 @@ export async function updateConversation(
     );
 
     if (updateResult.rowsAffected === 0) {
-      throw new Error("Conversation not found");
+      throw new Error(t("Conversation not found"));
     }
 
     // Get existing messages for backup
@@ -345,7 +346,7 @@ export async function saveConversation(
   conversation: ChatConversation
 ): Promise<ChatConversation> {
   if (!validateConversation(conversation)) {
-    throw new Error("Invalid conversation data");
+    throw new Error(t("Invalid conversation data"));
   }
 
   try {

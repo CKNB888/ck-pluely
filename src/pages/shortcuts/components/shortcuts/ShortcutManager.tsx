@@ -143,7 +143,7 @@ export const ShortcutManager = () => {
               variant="default"
               onClick={() => setIsCreatingNew(!isCreatingNew)}
               disabled={isApplying}
-              title="Create custom shortcut"
+              title={t("Create custom shortcut")}
             >
               <Plus className="h-4 w-4" />
               New

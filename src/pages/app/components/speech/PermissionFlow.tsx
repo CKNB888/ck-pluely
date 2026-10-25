@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components";
 import {
   CheckCircle2Icon,
@@ -26,6 +26,15 @@ export const PermissionFlow = ({
     useState<PermissionState>("checking");
   const [checkAttempts, setCheckAttempts] = useState(0);
   const [showManual, setShowManual] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 组件卸载时停止轮询，避免泄漏的定时器继续调用后端
+  useEffect(
+    () => () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    },
+    []
+  );
 
   useEffect(() => {
     checkPermission();
@@ -58,6 +67,7 @@ export const PermissionFlow = ({
       let attempts = 0;
       const maxAttempts = 20;
 
+      if (pollRef.current) clearInterval(pollRef.current);
       const pollInterval = setInterval(async () => {
         attempts++;
         setCheckAttempts(attempts);
@@ -76,8 +86,14 @@ export const PermissionFlow = ({
           }
         } catch (error) {
           console.error("Permission poll failed:", error);
+          if (attempts >= maxAttempts) {
+            clearInterval(pollInterval);
+            setPermissionState("denied");
+            onPermissionDenied();
+          }
         }
       }, 1000);
+      pollRef.current = pollInterval;
     } catch (error) {
       console.error("Permission request failed:", error);
       setPermissionState("denied");
