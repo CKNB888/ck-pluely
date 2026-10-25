@@ -27,6 +27,7 @@ jobs:
     outputs:
       tag: ${{ steps.t.outputs.tag }}
       prerelease: ${{ steps.t.outputs.prerelease }}
+      skip: ${{ steps.t.outputs.skip }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -48,6 +49,10 @@ jobs:
           set -euo pipefail
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then TAG="$GITHUB_REF_NAME"; else TAG="${IN_TAG:-latest}"; fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # 同一提交已打 v* 标签时由标签构建负责，分支构建直接跳过（避免重复构建）
+          if [ "$TAG" = latest ] && [ "$GITHUB_EVENT_NAME" = push ] && git ls-remote --tags origin 'v*' | grep -q "^${GITHUB_SHA}"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"; echo "tag run builds this commit"; exit 0
+          fi
           if [ "$TAG" = latest ]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
             # Rolling build: drop the old release + tag, recreate at this commit.
@@ -63,6 +68,7 @@ jobs:
 
   release:
     needs: prep
+    if: needs.prep.outputs.skip != 'true'
     strategy:
       fail-fast: false
       matrix:

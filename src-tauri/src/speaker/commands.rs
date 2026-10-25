@@ -267,7 +267,7 @@ async fn run_continuous_capture(
     let max_samples = (sr as u64 * config.max_recording_duration_secs) as usize;
 
     // Pre-allocate buffer to prevent reallocations
-    let mut audio_buffer = Vec::with_capacity(max_samples);
+    let mut audio_buffer = Vec::with_capacity(max_samples.min(sr as usize * 10)); // 按需增长，避免启动即占满整段录音内存
     let start_time = Instant::now();
     let max_duration = Duration::from_secs(config.max_recording_duration_secs);
 

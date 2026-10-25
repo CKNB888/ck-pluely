@@ -4,6 +4,7 @@ mod api;
 mod capture;
 mod ck;
 mod db;
+mod privacy;
 mod shortcuts;
 mod window;
 use std::sync::{Arc, Mutex};
@@ -77,7 +78,23 @@ pub fn run() {
     }
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut builder = builder
+        // 共享屏幕隐私：页面加载、窗口获得焦点/显示时重新施加防录屏保护
+        .on_page_load(|webview, _| {
+            if let Some(w) = webview.app_handle().get_webview_window(webview.label()) {
+                privacy::harden(&w);
+            }
+        })
+        .on_window_event(|window, event| {
+            if matches!(event, tauri::WindowEvent::Focused(true) | tauri::WindowEvent::ScaleFactorChanged { .. }) {
+                if let Some(w) = window.app_handle().get_webview_window(window.label()) {
+                    privacy::harden(&w);
+                }
+            }
+        })
         .invoke_handler(tauri::generate_handler![
+            privacy::privacy_status,
+            privacy::privacy_harden_all,
+            privacy::hide_all_windows,
             get_app_version,
             ck::ck_secret_get,
             ck::ck_secret_set,
@@ -129,9 +146,13 @@ pub fn run() {
         .setup(|app| {
             // Setup main window positioning
             window::setup_main_window(app).expect("Failed to setup main window");
+            privacy::harden_all(app.handle());
             #[cfg(target_os = "macos")]
             init(app.app_handle());
+            #[cfg(target_os = "macos")]
             let app_handle = app.handle();
+            // 内存优化：非 macOS 平台控制台窗口改为首次打开时再创建（省去一个常驻 WebView 进程）
+            #[cfg(target_os = "macos")]
             if app_handle.get_webview_window("dashboard").is_none() {
                 if let Err(e) = window::create_dashboard_window(app_handle) {
                     eprintln!("Failed to pre-create dashboard window on startup: {}", e);

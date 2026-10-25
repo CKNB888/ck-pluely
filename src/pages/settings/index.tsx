@@ -4,6 +4,7 @@ import {
   AppIconToggle,
   AutostartToggle,
   UiLanguage,
+  PrivacyCheck,
 } from "./components";
 import { PageLayout } from "@/layouts";
 
@@ -23,6 +24,9 @@ const Settings = () => {
 
       {/* App Icon Toggle */}
       <AppIconToggle />
+
+      {/* 隐私自检 */}
+      <PrivacyCheck />
 
       {/* Always On Top Toggle */}
       <AlwaysOnTopToggle />

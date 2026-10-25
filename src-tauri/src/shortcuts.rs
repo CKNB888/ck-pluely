@@ -101,6 +101,7 @@ pub fn handle_shortcut_action<R: Runtime>(app: &AppHandle<R>, action_id: &str) {
     match action_id {
         "toggle_dashboard" => handle_toggle_dashboard(app),
         "toggle_window" => handle_toggle_window(app),
+        "hide_all" => crate::privacy::toggle_hide_all(app),
         "focus_input" => handle_focus_input(app),
         "move_window_up" => handle_move_window(app, "up"),
         "move_window_down" => handle_move_window(app, "down"),
@@ -203,6 +204,7 @@ fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
         }
 
         if !*is_hidden {
+            crate::privacy::harden(&window);
             if let Err(e) = window.show() {
                 eprintln!("Failed to show window: {}", e);
             }
@@ -532,24 +534,23 @@ pub fn set_app_icon_visibility<R: Runtime>(app: AppHandle<R>, visible: bool) -> 
     #[cfg(target_os = "windows")]
     {
         // On Windows, control taskbar icon visibility
-        if let Some(window) = app.get_webview_window("main") {
+        // 所有窗口（含控制台）都从任务栏和 Alt+Tab 中隐藏
+        for (_, window) in app.webview_windows() {
             window
                 .set_skip_taskbar(!visible)
                 .map_err(|e| format!("Failed to set taskbar visibility: {}", e))?;
-        } else {
-            eprintln!("Main window not found on Windows");
+            crate::privacy::set_hide_from_alt_tab(&window, !visible);
         }
     }
 
     #[cfg(target_os = "linux")]
     {
         // On Linux, control panel icon visibility
-        if let Some(window) = app.get_webview_window("main") {
+        for (_, window) in app.webview_windows() {
             window
                 .set_skip_taskbar(!visible)
                 .map_err(|e| format!("Failed to set panel visibility: {}", e))?;
-        } else {
-            eprintln!("Main window not found on Linux");
+            crate::privacy::set_hide_from_alt_tab(&window, !visible);
         }
     }
 

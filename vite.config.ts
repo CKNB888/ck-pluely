@@ -7,7 +7,33 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    // 体积优化：WebView 均支持 woff2，去掉 KaTeX 的 .ttf/.woff 备用字体（约 0.9MB）
+    {
+      name: "ck-drop-legacy-fonts",
+      apply: "build" as const,
+      generateBundle(_: unknown, bundle: Record<string, unknown>) {
+        for (const k of Object.keys(bundle)) {
+          if (/KaTeX_.*\.(ttf|woff)$/.test(k)) delete bundle[k];
+        }
+      },
+    },
+  ],
+  build: {
+    target: "es2020",
+    sourcemap: false,
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

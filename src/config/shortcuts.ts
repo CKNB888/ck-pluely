@@ -22,6 +22,16 @@ export const DEFAULT_SHORTCUT_ACTIONS: ShortcutAction[] = [
     },
   },
   {
+    id: "hide_all",
+    name: "Hide All Windows",
+    description: "Instantly hide/restore every Pluely window (screen-share panic key)",
+    defaultKey: {
+      macos: "cmd+alt+shift+h",
+      windows: "ctrl+alt+shift+h",
+      linux: "ctrl+alt+shift+h",
+    },
+  },
+  {
     id: "focus_input",
     name: "Refocus Input Box",
     description: "Bring Pluely forward and place the cursor in the input area",

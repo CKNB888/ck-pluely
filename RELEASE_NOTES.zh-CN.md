@@ -1,3 +1,15 @@
+# CK Pluely v1.0.1 发布说明
+
+## v1.0.1 — 内存与性能优化
+- 内存：Linux/Windows 控制台窗口改为首次打开时再创建，空闲时少一个常驻 WebView 进程
+- 内存：连续录音缓冲按需增长，不再一开始就预分配整段录音（最长可达数十 MB）
+- 性能/体积：Rust 发布配置启用 LTO、单代码单元、opt-level=s、panic=abort、strip；Windows 安装包 LZMA 压缩
+- 前端：构建目标 es2020、关闭 sourcemap、React 独立分包；去掉 KaTeX 的 ttf/woff 备用字体（约 0.9 MB）
+- 新增：服务商与语音识别「测试连接」，并可拉取模型列表
+- CI：同一提交已打版本标签时跳过分支构建，避免重复构建
+
+---
+
 # CK Pluely v1.0.0 发布说明
 
 首个独立发布版。基于 Pluely 开源版 v0.1.9（Srikanth Nani，GPL-3.0），维护者 CKNB（github.com/CKNB888）。
