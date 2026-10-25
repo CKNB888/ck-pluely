@@ -691,6 +691,8 @@ export function useSystemAudio() {
             selectedProvider: selectedAIProvider,
             systemPrompt: prompt,
             history: previousMessages.slice(0, 12),
+            newestFirst: true,
+            mode: "copilot",
             userMessage: isTranscript
               ? wrapTranscript(transcription, i18n.language)
               : transcription,

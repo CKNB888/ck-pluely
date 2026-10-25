@@ -18,6 +18,17 @@ import { shouldUsePluelyAPI } from "./pluely.api";
 import { CHUNK_POLL_INTERVAL_MS } from "../chat-constants";
 import { getResponseSettings, RESPONSE_LENGTHS, LANGUAGES } from "@/lib";
 import { MARKDOWN_FORMATTING_INSTRUCTIONS } from "@/config/constants";
+import {
+  compactHistory,
+  estimateTokens,
+  LengthMode,
+  MAX_TOKENS,
+  mergeUsage,
+  readUsage,
+  recordUsage,
+  shapeBody,
+  Usage,
+} from "@/lib/tokens";
 
 function buildEnhancedSystemPrompt(baseSystemPrompt?: string): string {
   const responseSettings = getResponseSettings();
@@ -176,17 +187,26 @@ export async function* fetchAIResponse(params: {
   userMessage: string;
   imagesBase64?: string[];
   signal?: AbortSignal;
+  /** History order; copilot keeps its list newest-first. Default oldest-first. */
+  newestFirst?: boolean;
+  /** Output cap; defaults to the user's response-length setting. */
+  mode?: LengthMode;
 }): AsyncIterable<string> {
   try {
     const {
       provider,
       selectedProvider,
       systemPrompt,
-      history = [],
       userMessage,
       imagesBase64 = [],
       signal,
     } = params;
+    const rawHistory = params.history ?? [];
+    // Pluely API expects newest-first; everything else is sent chronologically.
+    const chronological = params.newestFirst ? [...rawHistory].reverse() : rawHistory;
+    const history = compactHistory(chronological);
+    const mode: LengthMode = params.mode ?? (getResponseSettings().responseLength as LengthMode) ?? "auto";
+    const maxTokens = MAX_TOKENS[mode] ?? MAX_TOKENS.auto;
 
     // Check if already aborted
     if (signal?.aborted) {
@@ -202,7 +222,7 @@ export async function* fetchAIResponse(params: {
         systemPrompt: enhancedSystemPrompt,
         userMessage,
         imagesBase64,
-        history,
+        history: params.newestFirst ? rawHistory : [...rawHistory].reverse(),
         signal,
       });
       return;
@@ -296,10 +316,27 @@ export async function* fetchAIResponse(params: {
       }
       const headers = deepVariableReplacer(curlJson.header || {}, vars);
       headers["Content-Type"] = "application/json";
-      return { url: deepVariableReplacer(curlJson.url || "", vars), headers, body };
+      const url = deepVariableReplacer(curlJson.url || "", vars);
+      shapeBody(body, url, maxTokens, !!provider?.streaming);
+      return { url, headers, body };
     };
 
     const rawKey = (allVariables as Record<string, string>).API_KEY;
+    const t0 = performance.now();
+    let ttftMs: number | undefined;
+    let usage: Usage = { input: 0, output: 0, cached: 0 };
+    let gotUsage = false;
+    let outText = "";
+    const promptChars = JSON.stringify(build(undefined).body).length;
+    const finish = () => {
+      if (gotUsage) recordUsage(usage, { ttftMs });
+      else if (outText) {
+        recordUsage(
+          { input: Math.ceil(promptChars / 3), output: estimateTokens(outText), cached: 0 },
+          { estimated: true, ttftMs }
+        );
+      }
+    };
     let response;
     try {
       response = await withKeyRotation(
@@ -361,6 +398,11 @@ export async function* fetchAIResponse(params: {
       }
       const content =
         getByPath(json, provider?.responseContentPath || "") || "";
+      const u = readUsage(json);
+      if (u) { usage = mergeUsage(usage, u); gotUsage = true; }
+      outText = String(content);
+      ttftMs = performance.now() - t0;
+      finish();
       yield content;
       return;
     }
@@ -384,8 +426,14 @@ export async function* fetchAIResponse(params: {
           yield `\n\n${t("Provider error: {{v0}}", { v0: extractProviderError(p) })}`;
           continue;
         }
+        const u = readUsage(parsed);
+        if (u) { usage = mergeUsage(usage, u); gotUsage = true; }
         const delta = getStreamingContent(parsed, contentPath);
-        if (delta) yield delta;
+        if (delta) {
+          if (ttftMs === undefined) ttftMs = performance.now() - t0;
+          outText += delta;
+          yield delta;
+        }
       }
     };
     const reader = response.body.getReader();
@@ -445,6 +493,7 @@ export async function* fetchAIResponse(params: {
     // Flush a final event that arrived without a trailing newline.
     buffer += decoder.decode();
     for (const out of handleSse(splitSseData(buffer, true).payloads)) yield out;
+    finish();
   } catch (error) {
     throw new Error(
       `Error in fetchAIResponse: ${
