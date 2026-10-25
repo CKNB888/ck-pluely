@@ -1,8 +1,10 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import { Button, Card, CardContent, CardDescription, CardTitle } from "./ui";
 
 import { t } from "@/i18n";
 
 const Contribute = () => {
+  if (CK_HIDE_UPSTREAM_PAID) return null;
   return (
     <Card className="w-full">
       <CardContent className="flex flex-col gap-4 p-4 py-0 md:flex-row md:items-center md:justify-between">

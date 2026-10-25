@@ -1,6 +1,7 @@
 export const AI_PROVIDERS = [
   {
     id: "groq",
+    modelHint: "openai/gpt-oss-120b",
     curl: `curl https://api.groq.com/openai/v1/chat/completions \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer {{API_KEY}}" \
@@ -130,6 +131,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "deepseek",
+    modelHint: "deepseek-flash",
     curl: `curl https://api.deepseek.com/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -143,6 +145,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "qwen-dashscope",
+    modelHint: "qwen3.7-plus（或 qwen-plus）",
     curl: `curl https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -156,6 +159,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "moonshot-kimi",
+    modelHint: "kimi-k3（或 kimi-k2.6）",
     curl: `curl https://api.moonshot.cn/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -169,6 +173,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "zhipu-glm",
+    modelHint: "glm-4-flash-250414（免费）",
     curl: `curl https://open.bigmodel.cn/api/paas/v4/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -182,6 +187,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "doubao-volcengine-ark",
+    modelHint: "ep-xxxxxxxx 接入点 ID 或豆包模型 ID",
     curl: `curl https://ark.cn-beijing.volces.com/api/v3/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -195,6 +201,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "siliconflow",
+    modelHint: "deepseek-ai/DeepSeek-V4-Flash",
     curl: `curl https://api.siliconflow.cn/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -208,6 +215,7 @@ export const AI_PROVIDERS = [
   },
   {
     id: "lm-studio",
+    modelHint: "LM Studio 中已加载的模型 ID",
     curl: `curl http://localhost:1234/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -d '{

@@ -2,11 +2,14 @@
 mod activate;
 mod api;
 mod capture;
+mod ck;
 mod db;
 mod shortcuts;
 mod window;
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Manager, WebviewWindow};
+use tauri::Manager;
+#[cfg(target_os = "macos")]
+use tauri::{AppHandle, WebviewWindow};
 use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
 mod speaker;
@@ -33,6 +36,8 @@ fn get_app_version() -> String {
 pub fn run() {
     // Get PostHog API key
     let posthog_api_key = option_env!("POSTHOG_API_KEY").unwrap_or("").to_string();
+    // `mut` is only needed on macOS (nspanel plugin / panel setup).
+    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut builder = tauri::Builder::default()
         .plugin(
             tauri_plugin_sql::Builder::default()
@@ -70,9 +75,14 @@ pub fn run() {
     {
         builder = builder.plugin(tauri_nspanel::init());
     }
+    #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     let mut builder = builder
         .invoke_handler(tauri::generate_handler![
             get_app_version,
+            ck::ck_secret_get,
+            ck::ck_secret_set,
+            ck::ck_secret_delete,
+            ck::ck_macos_version,
             window::set_window_height,
             window::open_dashboard,
             window::toggle_dashboard,
@@ -123,7 +133,7 @@ pub fn run() {
             init(app.app_handle());
             let app_handle = app.handle();
             if app_handle.get_webview_window("dashboard").is_none() {
-                if let Err(e) = window::create_dashboard_window(&app_handle) {
+                if let Err(e) = window::create_dashboard_window(app_handle) {
                     eprintln!("Failed to pre-create dashboard window on startup: {}", e);
                 }
             }

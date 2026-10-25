@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import React, { useState, useEffect, useRef } from "react";
 import { KeyIcon, TrashIcon, LoaderIcon, ChevronDown } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
@@ -295,6 +296,8 @@ export const PluelyApiSetup = () => {
     : providerList
       ? `Access top models from providers like ${providerList}. and select smaller models for faster responses.`
       : "Explore all the models Pluely supports.";
+
+  if (CK_HIDE_UPSTREAM_PAID) return null;
 
   return (
     <div id="pluely-api" className="space-y-3 -mt-2">

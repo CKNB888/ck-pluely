@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import { useCallback, useState } from "react";
 import { X } from "lucide-react";
 
@@ -13,8 +14,6 @@ const STORAGE_KEY = "pluely-promote-card-dismissed";
 const Promote = () => {
   const { hasActiveLicense } = useApp();
 
-  if (hasActiveLicense) return null;
-
   const [isDismissed, setIsDismissed] = useState(
     () => safeLocalStorage.getItem(STORAGE_KEY) === "true"
   );
@@ -23,6 +22,8 @@ const Promote = () => {
     safeLocalStorage.setItem(STORAGE_KEY, "true");
     setIsDismissed(true);
   }, []);
+
+  if (hasActiveLicense || CK_HIDE_UPSTREAM_PAID) return null;
 
   if (isDismissed) return null;
 

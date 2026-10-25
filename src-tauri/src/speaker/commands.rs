@@ -239,7 +239,7 @@ async fn run_vad_capture(
                     }
                 } else {
                     // Not in speech yet - maintain rolling pre-speech buffer
-                    pre_speech.extend(mono.into_iter());
+                    pre_speech.extend(mono);
 
                     // Trim excess (maintain fixed size)
                     while pre_speech.len() > config.pre_speech_chunks * config.hop_size {
@@ -418,6 +418,52 @@ fn normalize_audio_level(samples: &[f32], target_rms: f32) -> Vec<f32> {
         .collect()
 }
 
+const STT_SAMPLE_RATE: u32 = 16_000;
+
+/// Box-filter downsample to 16 kHz (averaging each output window is a cheap
+/// anti-alias filter that is plenty for speech). Rates <= 16 kHz pass through.
+fn resample_to_16k(sample_rate: u32, input: &[f32]) -> (u32, Vec<f32>) {
+    if sample_rate <= STT_SAMPLE_RATE || input.is_empty() {
+        return (sample_rate, input.to_vec());
+    }
+    let ratio = sample_rate as f64 / STT_SAMPLE_RATE as f64;
+    let out_len = ((input.len() as f64) / ratio).floor() as usize;
+    let mut out = Vec::with_capacity(out_len);
+    for i in 0..out_len {
+        let start = (i as f64 * ratio).floor() as usize;
+        let end = (((i + 1) as f64 * ratio).floor() as usize).clamp(start + 1, input.len());
+        let window = &input[start..end];
+        out.push(window.iter().sum::<f32>() / window.len() as f32);
+    }
+    if out.is_empty() {
+        return (sample_rate, input.to_vec());
+    }
+    (STT_SAMPLE_RATE, out)
+}
+
+#[cfg(test)]
+mod resample_tests {
+    use super::resample_to_16k;
+
+    #[test]
+    fn downsamples_48k_to_16k() {
+        let input = vec![0.5f32; 48_000];
+        let (sr, out) = resample_to_16k(48_000, &input);
+        assert_eq!(sr, 16_000);
+        assert_eq!(out.len(), 16_000);
+        assert!(out.iter().all(|&s| (s - 0.5).abs() < 1e-6));
+    }
+
+    #[test]
+    fn handles_44_1k_and_passthrough() {
+        let (sr, out) = resample_to_16k(44_100, &vec![0.1f32; 44_100]);
+        assert_eq!(sr, 16_000);
+        assert_eq!(out.len(), 16_000);
+        let (sr, out) = resample_to_16k(16_000, &[0.2f32; 10]);
+        assert_eq!((sr, out.len()), (16_000, 10));
+    }
+}
+
 // Convert samples to WAV base64 (with proper error handling)
 fn samples_to_wav_b64(sample_rate: u32, mono_f32: &[f32]) -> Result<String, String> {
     // Validate sample rate
@@ -433,6 +479,11 @@ fn samples_to_wav_b64(sample_rate: u32, mono_f32: &[f32]) -> Result<String, Stri
     if mono_f32.is_empty() {
         return Err("Empty audio buffer".to_string());
     }
+
+    // ck-pluely: STT models want 16 kHz mono; downsampling here cuts the
+    // upload 3x for 48 kHz devices (faster, cheaper, fewer 413 errors).
+    let (sample_rate, resampled) = resample_to_16k(sample_rate, mono_f32);
+    let mono_f32: &[f32] = &resampled;
 
     let mut cursor = Cursor::new(Vec::new());
     let spec = WavSpec {

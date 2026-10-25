@@ -24,6 +24,8 @@ import { t } from "@/i18n";
 import {
   COPILOT_KEYS,
   isLikelyQuestion,
+  wrapTranscript,
+  COPILOT_PENDING_MAX_CHARS,
   buildCopilotPrompt,
 } from "@/lib/copilot";
 
@@ -277,18 +279,14 @@ export function useSystemAudio() {
     };
   }, []);
 
-  // Handle single speech detection event (both VAD and continuous modes)
-  useEffect(() => {
-    let speechUnlisten: (() => void) | undefined;
-    let disposed = false;
-
-    const setupEventListener = async () => {
-      try {
-        const unlisten = await listen("speech-detected", async (event) => {
+  // Handle single speech detection event (both VAD and continuous modes).
+  // ck-pluely: the handler is refreshed every render through a ref and the
+  // listener is registered once, so segments are never lost while
+  // re-subscribing and the handler always sees current state/history.
+  const handleSpeechDetected = async (base64Audio: string) => {
           try {
             if (!capturing) return;
 
-            const base64Audio = event.payload as string;
             // Convert to blob
             const binaryString = atob(base64Audio);
             const bytes = new Uint8Array(binaryString.length);
@@ -347,7 +345,7 @@ export function useSystemAudio() {
                   mode === "manual" ||
                   (mode === "questions" && !isLikelyQuestion(combined))
                 ) {
-                  copilotRef.current.pending = combined.slice(-4000);
+                  copilotRef.current.pending = combined.slice(-COPILOT_PENDING_MAX_CHARS);
                   setPendingTranscript(copilotRef.current.pending);
                   return;
                 }
@@ -360,12 +358,15 @@ export function useSystemAudio() {
                     : contextContent || DEFAULT_SYSTEM_PROMPT
                 );
 
-                const previousMessages = conversation.messages.map((msg) => {
-                  return { role: msg.role, content: msg.content };
-                });
+                // Newest-first list; keep the last 12 messages (6 turns).
+                const previousMessages = conversation.messages
+                  .slice(0, 12)
+                  .map((msg) => {
+                    return { role: msg.role, content: msg.content };
+                  });
 
                 await processWithAI(
-                  combined,
+                  combined.slice(-COPILOT_PENDING_MAX_CHARS),
                   effectiveSystemPrompt,
                   previousMessages
                 );
@@ -384,6 +385,18 @@ export function useSystemAudio() {
           } finally {
             setIsProcessing(false);
           }
+  };
+  const speechHandlerRef = useRef(handleSpeechDetected);
+  speechHandlerRef.current = handleSpeechDetected;
+
+  useEffect(() => {
+    let speechUnlisten: (() => void) | undefined;
+    let disposed = false;
+
+    const setupEventListener = async () => {
+      try {
+        const unlisten = await listen("speech-detected", (event) => {
+          void speechHandlerRef.current(event.payload as string);
         });
         // If the effect was cleaned up while awaiting, drop this listener
         // right away; otherwise each speech segment is handled twice (#315).
@@ -400,12 +413,7 @@ export function useSystemAudio() {
       disposed = true;
       if (speechUnlisten) speechUnlisten();
     };
-  }, [
-    capturing,
-    selectedSttProvider,
-    allSttProviders,
-    conversation.messages.length,
-  ]);
+  }, []);
 
   // Context management functions
   const saveContextSettings = useCallback(
@@ -511,7 +519,7 @@ export function useSystemAudio() {
       return { role: msg.role, content: msg.content };
     });
 
-    await processWithAI(action, effectiveSystemPrompt, previousMessages);
+    await processWithAI(action, effectiveSystemPrompt, previousMessages, false);
   };
 
   // Start continuous recording manually
@@ -559,13 +567,15 @@ export function useSystemAudio() {
     async (
       transcription: string,
       prompt: string,
-      previousMessages: Message[]
+      previousMessages: Message[],
+      isTranscript = true
     ) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
 
-      abortControllerRef.current = new AbortController();
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
       try {
         setIsAIProcessing(true);
@@ -593,10 +603,15 @@ export function useSystemAudio() {
             provider: usePluelyAPI ? undefined : provider,
             selectedProvider: selectedAIProvider,
             systemPrompt: prompt,
-            history: previousMessages,
-            userMessage: transcription,
+            history: previousMessages.slice(0, 12),
+            userMessage: isTranscript
+              ? wrapTranscript(transcription, i18n.language)
+              : transcription,
             imagesBase64: [],
+            signal: controller.signal,
           })) {
+            // A newer answer took over: stop this stream, don't interleave.
+            if (controller.signal.aborted) break;
             fullResponse += chunk;
             setLastAIResponse((prev) => prev + chunk);
           }
@@ -604,7 +619,7 @@ export function useSystemAudio() {
           setError(aiError.message || "Failed to get AI response");
         }
 
-        if (fullResponse) {
+        if (fullResponse && !controller.signal.aborted) {
           const timestamp = Date.now();
           setConversation((prev) => ({
             ...prev,

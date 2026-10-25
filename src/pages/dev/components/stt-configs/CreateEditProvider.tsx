@@ -23,7 +23,9 @@ export const CreateEditProvider = ({
 }: CreateEditProviderProps) => {
   const { allSttProviders } = useApp();
   // Use the provided hook instance or create a new one
-  const hookInstance = customProviderHook || useCustomSttProviders();
+  // Hooks must run unconditionally (rules-of-hooks).
+  const ownHook = useCustomSttProviders();
+  const hookInstance = customProviderHook || ownHook;
 
   const {
     showForm,

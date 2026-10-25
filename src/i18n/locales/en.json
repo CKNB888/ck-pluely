@@ -578,5 +578,9 @@
   "Endpoint or model not found (HTTP 404). Check the URL and model name.": "Endpoint or model not found (HTTP 404). Check the URL and model name.",
   "Rate limited or out of quota (HTTP 429). Try again later.": "Rate limited or out of quota (HTTP 429). Try again later.",
   "Provider server error (HTTP {{v0}}). Try again later.": "Provider server error (HTTP {{v0}}). Try again later.",
-  "Network error: {{v0}}. Check your connection or proxy.": "Network error: {{v0}}. Check your connection or proxy."
+  "Network error: {{v0}}. Check your connection or proxy.": "Network error: {{v0}}. Check your connection or proxy.",
+  "e.g. {{v0}}": "e.g. {{v0}}",
+  "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.": "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.",
+  "Your macOS version is {{v0}}.": "Your macOS version is {{v0}}.",
+  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio."
 }

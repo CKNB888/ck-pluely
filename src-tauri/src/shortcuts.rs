@@ -261,9 +261,8 @@ fn handle_audio_shortcut<R: Runtime>(app: &AppHandle<R>) {
             if let Err(_e) = window.show() {
                 return;
             }
-            if let Err(e) = window.set_focus() {
-                eprintln!("Failed to focus window: {}", e);
-            }
+            // ck-pluely (#317/#303): don't steal focus from the app the
+            // user is typing in; recording needs no keyboard focus.
         }
 
         // Emit event to start audio recording
@@ -292,9 +291,7 @@ fn handle_system_audio_shortcut<R: Runtime>(app: &AppHandle<R>) {
                 eprintln!("Failed to show window: {}", e);
                 return;
             }
-            if let Err(e) = window.set_focus() {
-                eprintln!("Failed to focus window: {}", e);
-            }
+            // ck-pluely (#317/#303): no set_focus here, see above.
         }
 
         // Emit event to toggle system audio capture - frontend will determine current state
@@ -566,6 +563,16 @@ pub fn set_always_on_top<R: Runtime>(app: AppHandle<R>, enabled: bool) -> Result
         window
             .set_always_on_top(enabled)
             .map_err(|e| format!("Failed to set always on top: {}", e))?;
+        // ck-pluely (#304): on macOS the main window is an NSPanel pinned to
+        // the floating level at startup; follow the user's setting instead.
+        #[cfg(target_os = "macos")]
+        if let Ok(panel) = app.get_webview_panel("main") {
+            #[allow(non_upper_case_globals)]
+            const NSFloatWindowLevel: i32 = 4;
+            #[allow(non_upper_case_globals)]
+            const NSNormalWindowLevel: i32 = 0;
+            panel.set_level(if enabled { NSFloatWindowLevel } else { NSNormalWindowLevel });
+        }
     } else {
         return Err("Main window not found".to_string());
     }

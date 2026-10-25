@@ -1,18 +1,20 @@
 export const SPEECH_TO_TEXT_PROVIDERS = [
   {
     id: "groq",
+    modelHint: "whisper-large-v3-turbo",
     name: "Groq Whisper",
     curl: `curl -X POST https://api.groq.com/openai/v1/audio/transcriptions \\
       -H "Authorization: bearer {{API_KEY}}" \\
       -F "file={{AUDIO}}" \\
       -F model={{MODEL}} \\
       -F temperature=0 \\
-      -F response_format=text`,
+      -F response_format=json`,
     responseContentPath: "text",
     streaming: false,
   },
   {
     id: "siliconflow-stt",
+    modelHint: "FunAudioLLM/SenseVoiceSmall",
     name: "SiliconFlow SenseVoice (硅基流动)",
     curl: `curl -X POST https://api.siliconflow.cn/v1/audio/transcriptions \\
       -H "Authorization: Bearer {{API_KEY}}" \\

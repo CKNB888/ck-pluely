@@ -1,4 +1,8 @@
 import {
+  loadSelectedWithSecrets,
+  saveSelectedWithSecrets,
+} from "@/lib/secrets";
+import {
   AI_PROVIDERS,
   DEFAULT_SYSTEM_PROMPT,
   SPEECH_TO_TEXT_PROVIDERS,
@@ -241,13 +245,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       STORAGE_KEYS.SELECTED_AI_PROVIDER
     );
     if (savedSelectedAi) {
-      try {
-        setSelectedAIProvider(JSON.parse(savedSelectedAi));
-      } catch (error) {
-        // Corrupted value would otherwise crash the app on startup
-        console.error("Failed to parse SELECTED_AI_PROVIDER:", error);
-        safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_AI_PROVIDER);
-      }
+      // ck-pluely: API keys are filled from the OS keychain.
+      loadSelectedWithSecrets("ai", savedSelectedAi)
+        .then(setSelectedAIProvider)
+        .catch((error) => {
+          // Corrupted value would otherwise crash the app on startup
+          console.error("Failed to parse SELECTED_AI_PROVIDER:", error);
+          safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_AI_PROVIDER);
+          setSelectedAIProvider({ provider: "groq", variables: {} });
+        });
     } else {
       // ck-pluely: Groq is the built-in default channel on first run.
       setSelectedAIProvider({ provider: "groq", variables: {} });
@@ -258,13 +264,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       STORAGE_KEYS.SELECTED_STT_PROVIDER
     );
     if (savedSelectedStt) {
-      try {
-        setSelectedSttProvider(JSON.parse(savedSelectedStt));
-      } catch (error) {
-        // Corrupted value would otherwise crash the app on startup
-        console.error("Failed to parse SELECTED_STT_PROVIDER:", error);
-        safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_STT_PROVIDER);
-      }
+      loadSelectedWithSecrets("stt", savedSelectedStt)
+        .then(setSelectedSttProvider)
+        .catch((error) => {
+          // Corrupted value would otherwise crash the app on startup
+          console.error("Failed to parse SELECTED_STT_PROVIDER:", error);
+          safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_STT_PROVIDER);
+          setSelectedSttProvider({ provider: "groq", variables: {} });
+        });
     } else {
       setSelectedSttProvider({ provider: "groq", variables: {} });
     }
@@ -508,9 +515,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Sync selected AI to localStorage
   useEffect(() => {
     if (selectedAIProvider.provider) {
-      safeLocalStorage.setItem(
+      void saveSelectedWithSecrets(
+        "ai",
         STORAGE_KEYS.SELECTED_AI_PROVIDER,
-        JSON.stringify(selectedAIProvider)
+        selectedAIProvider
       );
     }
   }, [selectedAIProvider]);
@@ -518,9 +526,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Sync selected STT to localStorage
   useEffect(() => {
     if (selectedSttProvider.provider) {
-      safeLocalStorage.setItem(
+      void saveSelectedWithSecrets(
+        "stt",
         STORAGE_KEYS.SELECTED_STT_PROVIDER,
-        JSON.stringify(selectedSttProvider)
+        selectedSttProvider
       );
     }
   }, [selectedSttProvider]);

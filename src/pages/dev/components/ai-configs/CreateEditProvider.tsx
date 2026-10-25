@@ -23,7 +23,9 @@ export const CreateEditProvider = ({
 }: CreateEditProviderProps) => {
   const { allAiProviders } = useApp();
   // Use the provided hook instance or create a new one
-  const hookInstance = customProviderHook || useCustomAiProviders();
+  // Hooks must run unconditionally (rules-of-hooks).
+  const ownHook = useCustomAiProviders();
+  const hookInstance = customProviderHook || ownHook;
 
   const {
     showForm,

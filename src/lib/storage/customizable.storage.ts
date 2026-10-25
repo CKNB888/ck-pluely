@@ -19,7 +19,7 @@ export interface CustomizableState {
 
 export const DEFAULT_CUSTOMIZABLE_STATE: CustomizableState = {
   appIcon: { isVisible: true },
-  alwaysOnTop: { isEnabled: false },
+  alwaysOnTop: { isEnabled: true }, // ck-pluely: overlay stays on top by default (#304)
   autostart: { isEnabled: true },
   cursor: { type: "invisible" },
 };

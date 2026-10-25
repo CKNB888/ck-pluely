@@ -209,7 +209,16 @@ export const Providers = ({
                   })}
                 />
                 <TextInput
-                  placeholder={t("Enter {{v0}} {{v1}}", {
+                  placeholder={
+                    variable?.key?.toLowerCase() === "model" &&
+                    allAiProviders?.find((p) => p?.id === selectedAIProvider?.provider)
+                      ?.modelHint
+                      ? t("e.g. {{v0}}", {
+                          v0: allAiProviders?.find(
+                            (p) => p?.id === selectedAIProvider?.provider
+                          )?.modelHint,
+                        })
+                      : t("Enter {{v0}} {{v1}}", {
                     v0: allAiProviders?.find(
                       (p) => p?.id === selectedAIProvider?.provider
                     )?.isCustom
@@ -217,7 +226,8 @@ export const Providers = ({
                       : selectedAIProvider?.provider,
 
                     v1: variable?.key?.replace(/_/g, " ") || "value",
-                  })}
+                  })
+                  }
                   value={getVariableValue()}
                   onChange={(value) => {
                     if (!variable?.key || !selectedAIProvider) return;

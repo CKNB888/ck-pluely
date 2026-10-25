@@ -1,3 +1,4 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import { useState } from "react";
 import { Button } from "@/components";
 import { invoke } from "@tauri-apps/api/core";
@@ -41,6 +42,8 @@ export const GetLicense = ({
       await captureEvent(ANALYTICS_EVENTS.GET_LICENSE);
     }
   };
+
+  if (CK_HIDE_UPSTREAM_PAID) return null;
 
   return (
     <Button

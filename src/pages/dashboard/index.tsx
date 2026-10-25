@@ -1,6 +1,7 @@
+import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { GetLicense } from "@/components";
+import { GetLicense, MacOsVersionNotice } from "@/components";
 import { PluelyApiSetup, Usage } from "./components";
 import { PageLayout } from "@/layouts";
 import { useApp } from "@/contexts";
@@ -51,20 +52,27 @@ const Dashboard = () => {
   return (
     <PageLayout
       title={t("Dashboard")}
-      description={t(
-        "Pluely license to unlock faster responses, quicker support and premium features."
-      )}
+      description={
+        CK_HIDE_UPSTREAM_PAID
+          ? t("Set up your AI and speech providers in Dev space, then start the Copilot from the main window.")
+          : t(
+              "Pluely license to unlock faster responses, quicker support and premium features."
+            )
+      }
       rightSlot={!hasActiveLicense ? <GetLicense /> : null}
     >
+      <MacOsVersionNotice />
       {/* Pluely API Setup */}
       <PluelyApiSetup />
 
+      {!CK_HIDE_UPSTREAM_PAID && (
       <Usage
         loading={loadingActivity}
         onRefresh={fetchActivity}
         data={activityData}
         totalTokens={totalTokens}
       />
+      )}
     </PageLayout>
   );
 };

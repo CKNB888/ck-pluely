@@ -1,5 +1,6 @@
 import { AudioSelection } from "./components";
 import { PageLayout } from "@/layouts";
+import { MacOsVersionNotice } from "@/components";
 import { getPlatform } from "@/lib";
 
 import { t } from "@/i18n";
@@ -41,6 +42,7 @@ const Audio = () => {
         "Configure your audio input and output devices for voice interaction and system audio capture."
       )}
     >
+      <MacOsVersionNotice />
       <AudioSelection />
 
       <div className="text-xs text-amber-600 bg-amber-500/10 p-3 rounded-md mb-4 space-y-2">

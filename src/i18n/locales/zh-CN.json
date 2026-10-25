@@ -578,5 +578,9 @@
   "Endpoint or model not found (HTTP 404). Check the URL and model name.": "接口或模型不存在（HTTP 404），请检查接口地址和模型名称。",
   "Rate limited or out of quota (HTTP 429). Try again later.": "请求过于频繁或额度不足（HTTP 429），请稍后再试。",
   "Provider server error (HTTP {{v0}}). Try again later.": "服务商服务器错误（HTTP {{v0}}），请稍后再试。",
-  "Network error: {{v0}}. Check your connection or proxy.": "网络错误：{{v0}}。请检查网络或代理设置。"
+  "Network error: {{v0}}. Check your connection or proxy.": "网络错误：{{v0}}。请检查网络或代理设置。",
+  "e.g. {{v0}}": "例如：{{v0}}",
+  "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.": "先在“开发者空间”配置 AI 与语音识别服务商，再从主窗口启动 Copilot 实时助答。",
+  "Your macOS version is {{v0}}.": "当前 macOS 版本为 {{v0}}。",
+  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "采集系统音频（会议/面试官声音）需要 macOS 14.2 或更高版本。麦克风输入仍可使用；如需系统音频，请升级 macOS。"
 }

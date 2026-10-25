@@ -14,7 +14,6 @@ use libpulse_binding as pulse;
 use libpulse_simple_binding as psimple;
 
 use psimple::Simple;
-use pulse::context::introspect::Introspector;
 use pulse::context::Context;
 use pulse::mainloop::standard::Mainloop;
 use pulse::sample::{Format, Spec};
@@ -377,6 +376,8 @@ impl SpeakerStream {
                     match simple.read(&mut buffer) {
                         Ok(_) => {
                             // Convert byte buffer to f32 samples
+                            // `as_chunks` is not stable on every toolchain we build with.
+                            #[allow(unknown_lints, clippy::chunks_exact_to_as_chunks)]
                             let samples: Vec<f32> = buffer
                                 .chunks_exact(4)
                                 .map(|chunk| {
