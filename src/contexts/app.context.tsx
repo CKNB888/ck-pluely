@@ -241,7 +241,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       STORAGE_KEYS.SELECTED_AI_PROVIDER
     );
     if (savedSelectedAi) {
-      setSelectedAIProvider(JSON.parse(savedSelectedAi));
+      try {
+        setSelectedAIProvider(JSON.parse(savedSelectedAi));
+      } catch (error) {
+        // Corrupted value would otherwise crash the app on startup
+        console.error("Failed to parse SELECTED_AI_PROVIDER:", error);
+        safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_AI_PROVIDER);
+      }
     }
 
     // Load selected STT provider
@@ -249,7 +255,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       STORAGE_KEYS.SELECTED_STT_PROVIDER
     );
     if (savedSelectedStt) {
-      setSelectedSttProvider(JSON.parse(savedSelectedStt));
+      try {
+        setSelectedSttProvider(JSON.parse(savedSelectedStt));
+      } catch (error) {
+        // Corrupted value would otherwise crash the app on startup
+        console.error("Failed to parse SELECTED_STT_PROVIDER:", error);
+        safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_STT_PROVIDER);
+      }
     }
 
     // Load customizable state
