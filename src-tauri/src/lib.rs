@@ -14,6 +14,9 @@ use tauri::{AppHandle, WebviewWindow};
 use tauri_plugin_posthog::{init as posthog_init, PostHogConfig, PostHogOptions};
 use tokio::task::JoinHandle;
 mod speaker;
+mod osinfo;
+#[cfg(target_os = "macos")]
+mod macui;
 use capture::CaptureState;
 use speaker::VadConfig;
 
@@ -113,6 +116,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
+            osinfo::ck_permission_status,
+            osinfo::ck_restart_app,
+            osinfo::ck_mac_mode,
+            osinfo::ck_open_settings,
             privacy::privacy_harden_all,
             privacy::hide_all_windows,
             get_app_version,
@@ -169,6 +176,10 @@ pub fn run() {
             privacy::harden_all(app.handle());
             #[cfg(target_os = "macos")]
             init(app.app_handle());
+            #[cfg(target_os = "macos")]
+            if let Err(e) = macui::setup(app) {
+                eprintln!("[macui] tray setup failed: {e}");
+            }
             #[cfg(target_os = "macos")]
             let app_handle = app.handle();
             // 内存优化：非 macOS 平台控制台窗口改为首次打开时再创建（省去一个常驻 WebView 进程）

@@ -1,4 +1,3 @@
-import { CK_HIDE_UPSTREAM_PAID } from "@/config/ck";
 import {
   Settings,
   Code,
@@ -9,18 +8,13 @@ import {
   MonitorIcon,
   HomeIcon,
   PowerIcon,
-  MailIcon,
-  CoffeeIcon,
-  GlobeIcon,
   BugIcon,
   MessageSquareTextIcon,
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
-import { useApp } from "@/contexts";
-import { XIcon, GithubIcon } from "@/components";
+import { GithubIcon } from "@/components";
 
 export const useMenuItems = () => {
-  const { hasActiveLicense } = useApp();
 
   const menu: {
     icon: React.ElementType;
@@ -77,15 +71,6 @@ export const useMenuItems = () => {
   ];
 
   const footerItems = [
-    ...(hasActiveLicense && !CK_HIDE_UPSTREAM_PAID
-      ? [
-          {
-            icon: MailIcon,
-            label: "Contact Support",
-            href: "mailto:support@pluely.com",
-          },
-        ]
-      : []),
     {
       icon: BugIcon,
       label: "Report a bug",
@@ -106,34 +91,9 @@ export const useMenuItems = () => {
     link: string;
   }[] = [
     {
-      title: "Website",
-      icon: GlobeIcon,
-      link: "https://pluely.com",
-    },
-    {
-      title: "Github",
+      title: "GitHub：CKNB888/ck-pluely",
       icon: GithubIcon,
       link: "https://github.com/CKNB888/ck-pluely",
-    },
-    {
-      title: "Upstream: Pluely by Srikanth Nani",
-      icon: GithubIcon,
-      link: "https://github.com/iamsrikanthnani/pluely",
-    },
-    {
-      title: "Maintainer: CKNB",
-      icon: GithubIcon,
-      link: "https://github.com/CKNB888",
-    },
-    {
-      title: "Buy Me a Coffee",
-      icon: CoffeeIcon,
-      link: "https://buymeacoffee.com/srikanthnani",
-    },
-    {
-      title: "Follow on X",
-      icon: XIcon,
-      link: "https://x.com/srikanthnani",
     },
   ];
 

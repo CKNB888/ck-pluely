@@ -654,5 +654,6 @@
   "{{count}} shortcuts configured": "已配置 {{count}} 个快捷键",
   "System audio interrupted, reconnecting…": "系统音频中断，正在自动重连…",
   "Failed to process audio": "音频处理失败",
-  "Follows your operating system's light/dark setting": "跟随操作系统的浅色/深色设置自动切换"
+  "Follows your operating system's light/dark setting": "跟随操作系统的浅色/深色设置自动切换",
+  "Open the setup guide again": "重新打开新手引导"
 }

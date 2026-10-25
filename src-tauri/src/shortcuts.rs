@@ -234,7 +234,11 @@ pub(crate) fn handle_toggle_window<R: Runtime>(app: &AppHandle<R>) {
         }
         Ok(false) => {
             // Window is hidden, show it and handle app icon based on user settings
+            #[cfg(target_os = "macos")]
+            crate::macui::place_main(&window);
+            #[cfg(not(target_os = "macos"))]
             crate::window::ensure_on_screen(&window);
+            crate::privacy::harden(&window);
             if let Err(e) = window.show() {
                 eprintln!("Failed to show window: {}", e);
             }

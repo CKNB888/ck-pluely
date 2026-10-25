@@ -7,9 +7,8 @@ import {
   SelectValue,
 } from "@/components";
 import { useApp } from "@/contexts";
-import { getPlatform } from "@/lib";
 import { CursorType } from "@/lib/storage";
-import { MousePointer, MousePointer2, Pointer, TextCursor } from "lucide-react";
+import { MousePointer, Pointer, TextCursor } from "lucide-react";
 
 import { t } from "@/i18n";
 
@@ -19,7 +18,6 @@ interface CursorSelectionProps {
 
 export const CursorSelection = ({ className }: CursorSelectionProps) => {
   const { customizable, setCursorType } = useApp();
-  const platform = getPlatform();
 
   return (
     <div id="cursor" className={`space-y-2 ${className}`}>
@@ -36,15 +34,6 @@ export const CursorSelection = ({ className }: CursorSelectionProps) => {
               <SelectValue placeholder={t("Select a cursor type")} />
             </SelectTrigger>
             <SelectContent position="popper" align="end">
-              <SelectItem value="invisible" disabled={platform === "linux"}>
-                {t("Invisible (")}
-                <MousePointer2 className="size-3 px-0" />){" "}
-                {platform === "linux" && (
-                  <span className="text-xs text-muted-foreground">
-                    {t("Not supported on Linux")}
-                  </span>
-                )}
-              </SelectItem>
               <SelectItem value="default">
                 {t("Default (")}
                 <MousePointer className="size-3" />)

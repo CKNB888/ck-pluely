@@ -21,7 +21,7 @@ export const DEFAULT_CUSTOMIZABLE_STATE: CustomizableState = {
   appIcon: { isVisible: true },
   alwaysOnTop: { isEnabled: true }, // ck-pluely: overlay stays on top by default (#304)
   autostart: { isEnabled: true },
-  cursor: { type: "invisible" },
+  cursor: { type: "default" },
 };
 
 /**
@@ -41,7 +41,10 @@ export const getCustomizableState = (): CustomizableState => {
       alwaysOnTop:
         parsedState.alwaysOnTop || DEFAULT_CUSTOMIZABLE_STATE.alwaysOnTop,
       autostart: parsedState.autostart || DEFAULT_CUSTOMIZABLE_STATE.autostart,
-      cursor: parsedState.cursor || DEFAULT_CUSTOMIZABLE_STATE.cursor,
+      cursor:
+        parsedState.cursor && parsedState.cursor.type !== "invisible"
+          ? parsedState.cursor
+          : DEFAULT_CUSTOMIZABLE_STATE.cursor,
     };
   } catch (error) {
     console.error("Failed to get customizable state:", error);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Header, Button } from "@/components";
 import { t } from "@/i18n";
+import { ONBOARDING_DONE_KEY, ONBOARDING_STEP_KEY } from "@/lib/onboarding";
 
 interface WindowPrivacy {
   label: string;
@@ -13,6 +14,7 @@ interface PrivacyStatus {
   os_version: string;
   method: string;
   windows: WindowPrivacy[];
+  notes?: string[];
 }
 
 const methodText = (m: string) =>
@@ -23,7 +25,8 @@ const methodText = (m: string) =>
     none: t("No system-level protection"),
   })[m] ?? m;
 
-const macMajor = (v: string) => parseInt(v.split(".")[0] || "0", 10);
+const osName = (os: string) =>
+  ({ macos: "macOS", windows: "Windows", linux: "Linux" })[os] ?? os;
 
 export const PrivacyCheck = () => {
   const [status, setStatus] = useState<PrivacyStatus | null>(null);
@@ -42,26 +45,8 @@ export const PrivacyCheck = () => {
     run();
   }, [run]);
 
-  const notes: string[] = [];
-  if (status?.os === "windows") {
-    notes.push(
-      status.method === "exclude"
-        ? t("Windows 10 2004+ detected: Tencent Meeting / DingTalk screen share and recordings will not show Pluely windows, while you still see them.")
-        : t("This Windows version does not support full exclusion; viewers see a black box where Pluely is. Use the hide-all hotkey before sharing.")
-    );
-  } else if (status?.os === "macos") {
-    notes.push(
-      t("macOS: windows are marked not shareable. On macOS 15+ Apple no longer guarantees this for ScreenCaptureKit-based full-screen sharing, so viewers may still see the window.")
-    );
-    if (macMajor(status.os_version) >= 15)
-      notes.push(
-        t("Recommended on this Mac: share a single window (e.g. the slides/browser window) instead of the whole screen, and keep the hide-all hotkey ready.")
-      );
-  } else if (status) {
-    notes.push(
-      t("Linux has no system API to hide windows from screen sharing. Share a single window instead of the whole screen, or use the hide-all hotkey.")
-    );
-  }
+  // 按检测到的系统版本由后端给出的说明（诚实列出局限）
+  const notes: string[] = [...(status?.notes ?? [])];
   notes.push(
     t("Pluely shows no system notifications, so AI content never appears in notification banners.")
   );
@@ -80,7 +65,7 @@ export const PrivacyCheck = () => {
       {status && (
         <div className="space-y-2 text-xs">
           <p>
-            {t("Operating system")}: {status.os} {status.os_version} · {methodText(status.method)}
+            {t("Operating system")}: {osName(status.os)} {status.os_version} · {methodText(status.method)}
           </p>
           <ul className="list-disc pl-5 space-y-0.5 text-muted-foreground">
             {status.windows.map((w) => (
@@ -102,6 +87,17 @@ export const PrivacyCheck = () => {
         </Button>
         <Button size="sm" variant="outline" onClick={() => invoke("hide_all_windows")}>
           {t("Hide all windows now")}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            localStorage.removeItem(ONBOARDING_DONE_KEY);
+            localStorage.removeItem(ONBOARDING_STEP_KEY);
+            window.location.assign("/onboarding");
+          }}
+        >
+          {t("Open the setup guide again")}
         </Button>
       </div>
     </div>

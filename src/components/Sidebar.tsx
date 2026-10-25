@@ -75,6 +75,9 @@ export const Sidebar = () => {
             </Button>
           ))}
         </div>
+        <p className="mb-2 px-2 text-center text-[10px] leading-snug text-sidebar-foreground/50 select-none">
+          基于 Pluely（作者 Srikanth Nani，GPL-3.0）修改
+        </p>
 
         {footerItems.map((item, index) => (
           <a

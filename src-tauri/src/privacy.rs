@@ -15,6 +15,8 @@ pub struct PrivacyStatus {
     /// "exclude" | "monitor" | "sharing_none" | "none"
     pub method: String,
     pub windows: Vec<WindowPrivacy>,
+    /// 按检测到的系统版本给出的中文说明（含局限）
+    pub notes: Vec<String>,
 }
 
 #[derive(Clone, Serialize)]
@@ -74,9 +76,10 @@ pub fn privacy_status(app: AppHandle) -> PrivacyStatus {
     windows.sort_by(|a, b| a.label.cmp(&b.label));
     PrivacyStatus {
         os: std::env::consts::OS.into(),
-        os_version: os_version(),
+        os_version: crate::osinfo::os_version(),
         method,
         windows,
+        notes: crate::osinfo::current_strategy().notes,
     }
 }
 
@@ -109,21 +112,6 @@ pub fn hide_all_windows(app: AppHandle) {
     toggle_hide_all(&app);
 }
 
-fn os_version() -> String {
-    #[cfg(target_os = "macos")]
-    {
-        if let Ok(o) = std::process::Command::new("sw_vers").arg("-productVersion").output() {
-            return String::from_utf8_lossy(&o.stdout).trim().to_string();
-        }
-    }
-    #[cfg(target_os = "windows")]
-    {
-        return win::build_number().map(|b| format!("build {b}")).unwrap_or_default();
-    }
-    #[allow(unreachable_code)]
-    String::new()
-}
-
 /// Windows：在任务栏隐藏的同时也从 Alt+Tab 中隐藏（WS_EX_TOOLWINDOW）。
 #[allow(unused_variables)]
 pub fn set_hide_from_alt_tab<R: Runtime>(window: &WebviewWindow<R>, hide: bool) {
@@ -144,13 +132,6 @@ mod win {
 
     fn hwnd<R: Runtime>(w: &WebviewWindow<R>) -> Option<HWND> {
         w.hwnd().ok().map(|h| h.0 as HWND)
-    }
-
-    pub fn build_number() -> Option<u32> {
-        let out = std::process::Command::new("cmd").args(["/C", "ver"]).output().ok()?;
-        let s = String::from_utf8_lossy(&out.stdout).to_string();
-        // "Microsoft Windows [Version 10.0.19045.xxxx]"
-        s.split("10.0.").nth(1)?.split('.').next()?.trim().parse().ok()
     }
 
     pub fn apply<R: Runtime>(w: &WebviewWindow<R>) -> String {

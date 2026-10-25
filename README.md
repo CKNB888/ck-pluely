@@ -2,8 +2,8 @@
 
 **简体中文** | [English](#english)
 
-> **基于 [Pluely](https://github.com/iamsrikanthnani/pluely)（作者 Srikanth Nani，GPL-3.0）开源版 v0.1.9 二次开发。**
-> 维护者：**CKNB**（[github.com/CKNB888](https://github.com/CKNB888)）。仓库：<https://github.com/CKNB888/ck-pluely>
+> **基于 Pluely（作者 Srikanth Nani，GPL-3.0）开源版 v0.1.9 二次开发。**
+> 维护者：**CKNB**。仓库：<https://github.com/CKNB888/ck-pluely>
 > 与上游 Pluely 使用不同的包标识（`io.github.cknb6.ckpluely`），可以同时安装。
 
 ## 它能做什么
@@ -76,6 +76,9 @@ npm run tauri build          # 本机平台
 npm run check:i18n           # 中英文条目一致性检查
 ```
 
+## 赞助与广告合作 / Sponsorship & Ads
+欢迎赞助本项目或洽谈广告合作，请添加微信 **1837620622**（请备注来意）。
+
 ## 许可证
 GPL-3.0（见 [LICENSE](./LICENSE)）。Copyright © Srikanth Nani（上游 Pluely）；修改部分 © CKNB。
 
@@ -83,6 +86,9 @@ GPL-3.0（见 [LICENSE](./LICENSE)）。Copyright © Srikanth Nani（上游 Plue
 
 ## English
 
-**CK Pluely** is a Chinese-first fork of [Pluely](https://github.com/iamsrikanthnani/pluely) by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** ([github.com/CKNB888](https://github.com/CKNB888)). It installs alongside upstream (`io.github.cknb6.ckpluely`).
+**CK Pluely** is a Chinese-first fork of Pluely by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** — <https://github.com/CKNB888/ck-pluely>. It installs alongside upstream (`io.github.cknb6.ckpluely`).
 
-New in 1.0.0: a real-time copilot panel (auto-answer detected questions / answer everything / manual), interview / class / meeting presets, resume & notes context, Groq as default channel, extra providers (DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao/Ark, SiliconFlow, LM Studio, …), SiliconFlow SenseVoice STT, Groq STT language auto-detect, Chinese default UI with English available, upstream auto-update disabled. Unsigned builds: on macOS run `xattr -cr "/Applications/CK Pluely.app"`. Original upstream README: [README.en.md](./README.en.md).
+New in 1.0.0: a real-time copilot panel (auto-answer detected questions / answer everything / manual), interview / class / meeting presets, resume & notes context, Groq as default channel, extra providers (DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao/Ark, SiliconFlow, LM Studio, …), SiliconFlow SenseVoice STT, Groq STT language auto-detect, Chinese default UI with English available, upstream auto-update disabled. Unsigned builds: on macOS run `xattr -cr "/Applications/CK Pluely.app"`. More: [README.en.md](./README.en.md).
+
+### Sponsorship & Ads
+Sponsorships and advertising partnerships are welcome — add WeChat **1837620622** (please mention your purpose).

@@ -349,8 +349,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // For overlay windows (main, capture-overlay-*)
-      const safeType = type || "invisible";
-      const cursorValue = type === "invisible" ? "none" : safeType;
+      // 只使用系统光标：不再隐藏或绘制自定义光标
+      const cursorValue = type === "auto" ? "auto" : "default";
       document.documentElement.style.setProperty("--cursor-type", cursorValue);
     } catch (error) {
       document.documentElement.style.setProperty("--cursor-type", "default");

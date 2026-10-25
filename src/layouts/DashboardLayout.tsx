@@ -1,9 +1,14 @@
 import { Sidebar } from "@/components";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { ONBOARDING_DONE_KEY } from "@/lib/onboarding";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorLayout } from "./ErrorLayout";
 
 export const DashboardLayout = () => {
+  // 首次启动：先走新手引导
+  if (!localStorage.getItem(ONBOARDING_DONE_KEY)) {
+    return <Navigate to="/onboarding" replace />;
+  }
   return (
     <ErrorBoundary
       fallbackRender={() => {

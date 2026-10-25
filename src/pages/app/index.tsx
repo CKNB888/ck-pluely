@@ -1,24 +1,30 @@
-import { Card, Updater, DragButton, CustomCursor, Button } from "@/components";
+import { Card, Updater, DragButton, Button } from "@/components";
 import {
   SystemAudio,
   Completion,
   AudioVisualizer,
   StatusIndicator,
 } from "./components";
-import { useApp } from "@/hooks";
-import { useApp as useAppContext } from "@/contexts";
+import { useApp, useMacMode } from "@/hooks";
 import { SparklesIcon } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorLayout } from "@/layouts";
-import { getPlatform } from "@/lib";
+import { useEffect } from "react";
+import { ONBOARDING_DONE_KEY } from "@/lib/onboarding";
 
 import { t } from "@/i18n";
 
 const App = () => {
   const { isHidden, systemAudio } = useApp();
-  const { customizable } = useAppContext();
-  const platform = getPlatform();
+  const macMode = useMacMode();
+
+  // 首次启动自动打开控制台里的新手引导
+  useEffect(() => {
+    if (!localStorage.getItem(ONBOARDING_DONE_KEY)) {
+      invoke("open_dashboard").catch(() => {});
+    }
+  }, []);
 
   const openDashboard = async () => {
     try {
@@ -43,7 +49,15 @@ const App = () => {
           isHidden ? "hidden pointer-events-none" : ""
         }`}
       >
-        <Card className="w-full flex flex-row items-center gap-2 p-2">
+        <Card
+          className={`ck-enter w-full flex flex-row items-center gap-2 p-2 ${
+            macMode === "notch"
+              ? "ck-notch rounded-t-none rounded-b-2xl border-t-0"
+              : macMode === "menubar"
+              ? "rounded-xl shadow-lg"
+              : ""
+          }`}
+        >
           <SystemAudio {...systemAudio} />
           {systemAudio?.capturing ? (
             <div className="flex flex-row items-center gap-2 justify-between w-full">
@@ -83,9 +97,6 @@ const App = () => {
           <Updater />
           <DragButton />
         </Card>
-        {customizable.cursor.type === "invisible" && platform !== "linux" ? (
-          <CustomCursor />
-        ) : null}
       </div>
     </ErrorBoundary>
   );

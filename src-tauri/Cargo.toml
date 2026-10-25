@@ -1,6 +1,6 @@
 [package]
 name = "pluely"
-version = "1.0.5"
+version = "1.0.6"
 description = "The Open Source Alternative to Cluely - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing."
 authors = ["Srikanth Nani <mail@srikanthnani.com>", "CKNB (https://github.com/CKNB888)"]
 license = "GPL-3.0"
@@ -55,6 +55,8 @@ tauri-plugin-posthog = "0.2.4"
 tauri-plugin-machine-uid = "0.1.2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+# 菜单栏图标仅在 macOS 启用（Windows/Linux 行为不变）
+tauri = { version = "2", features = ["macos-private-api", "tray-icon"] }
 tauri-plugin-macos-permissions = "2"
 cidre = "0.11.3"
 keyring = { version = "3", features = ["apple-native"] }
