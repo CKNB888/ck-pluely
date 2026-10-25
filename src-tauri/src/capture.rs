@@ -128,6 +128,8 @@ pub async fn start_screen_capture(app: tauri::AppHandle) -> Result<(), String> {
                 .always_on_top(true)
                 .decorations(false)
                 .skip_taskbar(true)
+                // Keep the selection overlay out of screen shares/recordings
+                .content_protected(true)
                 .resizable(false)
                 .closable(false)
                 .minimizable(false)
@@ -148,10 +150,9 @@ pub async fn start_screen_capture(app: tauri::AppHandle) -> Result<(), String> {
         overlay.set_always_on_top(true).ok();
 
         if monitor.is_primary() {
+            // Note: no request_user_attention here; it bounces the Dock icon
+            // (macOS) / flashes the taskbar (Windows) and reveals the app.
             overlay.set_focus().ok();
-            overlay
-                .request_user_attention(Some(tauri::UserAttentionType::Critical))
-                .ok();
         }
     }
 
