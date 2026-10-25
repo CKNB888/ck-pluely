@@ -196,7 +196,7 @@ export const LocalSpeech = () => {
           <div>
             <div className="text-[13px] font-medium">声纹识别</div>
             <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
-              录入你的声音后，系统声音里出现你自己的声音（例如扬声器回声）不会被自动回答；其他人按出现顺序标为学生1、学生2。{st.advice.voiceprintReason}。
+              录入你的声音后，系统声音里出现你自己的声音（例如扬声器回声）不会被自动回答；其他人按出现顺序标为学生1、学生2。{st.advice.voiceprintReason ? `${st.advice.voiceprintReason}。` : ""}
             </p>
           </div>
           {st.voiceprint.installed ? (
