@@ -106,6 +106,7 @@ pub async fn start_system_audio_capture(
 
     // Emit capture started event
     let _ = app_clone.emit("capture-started", sr);
+    crate::local::engine::session_started(&app_clone);
 
     let state_clone = app.state::<crate::AudioState>();
     let task = tokio::spawn(async move {
@@ -185,10 +186,7 @@ async fn run_vad_capture(
                 // Safety cap: force emit if exceeds 30s
                 if speech_buffer.len() > max_samples {
                     let normalized_buffer = normalize_audio_level(&speech_buffer, 0.1);
-                    if let Ok(b64) = samples_to_wav_b64(sr, &normalized_buffer) {
-                        // let duration = speech_buffer.len() as f32 / sr as f32;
-                        let _ = app.emit("speech-detected", b64);
-                    }
+                    crate::local::engine::dispatch(&app, sr, normalized_buffer, true);
                     speech_buffer.clear();
                     in_speech = false;
                     speech_chunks = 0;
@@ -217,13 +215,7 @@ async fn run_vad_capture(
 
                             // Emit complete speech segment
                             let normalized_buffer = normalize_audio_level(&speech_buffer, 0.1);
-                            if let Ok(b64) = samples_to_wav_b64(sr, &normalized_buffer) {
-                                // let duration = speech_buffer.len() as f32 / sr as f32;
-                                let _ = app.emit("speech-detected", b64);
-                            } else {
-                                error!("Failed to encode speech to WAV");
-                                let _ = app.emit("audio-encoding-error", "Failed to encode speech");
-                            }
+                            crate::local::engine::dispatch(&app, sr, normalized_buffer, true);
                         } else {
                             let _ = app.emit(
                                 "speech-discarded",
@@ -442,15 +434,8 @@ async fn run_continuous_capture(
         let cleaned_audio = apply_noise_gate(&audio_buffer, config.noise_gate_threshold);
         let cleaned_audio = normalize_audio_level(&cleaned_audio, 0.1);
 
-        match samples_to_wav_b64(sr, &cleaned_audio) {
-            Ok(b64) => {
-                let _ = app.emit("speech-detected", b64);
-            }
-            Err(e) => {
-                error!("Failed to encode continuous audio: {}", e);
-                let _ = app.emit("audio-encoding-error", e);
-            }
-        }
+        // a recording the user started by hand: no voiceprint gate
+        crate::local::engine::dispatch(&app, sr, cleaned_audio, false);
     } else {
         warn!("No audio captured in continuous mode");
         let _ = app.emit("audio-encoding-error", "No audio recorded");
@@ -522,7 +507,7 @@ const STT_SAMPLE_RATE: u32 = 16_000;
 
 /// Box-filter downsample to 16 kHz (averaging each output window is a cheap
 /// anti-alias filter that is plenty for speech). Rates <= 16 kHz pass through.
-fn resample_to_16k(sample_rate: u32, input: &[f32]) -> (u32, Vec<f32>) {
+pub(crate) fn resample_to_16k(sample_rate: u32, input: &[f32]) -> (u32, Vec<f32>) {
     if sample_rate <= STT_SAMPLE_RATE || input.is_empty() {
         return (sample_rate, input.to_vec());
     }
@@ -565,7 +550,7 @@ mod resample_tests {
 }
 
 // Convert samples to WAV base64 (with proper error handling)
-fn samples_to_wav_b64(sample_rate: u32, mono_f32: &[f32]) -> Result<String, String> {
+pub(crate) fn samples_to_wav_b64(sample_rate: u32, mono_f32: &[f32]) -> Result<String, String> {
     // Validate sample rate
     if !(8000..=96000).contains(&sample_rate) {
         error!("Invalid sample rate: {}", sample_rate);

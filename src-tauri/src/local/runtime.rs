@@ -325,6 +325,15 @@ pub fn session(path: &Path) -> Result<ort::session::Session, String> {
         .map_err(|e| e.to_string())
 }
 
+
+/// Hand freed model memory back to the OS (glibc keeps it otherwise).
+pub fn trim_heap() {
+    #[cfg(all(target_os = "linux", target_env = "gnu"))]
+    unsafe {
+        libc::malloc_trim(0);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -345,17 +354,9 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("ckdl-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let a = catalog().into_iter().find(|a| a.id == "campplus").unwrap();
-        assert_eq!(bytes_needed(&dir, &[a.clone()]), a.size);
+        assert_eq!(bytes_needed(&dir, std::slice::from_ref(&a)), a.size);
         std::fs::write(dir.join(format!("{}.part", a.file)), vec![0u8; 1000]).unwrap();
-        assert_eq!(bytes_needed(&dir, &[a.clone()]), a.size - 1000);
+        assert_eq!(bytes_needed(&dir, std::slice::from_ref(&a)), a.size - 1000);
         std::fs::remove_dir_all(&dir).ok();
-    }
-}
-
-/// Hand freed model memory back to the OS (glibc keeps it otherwise).
-pub fn trim_heap() {
-    #[cfg(all(target_os = "linux", target_env = "gnu"))]
-    unsafe {
-        libc::malloc_trim(0);
     }
 }

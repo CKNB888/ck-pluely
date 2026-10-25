@@ -4323,6 +4323,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "sysinfo",
  "tar",
  "tauri",
  "tauri-build",

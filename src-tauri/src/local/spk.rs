@@ -77,7 +77,6 @@ pub fn cosine(a: &[f32], b: &[f32]) -> f32 {
 pub enum Speaker {
     Me,
     Student(usize),
-    Unknown,
 }
 
 /// Online labeler: the enrolled voice is "me"; everyone else is clustered
@@ -101,9 +100,12 @@ impl Labeler {
     }
 
     pub fn label(&mut self, emb: &[f32]) -> (Speaker, f32) {
+        let best_student = self.students.iter().map(|(c, _)| cosine(c, emb)).fold(f32::MIN, f32::max);
         if let Some(me) = &self.me {
             let s = cosine(me, emb);
-            if s >= self.me_threshold {
+            // A voice that fits a known student clearly better (by 0.1) is
+            // that student, even above the threshold.
+            if s >= self.me_threshold && s + 0.1 >= best_student {
                 return (Speaker::Me, s);
             }
         }

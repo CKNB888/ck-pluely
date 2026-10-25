@@ -120,6 +120,15 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
+            local::commands::local_status,
+            local::commands::local_set_settings,
+            local::commands::local_download,
+            local::commands::local_delete_models,
+            local::commands::local_transcribe,
+            local::commands::local_unload,
+            local::commands::voiceprint_enroll,
+            local::commands::voiceprint_test,
+            local::commands::voiceprint_delete,
             panel::ck_set_ui_style,
             panel::ck_toggle_panel,
             panel::ck_hide_panel,
@@ -184,6 +193,9 @@ pub fn run() {
             // Setup main window positioning
             window::setup_main_window(app).expect("Failed to setup main window");
             privacy::harden_all(app.handle());
+            if let Ok(dir) = app.path().app_data_dir() {
+                app.manage(local::engine::LocalState::new(dir));
+            }
             #[cfg(target_os = "macos")]
             init(app.app_handle());
             #[cfg(target_os = "macos")]

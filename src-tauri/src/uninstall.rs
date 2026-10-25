@@ -90,6 +90,14 @@ pub fn ck_full_uninstall(app: tauri::AppHandle, accounts: Vec<String>) -> Result
     for a in &accounts {
         let _ = crate::ck::ck_secret_delete(a.clone());
     }
+    // Release model files first (Windows cannot delete mapped files).
+    {
+        use tauri::Manager;
+        if let Some(s) = app.try_state::<crate::local::engine::LocalState>() {
+            crate::local::engine::unload_now(&s);
+            std::thread::sleep(std::time::Duration::from_millis(300));
+        }
+    }
     let paths: Vec<PathBuf> = current_paths().into_iter().filter(|p| is_safe(p)).collect();
     for p in &paths {
         if p.is_dir() {
@@ -181,6 +189,23 @@ mod tests {
         let p = data_paths("macos", Path::new("/Users/u"), None, None);
         assert_eq!(p.len(), 8);
         assert!(p.iter().all(|x| x.starts_with("/Users/u/Library") && is_safe(x)));
+    }
+
+    /// Speech models, the voiceprint and local settings live in the app
+    /// data dir (Tauri `app_data_dir`), so they go with it.
+    #[test]
+    fn local_models_and_voiceprint_are_covered() {
+        let cases = [
+            ("linux", "/home/u", "/home/u/.local/share/io.github.cknb6.ckpluely"),
+            ("macos", "/Users/u", "/Users/u/Library/Application Support/io.github.cknb6.ckpluely"),
+        ];
+        for (os, home, data) in cases {
+            let p = data_paths(os, Path::new(home), None, None);
+            let data = Path::new(data);
+            for f in ["models/sensevoice.int8.onnx", "models/campplus_zh-cn.onnx", "voiceprint.json", "local.json"] {
+                assert!(p.iter().any(|d| data.join(f).starts_with(d)), "{os} {f}");
+            }
+        }
     }
 
     #[test]

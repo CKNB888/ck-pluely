@@ -18,7 +18,7 @@ mod linux;
 #[cfg(target_os = "linux")]
 use linux::{SpeakerInput as PlatformSpeakerInput, SpeakerStream as PlatformSpeakerStream};
 
-mod commands;
+pub(crate) mod commands;
 mod recovery;
 
 // Re-export commands for tauri handler

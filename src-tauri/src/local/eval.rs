@@ -1,6 +1,7 @@
 //! Real-model evaluation. Run with
 //! CK_ML_DIR=/path cargo test --release local::eval -- --ignored --nocapture
 
+#![allow(clippy::chunks_exact_to_as_chunks)]
 use super::{asr::SenseVoice, runtime, spk::*};
 use std::path::PathBuf;
 use std::time::Instant;
@@ -68,6 +69,48 @@ fn eval_real_models() {
         }
     }
     println!("speaker id {ok}/{n}; latency ms/audio s: {lat:?}");
+    // Echo: teacher voice played through laptop speakers and picked up
+    // again (band-limited, reverberant, noisy, 48 kHz -> 16 kHz path).
+    let echo = |x: &[f32]| -> Vec<f32> {
+        let mut y = vec![0f32; x.len()];
+        let mut lp = 0f32;
+        let mut hp_prev = 0f32;
+        let mut hp = 0f32;
+        let mut seed = 12345u32;
+        for i in 0..x.len() {
+            lp += 0.35 * (x[i] - lp); // ~3.5 kHz low-pass
+            hp = 0.97 * (hp + lp - hp_prev); // ~80 Hz high-pass (small speakers)
+            hp_prev = lp;
+            let mut v = hp * 0.6;
+            for (d, g) in [(400usize, 0.35f32), (1100, 0.2), (2300, 0.1)] {
+                if i >= d {
+                    v += y[i - d] * g;
+                }
+            }
+            seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+            v += ((seed >> 9) as f32 / (1u32 << 23) as f32 - 0.5) * 0.01;
+            y[i] = v;
+        }
+        y
+    };
+    let mut me_scores = Vec::new();
+    let mut other_scores = Vec::new();
+    for (pi, p) in people.iter().enumerate() {
+        for i in 1..=3 {
+            let f = sr.join(format!("{p}-test-sr-{i}.wav"));
+            if !f.exists() {
+                continue;
+            }
+            let e = emb.embed(&echo(&wav(&f))).unwrap().unwrap();
+            for (mi, m) in enrolled.iter().enumerate() {
+                let s = cosine(m, &e);
+                if mi == pi { me_scores.push(s) } else { other_scores.push(s) }
+            }
+        }
+    }
+    let min_me = me_scores.iter().cloned().fold(f32::MAX, f32::min);
+    let max_other = other_scores.iter().cloned().fold(f32::MIN, f32::max);
+    println!("echo: same speaker min {min_me:.2}, other speakers max {max_other:.2}");
     let r1 = rss_mb();
     let t = Instant::now();
     let mut sv = SenseVoice::load(&d.join("sensevoice.int8.onnx"), &d.join("sensevoice.tokens.txt")).unwrap();
