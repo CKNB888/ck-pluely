@@ -54,9 +54,9 @@ jobs:
             gh release delete latest --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
             git push origin :refs/tags/latest 2>/dev/null || true
             SHORT="${GITHUB_SHA::7}"
-            printf '%s\n' "自动构建，对应提交 \`$SHORT\`（$GITHUB_SHA），可能不稳定；正式版请看带 v 的版本。" "" \
+            printf '%s\n' "自动构建，对应提交 \`${SHORT}\`（${GITHUB_SHA}），可能不稳定；正式版请看带 v 的版本。" "" \
               "⚠️ 未经 Apple 公证：macOS 首次打开请右键 → 打开，或执行 \`xattr -cr \"/Applications/CK Pluely.app\"\`；Windows SmartScreen 请点“更多信息 → 仍要运行”。" > notes.md
-            gh release create latest --target "$GITHUB_SHA" --prerelease --title "最新构建（$SHORT）" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
+            gh release create latest --target "${GITHUB_SHA}" --prerelease --title "最新构建（${SHORT}）" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
           else
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi

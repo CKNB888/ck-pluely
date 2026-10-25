@@ -32,9 +32,9 @@ export const AppIconToggle = ({ className }: AppIconToggleProps) => {
                 : t("Hide Icon from Dock/Taskbar")}
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
-              {`Toggle to make App Icon ${
-                !customizable.appIcon.isVisible ? t("Visible") : t("Hidden")
-              }`}
+              {!customizable.appIcon.isVisible
+                ? t("Toggle to make App Icon Visible")
+                : t("Toggle to make App Icon Hidden")}
             </p>
           </div>
         </div>

@@ -24,6 +24,38 @@
 ### 修复的 Bug（继承自中文版）
 #315 重复转录、#287/#292/#310 Windows 快捷键隐藏、快捷键事件触发两次、截图监听泄漏、截图遮罩暴露、设置损坏白屏、开关提示文字相反、多处硬编码英文报错等。详见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
 
+## 界面截图
+
+以下均为 CK Pluely 实际运行界面截图（简体中文界面）。英文界面截图见 [docs/screenshots/en](docs/screenshots/en)。
+
+| | |
+|---|---|
+| <img src="docs/screenshots/01-overlay.webp" width="420"><br>悬浮条：随时提问、截图、语音 | <img src="docs/screenshots/02-dashboard.webp" width="420"><br>控制台首页 |
+| <img src="docs/screenshots/03-history.webp" width="420"><br>聊天记录 | <img src="docs/screenshots/04-prompts.webp" width="420"><br>系统提示词 |
+| <img src="docs/screenshots/05-settings.webp" width="420"><br>应用设置 | <img src="docs/screenshots/16-language.webp" width="420"><br>界面语言（默认简体中文，可切换） |
+| <img src="docs/screenshots/06-responses.webp" width="420"><br>回答设置：长度与语言 | <img src="docs/screenshots/13-responses-more.webp" width="420"><br>回答设置：自动滚动 |
+| <img src="docs/screenshots/07-screenshot.webp" width="420"><br>截图设置 | <img src="docs/screenshots/08-audio.webp" width="420"><br>音频：麦克风与系统音频 |
+| <img src="docs/screenshots/09-shortcuts.webp" width="420"><br>光标与快捷键 | <img src="docs/screenshots/14-shortcuts-more.webp" width="420"><br>全局快捷键一览 |
+| <img src="docs/screenshots/10-dev.webp" width="420"><br>开发者空间：AI 服务商与 API Key | <img src="docs/screenshots/12-dev-stt.webp" width="420"><br>开发者空间：语音识别服务商 |
+| <img src="docs/screenshots/11-settings-more.webp" width="420"><br>开机启动 / 隐身 / 置顶 | |
+
+## 使用教程
+
+![教程预览](docs/media/tutorial-zh.gif)
+
+🎬 完整视频：[中文视频](https://github.com/CKNB888/ck-pluely/releases/download/v1.0.0/ck-pluely-tutorial-zh.mp4) · [English video](https://github.com/CKNB888/ck-pluely/releases/download/v1.0.0/ck-pluely-tutorial-en.mp4)
+
+1. **安装**：在 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载对应系统的安装包（macOS .dmg/.pkg、Windows .msi/.exe、Linux .deb/.rpm/.AppImage）。macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`。
+2. **打开悬浮条**：启动后屏幕顶部出现悬浮条，`Ctrl+\`（macOS 为 `Cmd+\`）显示 / 隐藏。
+3. **打开控制台**：按 `Ctrl+Shift+D` 打开控制台窗口。
+4. **确认界面语言**：「应用设置 → 界面语言」，默认简体中文，可切换为 English 或跟随系统。
+5. **配置 AI 服务商**：「开发者空间」中选择服务商（Groq、OpenAI、Claude、Gemini、DeepSeek、通义千问、智谱等），填入 API Key 和模型名。密钥只保存在本机。
+6. **配置语音识别**：同一页下方选择语音识别服务商并填写 Key。
+7. **调整提示词与回答**：在「系统提示词」中选择或新建提示词；在「回答设置」中设置回答长度与语言。
+8. **授予权限**：在「音频」中选择麦克风与系统音频，macOS 需授予麦克风、屏幕录制权限。
+9. **开始使用**：在悬浮条输入问题，或用 `Ctrl+Shift+S` 截图提问、`Ctrl+Shift+A` 语音输入、`Ctrl+Shift+M` 捕获系统音频。
+10. **回看记录**：在「聊天记录」中查看历史对话。
+
 ## 下载与安装
 到 [Releases](https://github.com/CKNB888/ck-pluely/releases) 下载 `ck-pluely_*`：
 - macOS：`aarch64`（Apple Silicon）/ `x64`（Intel）的 `.dmg`。**未公证**：首次请右键 → 打开，或终端执行
