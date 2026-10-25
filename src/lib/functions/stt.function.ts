@@ -4,7 +4,7 @@ import {
   getByPath,
   blobToBase64,
 } from "./common.function";
-import { ckFetch, friendlyHttpError } from "./net";
+import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
 import { invoke } from "@tauri-apps/api/core";
 
 import { TYPE_PROVIDER } from "@/types";
@@ -198,7 +198,11 @@ export async function fetchSTT(params: STTParams): Promise<string> {
         body: curlJson.method === "GET" ? undefined : body,
       });
     } catch (e) {
-      throw new Error(`Network error: ${e instanceof Error ? e.message : e}`);
+      throw new Error(
+        t("Network error: {{v0}}. Check your connection or proxy.", {
+          v0: e instanceof Error ? e.message : String(e),
+        })
+      );
     }
 
     if (!response.ok) {
@@ -206,13 +210,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       try {
         errText = await response.text();
       } catch {}
-      let errMsg: string;
-      try {
-        const errObj = JSON.parse(errText);
-        errMsg = errObj.message || errText;
-      } catch {
-        errMsg = errText || response.statusText;
-      }
+      const errMsg = extractProviderError(errText) || response.statusText;
       const hint = friendlyHttpError(response.status);
       throw new Error(`${hint ? hint + " " : ""}HTTP ${response.status}: ${errMsg}`);
     }
@@ -231,7 +229,8 @@ export async function fetchSTT(params: STTParams): Promise<string> {
     const transcription = (getByPath(data, path) || "").trim();
 
     if (!transcription) {
-      return [...warnings, "No transcription found"].join("; ");
+      // Silence / no speech: return nothing so it is never treated as speech.
+      return "";
     }
 
     // Return transcription with any warnings

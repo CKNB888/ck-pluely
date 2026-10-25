@@ -40,7 +40,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "dependencies": {
     "@bany/curl-to-json": "^1.2.8",
@@ -98,7 +99,8 @@
     "tw-animate-css": "^1.3.6",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.72.0",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vitest": "^3.2.7"
   },
   "contributors": [
     {

@@ -1,9 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches: ["**"]
-    tags-ignore: ["**"]
   pull_request:
   workflow_dispatch:
 
@@ -25,6 +22,8 @@ jobs:
         run: npm run build
       - name: Check translations
         run: npm run check:i18n
+      - name: Unit tests
+        run: npm test
 
   bundle:
     needs: check

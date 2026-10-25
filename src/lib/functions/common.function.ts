@@ -234,3 +234,18 @@ export function getStreamingContent(
   // Return null if no content is found after trying all paths.
   return null;
 }
+
+/** Split an SSE buffer into complete `data:` payloads. Returns the payloads
+ * (without `[DONE]`/empty ones) and the unfinished remainder. Handles CRLF. */
+export function splitSseData(buffer: string, flush = false): { payloads: string[]; rest: string } {
+  const lines = buffer.split(/\r?\n/);
+  const rest = flush ? "" : lines.pop() || "";
+  const payloads: string[] = [];
+  for (const line of lines) {
+    if (!line.startsWith("data:")) continue;
+    const v = line.substring(5).trim();
+    if (!v || v === "[DONE]") continue;
+    payloads.push(v);
+  }
+  return { payloads, rest };
+}

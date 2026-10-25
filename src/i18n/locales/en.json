@@ -582,5 +582,13 @@
   "e.g. {{v0}}": "e.g. {{v0}}",
   "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.": "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.",
   "Your macOS version is {{v0}}.": "Your macOS version is {{v0}}.",
-  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio."
+  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.",
+  "Bad request (HTTP 400). Check the model name and request parameters.": "Bad request (HTTP 400). Check the model name and request parameters.",
+  "Provider error: {{v0}}": "Provider error: {{v0}}",
+  "Network error during API request: {{v0}}": "Network error during API request: {{v0}}",
+  "Unknown error": "Unknown error",
+  "API request failed (HTTP {{v0}}){{v1}}": "API request failed (HTTP {{v0}}){{v1}}",
+  "Failed to parse the response: {{v0}}": "Failed to parse the response: {{v0}}",
+  "Streaming not supported or response body missing": "Streaming not supported or response body missing",
+  "Error reading stream: {{v0}}": "Error reading stream: {{v0}}"
 }

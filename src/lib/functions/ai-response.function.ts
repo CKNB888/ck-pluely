@@ -5,9 +5,10 @@ import {
   extractVariables,
   getByPath,
   getStreamingContent,
+  splitSseData,
 } from "./common.function";
 import { Message, TYPE_PROVIDER } from "@/types";
-import { ckFetch, friendlyHttpError } from "./net";
+import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import curl2Json from "@bany/curl-to-json";
@@ -311,9 +312,9 @@ export async function* fetchAIResponse(params: {
       ) {
         return; // Silently return on abort
       }
-      yield `Network error during API request: ${
-        fetchError instanceof Error ? fetchError.message : "Unknown error"
-      }`;
+      yield t("Network error during API request: {{v0}}", {
+        v0: fetchError instanceof Error ? fetchError.message : t("Unknown error"),
+      });
       return;
     }
 
@@ -324,9 +325,11 @@ export async function* fetchAIResponse(params: {
       } catch {}
       const hint = friendlyHttpError(response.status);
       if (hint) yield `${hint}\n\n`;
-      yield `API request failed: ${response.status} ${response.statusText}${
-        errorText ? ` - ${errorText}` : ""
-      }`;
+      const detail = extractProviderError(errorText);
+      yield t("API request failed (HTTP {{v0}}){{v1}}", {
+        v0: response.status,
+        v1: detail ? `：${detail}` : "",
+      });
       return;
     }
 
@@ -335,9 +338,9 @@ export async function* fetchAIResponse(params: {
       try {
         json = await response.json();
       } catch (parseError) {
-        yield `Failed to parse non-streaming response: ${
-          parseError instanceof Error ? parseError.message : "Unknown error"
-        }`;
+        yield t("Failed to parse the response: {{v0}}", {
+          v0: parseError instanceof Error ? parseError.message : t("Unknown error"),
+        });
         return;
       }
       const content =
@@ -347,10 +350,28 @@ export async function* fetchAIResponse(params: {
     }
 
     if (!response.body) {
-      yield "Streaming not supported or response body missing";
+      yield t("Streaming not supported or response body missing");
       return;
     }
 
+    const contentPath = provider?.responseContentPath || "";
+    const handleSse = function* (payloads: string[]) {
+      for (const p of payloads) {
+        let parsed: any;
+        try {
+          parsed = JSON.parse(p);
+        } catch {
+          continue; // ignore malformed chunk
+        }
+        // Some providers report errors inside the stream.
+        if (parsed?.error) {
+          yield `\n\n${t("Provider error: {{v0}}", { v0: extractProviderError(p) })}`;
+          continue;
+        }
+        const delta = getStreamingContent(parsed, contentPath);
+        if (delta) yield delta;
+      }
+    };
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
@@ -373,9 +394,9 @@ export async function* fetchAIResponse(params: {
         ) {
           return; // Silently return on abort
         }
-        yield `Error reading stream: ${
-          readError instanceof Error ? readError.message : "Unknown error"
-        }`;
+        yield t("Error reading stream: {{v0}}", {
+          v0: readError instanceof Error ? readError.message : t("Unknown error"),
+        });
         return;
       }
       const { done, value } = readResult;
@@ -388,28 +409,13 @@ export async function* fetchAIResponse(params: {
       }
 
       buffer += decoder.decode(value, { stream: true });
-
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-      for (const line of lines) {
-        if (line.startsWith("data:")) {
-          const trimmed = line.substring(5).trim();
-          if (!trimmed || trimmed === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(trimmed);
-            const delta = getStreamingContent(
-              parsed,
-              provider?.responseContentPath || ""
-            );
-            if (delta) {
-              yield delta;
-            }
-          } catch (e) {
-            // Ignore parsing errors for partial JSON chunks
-          }
-        }
-      }
+      const { payloads, rest } = splitSseData(buffer);
+      buffer = rest;
+      for (const out of handleSse(payloads)) yield out;
     }
+    // Flush a final event that arrived without a trailing newline.
+    buffer += decoder.decode();
+    for (const out of handleSse(splitSseData(buffer, true).payloads)) yield out;
   } catch (error) {
     throw new Error(
       `Error in fetchAIResponse: ${

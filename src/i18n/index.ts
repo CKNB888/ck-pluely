@@ -28,9 +28,10 @@ const resolveSystemLanguage = (): string => {
 
 export const getStoredUiLanguage = (): string => {
   try {
-    return localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) || "system";
+    // ck-pluely: Simplified Chinese on first launch, whatever the OS locale.
+    return localStorage.getItem(UI_LANGUAGE_STORAGE_KEY) || "zh-CN";
   } catch {
-    return "system";
+    return "zh-CN";
   }
 };
 
@@ -43,7 +44,7 @@ i18n.use(initReactI18next).init({
     "zh-CN": { translation: zhCN },
   },
   lng: resolveLanguage(getStoredUiLanguage()),
-  fallbackLng: "en",
+  fallbackLng: "zh-CN",
   // Keys are the English source strings themselves.
   keySeparator: false,
   nsSeparator: false,
@@ -62,7 +63,7 @@ if (typeof document !== "undefined") {
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key === UI_LANGUAGE_STORAGE_KEY) {
-      i18n.changeLanguage(resolveLanguage(e.newValue || "system"));
+      i18n.changeLanguage(resolveLanguage(e.newValue || "zh-CN"));
     }
   });
 }

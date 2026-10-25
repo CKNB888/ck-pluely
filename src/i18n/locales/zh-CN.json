@@ -582,5 +582,13 @@
   "e.g. {{v0}}": "例如：{{v0}}",
   "Set up your AI and speech providers in Dev space, then start the Copilot from the main window.": "先在“开发者空间”配置 AI 与语音识别服务商，再从主窗口启动 Copilot 实时助答。",
   "Your macOS version is {{v0}}.": "当前 macOS 版本为 {{v0}}。",
-  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "采集系统音频（会议/面试官声音）需要 macOS 14.2 或更高版本。麦克风输入仍可使用；如需系统音频，请升级 macOS。"
+  "Capturing system audio (meeting / interviewer voice) requires macOS 14.2 or later. Microphone input still works; please update macOS to use system audio.": "采集系统音频（会议/面试官声音）需要 macOS 14.2 或更高版本。麦克风输入仍可使用；如需系统音频，请升级 macOS。",
+  "Bad request (HTTP 400). Check the model name and request parameters.": "请求有误（HTTP 400），请检查模型名称和请求参数。",
+  "Provider error: {{v0}}": "服务商返回错误：{{v0}}",
+  "Network error during API request: {{v0}}": "请求 API 时网络出错：{{v0}}",
+  "Unknown error": "未知错误",
+  "API request failed (HTTP {{v0}}){{v1}}": "API 请求失败（HTTP {{v0}}）{{v1}}",
+  "Failed to parse the response: {{v0}}": "无法解析服务商返回的内容：{{v0}}",
+  "Streaming not supported or response body missing": "服务商不支持流式输出，或返回内容为空",
+  "Error reading stream: {{v0}}": "读取流式响应出错：{{v0}}"
 }
