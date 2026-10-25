@@ -89,7 +89,7 @@ const View = () => {
       allowBackButton={true}
       title={messages?.title || ""}
       description={t("{{v0}} messages in this conversation", {
-        v0: messages?.messages.length
+        v0: messages?.messages.length,
       })}
       rightSlot={
         <div className="flex flex-row items-center gap-2">
@@ -104,9 +104,12 @@ const View = () => {
           >
             {isAttached ? (
               <>
-                <Check className="size-3 lg:size-4 text-green-600" />{t("Attached")}</>
+                <Check className="size-3 lg:size-4 text-green-600" />
+                {t("Attached")}
+              </>
             ) : (
-              <>{t("Open in Overlay")}{" "}
+              <>
+                {t("Open in Overlay")}{" "}
                 <MessageCircleReplyIcon className="size-3 lg:size-4" />
               </>
             )}
@@ -120,9 +123,12 @@ const View = () => {
           >
             {isDownloaded ? (
               <>
-                <Check className="size-3 lg:size-4 text-green-600" />{t("Downloaded")}</>
+                <Check className="size-3 lg:size-4 text-green-600" />
+                {t("Downloaded")}
+              </>
             ) : (
-              <>{t("Download")} <Download className="size-3 lg:size-4" />
+              <>
+                {t("Download")} <Download className="size-3 lg:size-4" />
               </>
             )}
           </Button>
@@ -133,7 +139,8 @@ const View = () => {
               conversationId && handleDeleteConfirm(conversationId)
             }
             className="text-[10px] lg:text-sm h-6 lg:h-8"
-          >{t("Delete")} <Trash2 className="size-3 lg:size-4" />
+          >
+            {t("Delete")} <Trash2 className="size-3 lg:size-4" />
           </Button>
         </div>
       }
@@ -236,7 +243,9 @@ const View = () => {
           {!hasActiveLicense && (
             <div className="select-none p-5 z-100 bg-primary/5 border border-primary/20 rounded-xl absolute top-4 left-4 right-4">
               <div className="max-w-sm mx-auto">
-                <p className="text-sm font-medium text-center">{t("You need an active license to use this feature.")}</p>
+                <p className="text-sm font-medium text-center">
+                  {t("You need an active license to use this feature.")}
+                </p>
 
                 <GetLicense
                   buttonText={t("Get License")}

@@ -149,17 +149,21 @@ export const SettingsPanel = ({
         <div className="px-3 pb-3 space-y-4">
           {/* Recording Settings Section */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("Recording")}</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {t("Recording")}
+            </h4>
 
             {/* Sensitivity Presets - Only for VAD mode */}
             {vadConfig.enabled && (
               <div className="space-y-2">
-                <Label className="text-xs font-medium">{t("Speech Sensitivity")}</Label>
+                <Label className="text-xs font-medium">
+                  {t("Speech Sensitivity")}
+                </Label>
                 <div className="flex gap-2">
                   {(
                     Object.entries(SENSITIVITY_PRESETS) as [
                       SensitivityPreset,
-                      (typeof SENSITIVITY_PRESETS)[SensitivityPreset]
+                      (typeof SENSITIVITY_PRESETS)[SensitivityPreset],
                     ][]
                   ).map(([key, preset]) => (
                     <button
@@ -192,7 +196,9 @@ export const SettingsPanel = ({
                 <Label className="text-xs font-medium flex items-center justify-between">
                   <span>{t("Max Recording Duration")}</span>
                   <span className="text-muted-foreground font-normal">
-                    {Math.round(vadConfig.max_recording_duration_secs / 60)} {t("min")}</span>
+                    {Math.round(vadConfig.max_recording_duration_secs / 60)}{" "}
+                    {t("min")}
+                  </span>
                 </Label>
                 <Slider
                   value={[vadConfig.max_recording_duration_secs / 60]}
@@ -213,11 +219,15 @@ export const SettingsPanel = ({
 
           {/* Context Section */}
           <div className="space-y-3 pt-3 border-t border-border/50">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t("AI Context")}</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              {t("AI Context")}
+            </h4>
 
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
-                <Label className="text-xs font-medium">{t("Use System Prompt")}</Label>
+                <Label className="text-xs font-medium">
+                  {t("Use System Prompt")}
+                </Label>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
                   {useSystemPrompt
                     ? t("Using default prompt from settings")
@@ -244,7 +254,9 @@ export const SettingsPanel = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel className="text-xs py-1">{t("Quick-fill a template")}</SelectLabel>
+                        <SelectLabel className="text-xs py-1">
+                          {t("Quick-fill a template")}
+                        </SelectLabel>
                         {PROMPT_TEMPLATES.map((template) => (
                           <SelectItem
                             key={template.id}
@@ -334,7 +346,9 @@ export const SettingsPanel = ({
                         step={5}
                         className="w-full"
                       />
-                      <p className="text-[10px] text-muted-foreground">{t("How long to wait after speech stops")}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {t("How long to wait after speech stops")}
+                      </p>
                     </div>
                   </>
                 )}
@@ -360,7 +374,9 @@ export const SettingsPanel = ({
                     step={0.1}
                     className="w-full"
                   />
-                  <p className="text-[10px] text-muted-foreground">{t("Filters background noise")}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {t("Filters background noise")}
+                  </p>
                 </div>
 
                 {/* Reset button */}
@@ -370,7 +386,9 @@ export const SettingsPanel = ({
                   onClick={handleResetDefaults}
                   className="w-full text-xs"
                 >
-                  <RotateCcwIcon className="w-3 h-3 mr-1.5" />{t("Reset to Defaults")}</Button>
+                  <RotateCcwIcon className="w-3 h-3 mr-1.5" />
+                  {t("Reset to Defaults")}
+                </Button>
               </div>
             )}
           </div>

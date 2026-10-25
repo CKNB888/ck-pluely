@@ -293,8 +293,8 @@ export const PluelyApiSetup = () => {
   const description = isModelsLoading
     ? "Fetching the list of supported models..."
     : providerList
-    ? `Access top models from providers like ${providerList}. and select smaller models for faster responses.`
-    : "Explore all the models Pluely supports.";
+      ? `Access top models from providers like ${providerList}. and select smaller models for faster responses.`
+      : "Explore all the models Pluely supports.";
 
   return (
     <div id="pluely-api" className="space-y-3 -mt-2">
@@ -348,7 +348,9 @@ export const PluelyApiSetup = () => {
                 ref={commandListRef}
                 className="rounded-xl h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-muted [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb:hover]:bg-muted-foreground/30"
               >
-                <CommandEmpty>{t("No models found. Please try again later.")}</CommandEmpty>
+                <CommandEmpty>
+                  {t("No models found. Please try again later.")}
+                </CommandEmpty>
                 <CommandGroup className="h-full rounded-xl">
                   {models.map((model, index) => (
                     <CommandItem
@@ -368,7 +370,9 @@ export const PluelyApiSetup = () => {
                               {model?.provider}
                             </div>
                           ) : (
-                            <div className="text-xs text-red-600 bg-white rounded-full px-2">{t("Not Available")}</div>
+                            <div className="text-xs text-red-600 bg-white rounded-full px-2">
+                              {t("Not Available")}
+                            </div>
                           )}
                         </div>
                         <p
@@ -390,11 +394,11 @@ export const PluelyApiSetup = () => {
           <div className="text-xs text-amber-500 bg-amber-500/10 p-3 rounded-md">
             {selectedModel.modality?.includes("image")
               ? t(
-              "This model accepts both text and images as input and generates text responses."
-            )
+                  "This model accepts both text and images as input and generates text responses."
+                )
               : t(
-              "⚠️ This model ONLY accepts text input. Do NOT upload images - they will not work with this model. Use a text+image→text model if you need image support."
-            )}
+                  "⚠️ This model ONLY accepts text input. Do NOT upload images - they will not work with this model. Use a text+image→text model if you need image support."
+                )}
           </div>
         )}
         {/* License Key Input or Display */}
@@ -402,15 +406,21 @@ export const PluelyApiSetup = () => {
           {!storedLicenseKey ? (
             <>
               <div className="space-y-1">
-                <label className="text-sm font-medium">{t("License Key")}</label>
-                <p className="text-sm font-medium text-muted-foreground">{t(
-                  "After completing your purchase, you'll receive a license key via email. Paste it below to activate."
-                )}</p>
+                <label className="text-sm font-medium">
+                  {t("License Key")}
+                </label>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t(
+                    "After completing your purchase, you'll receive a license key via email. Paste it below to activate."
+                  )}
+                </p>
               </div>
               <div className="flex gap-2">
                 <Input
                   type="password"
-                  placeholder={t("Enter your license key (e.g., 38b1460a-5104-4067-a91d-77b872934d51)")}
+                  placeholder={t(
+                    "Enter your license key (e.g., 38b1460a-5104-4067-a91d-77b872934d51)"
+                  )}
                   value={licenseKey}
                   onChange={(value) => {
                     setLicenseKey(
@@ -440,7 +450,9 @@ export const PluelyApiSetup = () => {
             </>
           ) : (
             <>
-              <label className="text-xs lg:text-sm font-medium">{t("Current License")}</label>
+              <label className="text-xs lg:text-sm font-medium">
+                {t("Current License")}
+              </label>
               <div className="flex gap-2">
                 <Input
                   type="text"
@@ -465,7 +477,11 @@ export const PluelyApiSetup = () => {
               </div>
               {storedLicenseKey ? (
                 <div className="-mt-1">
-                  <p className="text-sm font-medium text-muted-foreground select-auto">{t("If you need any help or any assistance, contact support@pluely.com")}</p>
+                  <p className="text-sm font-medium text-muted-foreground select-auto">
+                    {t(
+                      "If you need any help or any assistance, contact support@pluely.com"
+                    )}
+                  </p>
                 </div>
               ) : null}
             </>
@@ -475,7 +491,7 @@ export const PluelyApiSetup = () => {
       <div className="flex justify-between items-center">
         <Header
           title={t("{{v0}} Pluely API", {
-            v0: pluelyApiEnabled ? t("Disable") : t("Enable")
+            v0: pluelyApiEnabled ? t("Disable") : t("Enable"),
           })}
           description={
             storedLicenseKey
@@ -483,8 +499,8 @@ export const PluelyApiSetup = () => {
                 ? t("Using all pluely APIs for audio, and chat.")
                 : t("Using all your own AI Providers for audio, and chat.")
               : t(
-              "A valid license is required to enable Pluely API or you can use your own AI Providers and STT Providers."
-            )
+                  "A valid license is required to enable Pluely API or you can use your own AI Providers and STT Providers."
+                )
           }
         />
         <Switch

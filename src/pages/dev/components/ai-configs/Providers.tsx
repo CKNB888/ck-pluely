@@ -76,7 +76,7 @@ export const Providers = ({
         <Header
           title={t("Method: {{v0}}, Endpoint: {{v1}}", {
             v0: localSelectedProvider?.method || t("Invalid"),
-            v1: localSelectedProvider?.url || t("Invalid")
+            v1: localSelectedProvider?.url || t("Invalid"),
           })}
           description={t(
             "If you want to use different url or method, you can always create a custom provider."
@@ -95,7 +95,7 @@ export const Providers = ({
                   (p) => p?.id === selectedAIProvider?.provider
                 )?.isCustom
                   ? t("Custom Provider")
-                  : selectedAIProvider?.provider
+                  : selectedAIProvider?.provider,
               }
             )}
           />
@@ -199,16 +199,13 @@ export const Providers = ({
                 <Header
                   title={variable?.value || ""}
                   description={t("add your preferred {{v0}} for {{v1}}", {
-                    v0: variable?.key?.replace(
-                      /_/g,
-                      " "
-                    ),
+                    v0: variable?.key?.replace(/_/g, " "),
 
                     v1: allAiProviders?.find(
                       (p) => p?.id === selectedAIProvider?.provider
                     )?.isCustom
                       ? t("Custom Provider")
-                      : selectedAIProvider?.provider
+                      : selectedAIProvider?.provider,
                   })}
                 />
                 <TextInput
@@ -219,7 +216,7 @@ export const Providers = ({
                       ? t("Custom Provider")
                       : selectedAIProvider?.provider,
 
-                    v1: variable?.key?.replace(/_/g, " ") || "value"
+                    v1: variable?.key?.replace(/_/g, " ") || "value",
                   })}
                   value={getVariableValue()}
                   onChange={(value) => {

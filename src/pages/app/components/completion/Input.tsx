@@ -100,7 +100,9 @@ export const Input = ({
               <h3 className="font-semibold text-xs select-none">
                 {keepEngaged ? t("Conversation Mode") : t("AI Response")}
               </h3>
-              <div className="text-[10px] text-muted-foreground/70">{t("(Use arrow keys to scroll)")}</div>
+              <div className="text-[10px] text-muted-foreground/70">
+                {t("(Use arrow keys to scroll)")}
+              </div>
             </div>
             <div className="flex items-center gap-2 select-none">
               <div className="flex flex-row items-center gap-2 mr-2">
@@ -144,8 +146,8 @@ export const Input = ({
                   isLoading
                     ? t("Cancel loading")
                     : keepEngaged
-                    ? t("Close and start new conversation")
-                    : t("Clear conversation")
+                      ? t("Close and start new conversation")
+                      : t("Clear conversation")
                 }
               >
                 <XIcon />

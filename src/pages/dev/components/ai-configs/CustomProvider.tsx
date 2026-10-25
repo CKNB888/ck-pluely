@@ -55,7 +55,9 @@ export const CustomProviders = ({ allAiProviders }: UseSettingsReturn) => {
                           <p className="text-xs text-muted-foreground">
                             {" • "}
                           </p>
-                          <p className="text-xs text-muted-foreground">{t("Streaming:")} {provider?.streaming ? t("Yes") : t("No")}
+                          <p className="text-xs text-muted-foreground">
+                            {t("Streaming:")}{" "}
+                            {provider?.streaming ? t("Yes") : t("No")}
                           </p>
                         </div>
                       </div>
@@ -95,13 +97,21 @@ export const CustomProviders = ({ allAiProviders }: UseSettingsReturn) => {
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background border rounded-lg p-6 max-w-md mx-4">
-            <h3 className="text-lg font-semibold mb-2">{t("Delete Custom Provider")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t(
-              "Are you sure you want to delete this custom provider? This action cannot be undone."
-            )}</p>
+            <h3 className="text-lg font-semibold mb-2">
+              {t("Delete Custom Provider")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t(
+                "Are you sure you want to delete this custom provider? This action cannot be undone."
+              )}
+            </p>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={cancelDelete}>{t("Cancel")}</Button>
-              <Button variant="destructive" onClick={confirmDelete}>{t("Delete")}</Button>
+              <Button variant="outline" onClick={cancelDelete}>
+                {t("Cancel")}
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete}>
+                {t("Delete")}
+              </Button>
             </div>
           </div>
         </div>

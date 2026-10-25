@@ -18,13 +18,21 @@ export const DeleteConfirmationDialog = ({
   return (
     <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-background border rounded-lg p-6 max-w-md mx-4">
-        <h3 className="text-lg font-semibold mb-2">{t("Delete Conversation")}</h3>
-        <p className="text-sm text-muted-foreground mb-4">{t(
-          "Are you sure you want to delete this conversation? This action cannot be undone."
-        )}</p>
+        <h3 className="text-lg font-semibold mb-2">
+          {t("Delete Conversation")}
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          {t(
+            "Are you sure you want to delete this conversation? This action cannot be undone."
+          )}
+        </p>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={cancelDelete}>{t("Cancel")}</Button>
-          <Button variant="destructive" onClick={confirmDelete}>{t("Delete")}</Button>
+          <Button variant="outline" onClick={cancelDelete}>
+            {t("Cancel")}
+          </Button>
+          <Button variant="destructive" onClick={confirmDelete}>
+            {t("Delete")}
+          </Button>
         </div>
       </div>
     </div>

@@ -58,7 +58,9 @@ export const CreateEditDialog = ({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle>
-                {isEditing ? t("Edit System Prompt") : t("Create System Prompt")}
+                {isEditing
+                  ? t("Edit System Prompt")
+                  : t("Create System Prompt")}
               </DialogTitle>
               <DialogDescription className="mt-1">
                 {isEditing
@@ -71,7 +73,9 @@ export const CreateEditDialog = ({
         </DialogHeader>
         <div className="space-y-4 py-4 px-6 overflow-y-auto flex-1">
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{t("Name")}</label>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {t("Name")}
+            </label>
             <Input
               placeholder={t("e.g., Code Review Expert, Creative Writer...")}
               value={form.name}
@@ -81,7 +85,9 @@ export const CreateEditDialog = ({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{t("System Prompt")}</label>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {t("System Prompt")}
+            </label>
             <Textarea
               placeholder={t(
                 "You are a helpful AI assistant. Be concise, accurate, and friendly in your responses..."
@@ -91,7 +97,11 @@ export const CreateEditDialog = ({
               onChange={(e) => setForm({ ...form, prompt: e.target.value })}
               disabled={isSaving}
             />
-            <p className="text-xs text-muted-foreground/70">{t("💡 Tip: Be specific about tone, expertise level, and response format")}</p>
+            <p className="text-xs text-muted-foreground/70">
+              {t(
+                "💡 Tip: Be specific about tone, expertise level, and response format"
+              )}
+            </p>
           </div>
         </div>
         <DialogFooter className="px-6 pb-6 shrink-0">
@@ -99,7 +109,9 @@ export const CreateEditDialog = ({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
-          >{t("Cancel")}</Button>
+          >
+            {t("Cancel")}
+          </Button>
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}>
             {isSaving ? (
               <>

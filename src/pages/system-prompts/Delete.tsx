@@ -53,22 +53,28 @@ export const DeleteSystemPrompt = ({
             </div>
             <div className="flex-1">
               <DialogTitle>{t("Delete System Prompt")}</DialogTitle>
-              <DialogDescription className="mt-1">{t("Are you sure you want to delete \"")}{promptName}"?
+              <DialogDescription className="mt-1">
+                {t('Are you sure you want to delete "')}
+                {promptName}"?
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
         <div className="py-3">
-          <p className="text-sm text-muted-foreground">{t(
-            "This action cannot be undone. This will permanently delete the system prompt from the database."
-          )}</p>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              "This action cannot be undone. This will permanently delete the system prompt from the database."
+            )}
+          </p>
         </div>
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
-          >{t("Cancel")}</Button>
+          >
+            {t("Cancel")}
+          </Button>
           <Button
             variant="destructive"
             onClick={handleConfirmDelete}

@@ -222,7 +222,9 @@ export const SystemAudio = (props: useSystemAudioType) => {
                   />
                 )}
                 {setupRequired && (
-                  <h2 className="font-semibold text-sm">{t("Setup Required")}</h2>
+                  <h2 className="font-semibold text-sm">
+                    {t("Setup Required")}
+                  </h2>
                 )}
 
                 {/* Action Buttons */}
@@ -238,13 +240,17 @@ export const SystemAudio = (props: useSystemAudioType) => {
                         "h-6 text-[10px] gap-1 px-2",
                         screenshotImage && "bg-primary text-primary-foreground"
                       )}
-                      title={t("Capture screenshot to include with transcription")}
+                      title={t(
+                        "Capture screenshot to include with transcription"
+                      )}
                     >
                       {isCapturingScreenshot ? (
                         <LoaderIcon className="w-3 h-3 animate-spin" />
                       ) : (
                         <CameraIcon className="w-3 h-3" />
-                      )}{t("Screenshot")}</Button>
+                      )}
+                      {t("Screenshot")}
+                    </Button>
                   )}
 
                   {/* New Conversation Button */}
@@ -256,7 +262,9 @@ export const SystemAudio = (props: useSystemAudioType) => {
                       className="h-6 text-[10px] gap-1 px-2"
                       title={t("Start a new conversation")}
                     >
-                      <PlusIcon className="w-3 h-3" />{t("New")}</Button>
+                      <PlusIcon className="w-3 h-3" />
+                      {t("New")}
+                    </Button>
                   )}
 
                   {/* Close Button */}
@@ -289,8 +297,12 @@ export const SystemAudio = (props: useSystemAudioType) => {
                       className="h-12 w-20 object-cover rounded"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-medium">{t("Screenshot attached")}</p>
-                      <p className="text-[9px] text-muted-foreground">{t("Will be sent with next transcription")}</p>
+                      <p className="text-[10px] font-medium">
+                        {t("Screenshot attached")}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground">
+                        {t("Will be sent with next transcription")}
+                      </p>
                     </div>
                     <Button
                       size="icon"
@@ -308,7 +320,9 @@ export const SystemAudio = (props: useSystemAudioType) => {
                   <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200">
                     <AlertCircleIcon className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] font-medium text-red-800">{t("Error")}</p>
+                      <p className="text-[10px] font-medium text-red-800">
+                        {t("Error")}
+                      </p>
                       <p className="text-[10px] text-red-700">{error}</p>
                     </div>
                   </div>

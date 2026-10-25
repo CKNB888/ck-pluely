@@ -10,7 +10,9 @@ export const AIProviders = (settings: UseSettingsReturn) => {
     <div id="ai-providers" className="space-y-3">
       <Header
         title={t("AI Providers")}
-        description={t("Select your preferred AI service provider to get started.")}
+        description={t(
+          "Select your preferred AI service provider to get started."
+        )}
         isMainTitle
       />
 

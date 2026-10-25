@@ -36,11 +36,15 @@ export const AutoScrollToggle = () => {
         <div className="flex items-center space-x-3">
           <div>
             <Label className="text-sm font-medium">
-              {autoScroll ? t("Auto-Scroll Enabled") : t("Auto-Scroll Disabled")}
+              {autoScroll
+                ? t("Auto-Scroll Enabled")
+                : t("Auto-Scroll Disabled")}
             </Label>
             <p className="text-xs text-muted-foreground mt-1">
               {autoScroll
-                ? t("Responses will automatically scroll to the bottom as they arrive")
+                ? t(
+                    "Responses will automatically scroll to the bottom as they arrive"
+                  )
                 : t("Responses will stay at your current scroll position")}
             </p>
           </div>
@@ -50,10 +54,10 @@ export const AutoScrollToggle = () => {
           onCheckedChange={handleSwitchChange}
           disabled={!hasActiveLicense}
           title={t("Toggle to {{v0}} auto-scroll", {
-            v0: autoScroll ? t("Disable") : t("Enable")
+            v0: autoScroll ? t("Disable") : t("Enable"),
           })}
           aria-label={t("Toggle to {{v0}} auto-scroll", {
-            v0: autoScroll ? t("Disable") : t("Enable")
+            v0: autoScroll ? t("Disable") : t("Enable"),
           })}
         />
       </div>

@@ -189,7 +189,9 @@ const SystemPrompts = () => {
           />
         </div>
         <Button variant="default" size="default" onClick={handleCreateClick}>
-          <PlusIcon className="size-4" />{t("Create New")}</Button>
+          <PlusIcon className="size-4" />
+          {t("Create New")}
+        </Button>
       </div>
       {filteredPrompts.length === 0 ? (
         <Empty
@@ -251,7 +253,9 @@ const SystemPrompts = () => {
                           handleEditClick(prompt.id);
                         }}
                       >
-                        <Pencil className="size-4 mr-2" />{t("Edit")}</DropdownMenuItem>
+                        <Pencil className="size-4 mr-2" />
+                        {t("Edit")}
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         variant="destructive"
                         onClick={(e) => {
@@ -259,7 +263,9 @@ const SystemPrompts = () => {
                           handleDeleteClick(prompt.id);
                         }}
                       >
-                        <Trash2 className="size-4 mr-2" />{t("Delete")}</DropdownMenuItem>
+                        <Trash2 className="size-4 mr-2" />
+                        {t("Delete")}
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

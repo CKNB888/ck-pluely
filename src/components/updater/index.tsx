@@ -136,28 +136,37 @@ export const Updater = () => {
       case "downloading":
         return (
           <>
-            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />{t("Downloading...")} {progress.percentage}%
-                      </>
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            {t("Downloading...")} {progress.percentage}%
+          </>
         );
       case "installing":
         return (
           <>
-            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />{t("Installing...")}</>
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            {t("Installing...")}
+          </>
         );
       case "ready":
         return (
           <>
-            <CheckCircle className="mr-2 h-4 w-4" />{t("Ready - Restarting...")}</>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            {t("Ready - Restarting...")}
+          </>
         );
       case "error":
         return (
           <>
-            <AlertCircle className="mr-2 h-4 w-4" />{t("Try Again")}</>
+            <AlertCircle className="mr-2 h-4 w-4" />
+            {t("Try Again")}
+          </>
         );
       default:
         return (
           <>
-            <Download className="mr-2 h-4 w-4" />{t("Download & Install Update")}</>
+            <Download className="mr-2 h-4 w-4" />
+            {t("Download & Install Update")}
+          </>
         );
     }
   };
@@ -206,10 +215,10 @@ export const Updater = () => {
           className="cursor-pointer"
           disabled={updateState === "checking"}
           title={t("Update available: {{v0}}", {
-            v0: update?.version
+            v0: update?.version,
           })}
           aria-label={t("Update available: {{v0}}", {
-            v0: update?.version
+            v0: update?.version,
           })}
         >
           {updateState === "checking" ? (
@@ -230,8 +239,14 @@ export const Updater = () => {
           <div className="p-6 space-y-4">
             {/* Update Header */}
             <div className="border-b border-input/50 pb-2">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{t("Update Available")}</h1>
-              <p className="text-xs text-muted-foreground leading-relaxed">{t("A new version (")}{update?.version}{t(") is available. Here's what's new:")}</p>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t("Update Available")}
+              </h1>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t("A new version (")}
+                {update?.version}
+                {t(") is available. Here's what's new:")}
+              </p>
             </div>
 
             {/* Release Notes */}
@@ -239,7 +254,9 @@ export const Updater = () => {
               {update?.body ? (
                 <Markdown>{update.body}</Markdown>
               ) : (
-                <p className="text-sm text-muted-foreground">{t("Release notes not available for this version.")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("Release notes not available for this version.")}
+                </p>
               )}
             </div>
           </div>
@@ -257,13 +274,16 @@ export const Updater = () => {
           </Button>
 
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">{t("Having trouble downloading?")}{" "}
+            <p className="text-xs text-muted-foreground">
+              {t("Having trouble downloading?")}{" "}
               <a
                 href={"https://pluely.com/downloads?ref=pluely-app"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700 underline inline-flex items-center gap-1"
-              >{t("Download manually")}<ExternalLink className="h-3 w-3" />
+              >
+                {t("Download manually")}
+                <ExternalLink className="h-3 w-3" />
               </a>
             </p>
           </div>

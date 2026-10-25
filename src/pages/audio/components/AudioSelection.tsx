@@ -159,15 +159,16 @@ export const AudioSelection = () => {
                       {isLoadingDevices
                         ? t("Loading microphones...")
                         : devices?.input?.length === 0
-                        ? t("No microphones found")
-                        : devices?.input?.find(
-                            (mic) => mic?.id === selectedAudioDevices.input.id
-                          )?.name +
-                            (devices?.input?.find(
+                          ? t("No microphones found")
+                          : devices?.input?.find(
                               (mic) => mic?.id === selectedAudioDevices.input.id
-                            )?.is_default
-                              ? t(" (Default)")
-                              : "") || t("Select a microphone")}
+                            )?.name +
+                              (devices?.input?.find(
+                                (mic) =>
+                                  mic?.id === selectedAudioDevices.input.id
+                              )?.is_default
+                                ? t(" (Default)")
+                                : "") || t("Select a microphone")}
                     </div>
                   </div>
                 </SelectTrigger>
@@ -204,24 +205,35 @@ export const AudioSelection = () => {
           {showSuccess.input && (
             <div className="text-xs text-green-500 bg-green-500/10 p-3 rounded-md">
               <strong>{t("✓ Microphone changed successfully!")}</strong>
-              <br />{t("Using:")} {selectedAudioDevices.input.name || t("Unknown device")}
+              <br />
+              {t("Using:")}{" "}
+              {selectedAudioDevices.input.name || t("Unknown device")}
             </div>
           )}
 
           {/* Permission Notice */}
           {devices?.input?.length === 0 && !isLoadingDevices && (
             <div className="text-xs text-amber-500 bg-amber-500/10 p-3 rounded-md">
-              <strong>{t("⚠️ Click the refresh button to load your microphone devices.")}</strong>{" "}{t(
-              "If this doesn't work, try changing your default microphone in your system settings."
-            )}</div>
+              <strong>
+                {t(
+                  "⚠️ Click the refresh button to load your microphone devices."
+                )}
+              </strong>{" "}
+              {t(
+                "If this doesn't work, try changing your default microphone in your system settings."
+              )}
+            </div>
           )}
         </div>
 
         {/* Tips */}
         <div className="text-xs text-muted-foreground/70">
-          <p>💡 <strong>{t("Tip:")}</strong> {t(
+          <p>
+            💡 <strong>{t("Tip:")}</strong>{" "}
+            {t(
               "When you select a microphone, the app will immediately switch to that device. You can verify by hovering over the microphone button in the main interface - it will show the active device name."
-            )}</p>
+            )}
+          </p>
         </div>
       </div>
 
@@ -250,17 +262,17 @@ export const AudioSelection = () => {
                       {isLoadingDevices
                         ? t("Loading output devices...")
                         : devices?.output?.length === 0
-                        ? t("No output devices found")
-                        : devices?.output?.find(
-                            (output) =>
-                              output?.id === selectedAudioDevices.output.id
-                          )?.name +
-                            (devices?.output?.find(
+                          ? t("No output devices found")
+                          : devices?.output?.find(
                               (output) =>
                                 output?.id === selectedAudioDevices.output.id
-                            )?.is_default
-                              ? t(" (Default)")
-                              : "") || t("Select an output device")}
+                            )?.name +
+                              (devices?.output?.find(
+                                (output) =>
+                                  output?.id === selectedAudioDevices.output.id
+                              )?.is_default
+                                ? t(" (Default)")
+                                : "") || t("Select an output device")}
                     </div>
                   </div>
                 </SelectTrigger>
@@ -298,24 +310,35 @@ export const AudioSelection = () => {
           {showSuccess.output && (
             <div className="text-xs text-green-500 bg-green-500/10 p-3 rounded-md">
               <strong>{t("✓ Output device changed successfully!")}</strong>
-              <br />{t("Using:")} {selectedAudioDevices.output.name || t("Unknown device")}
+              <br />
+              {t("Using:")}{" "}
+              {selectedAudioDevices.output.name || t("Unknown device")}
             </div>
           )}
 
           {/* Permission Notice */}
           {devices?.output?.length === 0 && !isLoadingDevices && (
             <div className="text-xs text-amber-500 bg-amber-500/10 p-3 rounded-md">
-              <strong>{t("⚠️ Click the refresh button to load your system audio devices.")}</strong>{" "}{t(
-              "If this doesn't work, try changing your default system audio output in your system settings."
-            )}</div>
+              <strong>
+                {t(
+                  "⚠️ Click the refresh button to load your system audio devices."
+                )}
+              </strong>{" "}
+              {t(
+                "If this doesn't work, try changing your default system audio output in your system settings."
+              )}
+            </div>
           )}
         </div>
 
         {/* Tips */}
         <div className="text-xs text-muted-foreground/70">
-          <p>💡 <strong>{t("Tip:")}</strong> {t(
+          <p>
+            💡 <strong>{t("Tip:")}</strong>{" "}
+            {t(
               "System audio capture allows you to record audio playing through your speakers or headphones. This is useful for capturing conversation audio or system sounds along with your voice."
-            )}</p>
+            )}
+          </p>
         </div>
       </div>
     </div>

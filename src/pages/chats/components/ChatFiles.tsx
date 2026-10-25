@@ -85,7 +85,9 @@ export const ChatFiles = ({
             sideOffset={8}
           >
             <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
-              <h3 className="font-semibold text-sm select-none">{t("Attached Images (")}{attachedFiles.length}/{MAX_FILES})
+              <h3 className="font-semibold text-sm select-none">
+                {t("Attached Images (")}
+                {attachedFiles.length}/{MAX_FILES})
               </h3>
               <Button
                 size="icon"
@@ -122,7 +124,8 @@ export const ChatFiles = ({
                     <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 text-xs">
                       <div className="truncate font-medium">{file.name}</div>
                       <div className="text-gray-300">
-                        {(file.size / 1024 / 1024).toFixed(2)} {t("MB")}</div>
+                        {(file.size / 1024 / 1024).toFixed(2)} {t("MB")}
+                      </div>
                     </div>
 
                     {/* Remove button */}
@@ -148,14 +151,17 @@ export const ChatFiles = ({
                 className="w-2/4"
                 variant="outline"
               >
-                <PlusIcon className="h-4 w-4 mr-2" />{t("Add More")} {!canAddMore && `(${MAX_FILES} max)`}
+                <PlusIcon className="h-4 w-4 mr-2" />
+                {t("Add More")} {!canAddMore && `(${MAX_FILES} max)`}
               </Button>
               <Button
                 className="w-2/4"
                 variant="destructive"
                 onClick={onRemoveAllFiles}
               >
-                <TrashIcon className="h-4 w-4 mr-2" />{t("Remove All")}</Button>
+                <TrashIcon className="h-4 w-4 mr-2" />
+                {t("Remove All")}
+              </Button>
             </div>
           </PopoverContent>
         )}

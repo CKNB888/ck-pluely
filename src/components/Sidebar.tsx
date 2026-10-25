@@ -24,7 +24,9 @@ export const Sidebar = () => {
           <SparklesIcon className="size-4 lg:size-5 text-primary-foreground transition-all duration-300" />
         </div>
         <div className="flex flex-col">
-          <h1 className="text-xs lg:text-md font-semibold text-foreground transition-all duration-300">{t("Pluely")}</h1>
+          <h1 className="text-xs lg:text-md font-semibold text-foreground transition-all duration-300">
+            {t("Pluely")}
+          </h1>
           <span className="text-[8px] lg:text-[10px] text-muted-foreground -mt-1 block">
             {isLoading ? t("Loading...") : `(v${version})`}
           </span>

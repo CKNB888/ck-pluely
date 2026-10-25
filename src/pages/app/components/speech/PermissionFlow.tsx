@@ -142,16 +142,22 @@ export const PermissionFlow = ({
           <h3 className={cn("font-semibold text-sm mb-0.5", config.titleColor)}>
             {t(String(config.title))}
           </h3>
-          <p className={cn("text-xs", config.textColor)}>{t(String(config.description))}</p>
+          <p className={cn("text-xs", config.textColor)}>
+            {t(String(config.description))}
+          </p>
 
           {permissionState === "denied" && (
             <div className="mt-3 space-y-2">
-              <Button onClick={requestPermission} size="sm" className="w-full">{t("Grant Permission")}</Button>
+              <Button onClick={requestPermission} size="sm" className="w-full">
+                {t("Grant Permission")}
+              </Button>
               <button
                 type="button"
                 onClick={() => setShowManual(!showManual)}
                 className="w-full flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-              >{t("Manual setup")}<ChevronDownIcon
+              >
+                {t("Manual setup")}
+                <ChevronDownIcon
                   className={cn(
                     "w-3 h-3 transition-transform",
                     showManual && "rotate-180"
@@ -176,7 +182,9 @@ export const PermissionFlow = ({
                 size="sm"
                 onClick={checkPermission}
                 className="text-xs"
-              >{t("Check Now")}</Button>
+              >
+                {t("Check Now")}
+              </Button>
             </div>
           )}
         </div>

@@ -1,9 +1,20 @@
-import { AudioWaveformIcon, MicIcon, LoaderIcon, AlertCircleIcon } from "lucide-react";
+import {
+  AudioWaveformIcon,
+  MicIcon,
+  LoaderIcon,
+  AlertCircleIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { t } from "@/i18n";
 
-type StatusType = "ready" | "listening" | "recording" | "processing" | "ai-processing" | "error";
+type StatusType =
+  | "ready"
+  | "listening"
+  | "recording"
+  | "processing"
+  | "ai-processing"
+  | "error";
 
 type Props = {
   setupRequired: boolean;
@@ -83,7 +94,14 @@ export const Header = ({
   isAIProcessing,
   error,
 }: Props) => {
-  const status = getStatus(capturing, isVadMode, isRecording, isProcessing, isAIProcessing, error);
+  const status = getStatus(
+    capturing,
+    isVadMode,
+    isRecording,
+    isProcessing,
+    isAIProcessing,
+    error
+  );
   const statusConfig = STATUS_CONFIG[status];
 
   return (
@@ -104,7 +122,8 @@ export const Header = ({
             {t(String(statusConfig.label))}
           </span>
           <span className="text-[10px] text-muted-foreground">
-            {isVadMode ? t("Auto-detect") : t("Manual")} {t("mode")}</span>
+            {isVadMode ? t("Auto-detect") : t("Manual")} {t("mode")}
+          </span>
         </div>
       )}
     </div>
