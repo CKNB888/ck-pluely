@@ -163,6 +163,7 @@ export function useSystemAudio() {
     let stopUnlisten: (() => void) | undefined;
     let errorUnlisten: (() => void) | undefined;
     let discardedUnlisten: (() => void) | undefined;
+    let disposed = false;
 
     const setupContinuousListeners = async () => {
       try {
@@ -203,11 +204,21 @@ export function useSystemAudio() {
       } catch (err) {
         console.error("Failed to setup continuous recording listeners:", err);
       }
+      // The effect may have been cleaned up while we were awaiting listen();
+      // unregister immediately so listeners don't leak and fire twice.
+      if (disposed) {
+        progressUnlisten?.();
+        startUnlisten?.();
+        stopUnlisten?.();
+        errorUnlisten?.();
+        discardedUnlisten?.();
+      }
     };
 
     setupContinuousListeners();
 
     return () => {
+      disposed = true;
       if (progressUnlisten) progressUnlisten();
       if (startUnlisten) startUnlisten();
       if (stopUnlisten) stopUnlisten();
@@ -219,10 +230,11 @@ export function useSystemAudio() {
   // Handle single speech detection event (both VAD and continuous modes)
   useEffect(() => {
     let speechUnlisten: (() => void) | undefined;
+    let disposed = false;
 
     const setupEventListener = async () => {
       try {
-        speechUnlisten = await listen("speech-detected", async (event) => {
+        const unlisten = await listen("speech-detected", async (event) => {
           try {
             if (!capturing) return;
 
@@ -259,8 +271,9 @@ export function useSystemAudio() {
               audio: audioBlob,
             });
 
+            let timeoutId: ReturnType<typeof setTimeout> | undefined;
             const timeoutPromise = new Promise<string>((_, reject) => {
-              setTimeout(
+              timeoutId = setTimeout(
                 () => reject(new Error("Speech transcription timed out (30s)")),
                 30000
               );
@@ -296,6 +309,8 @@ export function useSystemAudio() {
               console.error("STT Error:", sttError);
               setError(sttError.message || "Failed to transcribe audio");
               setIsPopoverOpen(true);
+            } finally {
+              clearTimeout(timeoutId);
             }
           } catch (err) {
             setError("Failed to process speech");
@@ -303,6 +318,10 @@ export function useSystemAudio() {
             setIsProcessing(false);
           }
         });
+        // If the effect was cleaned up while awaiting, drop this listener
+        // right away; otherwise each speech segment is handled twice (#315).
+        if (disposed) unlisten();
+        else speechUnlisten = unlisten;
       } catch (err) {
         setError("Failed to setup speech listener");
       }
@@ -311,6 +330,7 @@ export function useSystemAudio() {
     setupEventListener();
 
     return () => {
+      disposed = true;
       if (speechUnlisten) speechUnlisten();
     };
   }, [
