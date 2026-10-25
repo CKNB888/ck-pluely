@@ -19,6 +19,14 @@ import {
   generateMessageId,
 } from "@/lib";
 import { Message } from "@/types/completion";
+import i18n from "i18next";
+import {
+  COPILOT_KEYS,
+  isLikelyQuestion,
+  buildCopilotPrompt,
+} from "@/lib/copilot";
+
+export type CopilotAnswerMode = "questions" | "always" | "manual";
 
 // VAD Configuration interface matching Rust
 export interface VadConfig {
@@ -96,6 +104,47 @@ export function useSystemAudio() {
 
   // Context management states
   const [useSystemPrompt, setUseSystemPrompt] = useState<boolean>(true);
+  // ck-pluely copilot: answer mode, preset and resume/notes context.
+  const [answerMode, setAnswerModeState] = useState<CopilotAnswerMode>(
+    () =>
+      (safeLocalStorage.getItem(COPILOT_KEYS.AUTO_ANSWER) as CopilotAnswerMode) ||
+      "questions"
+  );
+  const [copilotPreset, setCopilotPresetState] = useState<string>(
+    () => safeLocalStorage.getItem(COPILOT_KEYS.PRESET) || "none"
+  );
+  const [copilotNotes, setCopilotNotesState] = useState<string>(
+    () => safeLocalStorage.getItem(COPILOT_KEYS.NOTES) || ""
+  );
+  const [pendingTranscript, setPendingTranscript] = useState<string>("");
+  const copilotRef = useRef({
+    answerMode,
+    copilotPreset,
+    copilotNotes,
+    pending: "",
+  });
+  copilotRef.current.answerMode = answerMode;
+  copilotRef.current.copilotPreset = copilotPreset;
+  copilotRef.current.copilotNotes = copilotNotes;
+  const setAnswerMode = useCallback((m: CopilotAnswerMode) => {
+    setAnswerModeState(m);
+    safeLocalStorage.setItem(COPILOT_KEYS.AUTO_ANSWER, m);
+  }, []);
+  const setCopilotPreset = useCallback((p: string) => {
+    setCopilotPresetState(p);
+    safeLocalStorage.setItem(COPILOT_KEYS.PRESET, p);
+  }, []);
+  const setCopilotNotes = useCallback((n: string) => {
+    setCopilotNotesState(n);
+    safeLocalStorage.setItem(COPILOT_KEYS.NOTES, n);
+  }, []);
+  const withCopilot = (base: string) =>
+    buildCopilotPrompt(
+      base,
+      copilotRef.current.copilotPreset,
+      copilotRef.current.copilotNotes,
+      i18n.language || "zh-CN"
+    );
   const [contextContent, setContextContent] = useState<string>("");
 
   const {
@@ -289,16 +338,33 @@ export function useSystemAudio() {
                 setLastTranscription(transcription);
                 setError("");
 
-                const effectiveSystemPrompt = useSystemPrompt
-                  ? systemPrompt || DEFAULT_SYSTEM_PROMPT
-                  : contextContent || DEFAULT_SYSTEM_PROMPT;
+                // ck-pluely copilot: buffer speech until a question is heard
+                // (or the user presses "Answer now" in manual mode).
+                const combined = `${copilotRef.current.pending} ${transcription}`.trim();
+                const mode = copilotRef.current.answerMode;
+                if (
+                  mode === "manual" ||
+                  (mode === "questions" && !isLikelyQuestion(combined))
+                ) {
+                  copilotRef.current.pending = combined.slice(-4000);
+                  setPendingTranscript(copilotRef.current.pending);
+                  return;
+                }
+                copilotRef.current.pending = "";
+                setPendingTranscript("");
+
+                const effectiveSystemPrompt = withCopilot(
+                  useSystemPrompt
+                    ? systemPrompt || DEFAULT_SYSTEM_PROMPT
+                    : contextContent || DEFAULT_SYSTEM_PROMPT
+                );
 
                 const previousMessages = conversation.messages.map((msg) => {
                   return { role: msg.role, content: msg.content };
                 });
 
                 await processWithAI(
-                  transcription,
+                  combined,
                   effectiveSystemPrompt,
                   previousMessages
                 );
@@ -898,7 +964,40 @@ export function useSystemAudio() {
     ignoreContinuousRecording,
   ]);
 
+  // ck-pluely copilot: manually answer whatever has been heard so far.
+  const answerNow = useCallback(async () => {
+    const text = copilotRef.current.pending.trim();
+    if (!text || isAIProcessing) return;
+    copilotRef.current.pending = "";
+    setPendingTranscript("");
+    const prompt = withCopilot(
+      useSystemPrompt
+        ? systemPrompt || DEFAULT_SYSTEM_PROMPT
+        : contextContent || DEFAULT_SYSTEM_PROMPT
+    );
+    const previousMessages = conversation.messages.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+    await processWithAI(text, prompt, previousMessages);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAIProcessing, useSystemPrompt, systemPrompt, contextContent, conversation, processWithAI]);
+
+  const clearPending = useCallback(() => {
+    copilotRef.current.pending = "";
+    setPendingTranscript("");
+  }, []);
+
   return {
+    answerMode,
+    setAnswerMode,
+    copilotPreset,
+    setCopilotPreset,
+    copilotNotes,
+    setCopilotNotes,
+    pendingTranscript,
+    answerNow,
+    clearPending,
     capturing,
     isProcessing,
     isAIProcessing,

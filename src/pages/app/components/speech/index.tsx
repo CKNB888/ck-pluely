@@ -23,6 +23,7 @@ import { SettingsPanel } from "./SettingsPanel";
 import { PermissionFlow } from "./PermissionFlow";
 import { QuickActions } from "./QuickActions";
 import { Warning } from "./Warning";
+import { CopilotPanel } from "./CopilotPanel";
 import { useSystemAudioType } from "@/hooks";
 import { useApp } from "@/contexts";
 import { cn } from "@/lib/utils";
@@ -351,6 +352,20 @@ export const SystemAudio = (props: useSystemAudioType) => {
                       onStartRecording={startContinuousRecording}
                       onStopAndSend={manualStopAndSend}
                       onIgnore={ignoreContinuousRecording}
+                    />
+
+                    {/* ck-pluely copilot */}
+                    <CopilotPanel
+                      answerMode={props.answerMode}
+                      setAnswerMode={props.setAnswerMode}
+                      copilotPreset={props.copilotPreset}
+                      setCopilotPreset={props.setCopilotPreset}
+                      copilotNotes={props.copilotNotes}
+                      setCopilotNotes={props.setCopilotNotes}
+                      pendingTranscript={props.pendingTranscript}
+                      answerNow={props.answerNow}
+                      clearPending={props.clearPending}
+                      isAIProcessing={isAIProcessing}
                     />
 
                     {/* AI Response */}

@@ -542,5 +542,19 @@
   "💡 Tip: Higher transparency lets you see through the window, perfect for dark overlay. Changes apply immediately.": "💡 提示：透明度越高越能透过窗口看到后面的内容，适合深色悬浮窗。更改立即生效。",
   "💡 Tip: The": "💡 提示：",
   "💡 Tip: Use the required variables (": "💡 提示：使用必需变量（",
-  "🔒 Premium Features": "🔒 高级功能"
+  "🔒 Premium Features": "🔒 高级功能",
+  "Copilot": "实时助手",
+  "Auto-answer questions": "检测到问题自动回答",
+  "Answer everything": "每段都回答",
+  "My system prompt": "我的系统提示词",
+  "Interview": "面试",
+  "Class Q&A": "上课答疑",
+  "Meeting": "会议",
+  "Heard so far:": "已听到：",
+  "Answer now": "立即回答",
+  "Clear": "清空",
+  "Resume / notes context": "简历 / 笔记上下文",
+  "Paste your resume, lesson notes or meeting agenda. It is sent with every answer request.": "粘贴你的简历、讲义或会议议程，每次生成回答时都会一并发送。",
+  "Upstream: Pluely by Srikanth Nani": "上游项目：Pluely（作者 Srikanth Nani）",
+  "Maintainer: CKNB": "维护者：CKNB"
 }

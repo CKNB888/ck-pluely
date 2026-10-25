@@ -73,11 +73,11 @@ jobs:
       # disabled here; this keeps the workflow working on forks and PRs.
       - uses: tauri-apps/tauri-action@v0
         with:
-          args: ${{ matrix.args }} --config {"bundle":{"createUpdaterArtifacts":false}}
+          args: ${{ matrix.args }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pluely-${{ matrix.platform }}-${{ matrix.target || 'native' }}
+          name: ck-pluely-${{ matrix.platform }}-${{ matrix.target || 'native' }}
           path: |
             src-tauri/target/**/release/bundle/**/*.dmg
             src-tauri/target/**/release/bundle/**/*.msi

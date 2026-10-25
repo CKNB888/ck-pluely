@@ -1,11 +1,11 @@
 [package]
 name = "pluely"
-version = "0.1.9"
+version = "1.0.0"
 description = "The Open Source Alternative to Cluely - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing."
-authors = ["Srikanth Nani <mail@srikanthnani.com>"]
+authors = ["Srikanth Nani <mail@srikanthnani.com>", "CKNB (https://github.com/cknb6)"]
 license = "GPL-3.0"
-repository = "https://github.com/iamsrikanthnani/pluely"
-homepage = "https://github.com/iamsrikanthnani/pluely"
+repository = "https://github.com/NEWUSER/ck-pluely"
+homepage = "https://github.com/NEWUSER/ck-pluely"
 documentation = "https://github.com/iamsrikanthnani/pluely/wiki"
 readme = "../README.md"
 keywords = ["ai-assistant", "tauri", "desktop-app", "privacy-first", "meeting-assistant"]

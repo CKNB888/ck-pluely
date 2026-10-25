@@ -248,6 +248,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to parse SELECTED_AI_PROVIDER:", error);
         safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_AI_PROVIDER);
       }
+    } else {
+      // ck-pluely: Groq is the built-in default channel on first run.
+      setSelectedAIProvider({ provider: "groq", variables: {} });
     }
 
     // Load selected STT provider
@@ -262,6 +265,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to parse SELECTED_STT_PROVIDER:", error);
         safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_STT_PROVIDER);
       }
+    } else {
+      setSelectedSttProvider({ provider: "groq", variables: {} });
     }
 
     // Load customizable state

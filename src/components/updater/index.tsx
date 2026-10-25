@@ -16,6 +16,8 @@ import {
   Markdown,
 } from "@/components";
 import { check, Update } from "@tauri-apps/plugin-updater";
+
+const CK_UPDATER_ENABLED = false;
 import { relaunch } from "@tauri-apps/plugin-process";
 import { useWindowResize } from "@/hooks";
 
@@ -54,6 +56,13 @@ export const Updater = () => {
     try {
       setUpdateState("checking");
 
+      // ck-pluely: the in-app updater stays off until NEWUSER/ck-pluely
+      // publishes a signed latest.json (and tauri.conf.json gets its pubkey).
+      // This prevents silently "updating" to the upstream closed-source v1.
+      if (!CK_UPDATER_ENABLED) {
+        setUpdateState("uptodate");
+        return;
+      }
       const foundUpdate = await check();
       if (foundUpdate) {
         setUpdate(foundUpdate);
@@ -277,7 +286,7 @@ export const Updater = () => {
             <p className="text-xs text-muted-foreground">
               {t("Having trouble downloading?")}{" "}
               <a
-                href={"https://pluely.com/downloads?ref=pluely-app"}
+                href={"https://github.com/NEWUSER/ck-pluely/releases/latest"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700 underline inline-flex items-center gap-1"

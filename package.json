@@ -1,21 +1,21 @@
 {
-  "name": "pluely",
+  "name": "ck-pluely",
   "private": false,
-  "version": "0.1.9",
-  "description": "The Open Source Alternative to Cluely - A lightning-fast, privacy-first AI assistant that works seamlessly during meetings, interviews, and conversations without anyone knowing.",
+  "version": "1.0.0",
+  "description": "CK Pluely：中文优先的开源实时 AI 会议/面试/课堂助手（基于 Srikanth Nani 的 Pluely，GPL-3.0）",
   "author": {
     "name": "Srikanth Nani",
     "email": "mail@srikanthnani.com",
     "url": "https://www.srikanthnani.com"
   },
   "license": "GPL-3.0",
-  "homepage": "https://github.com/iamsrikanthnani/pluely#readme",
+  "homepage": "https://github.com/NEWUSER/ck-pluely#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamsrikanthnani/pluely.git"
+    "url": "https://github.com/NEWUSER/ck-pluely.git"
   },
   "bugs": {
-    "url": "https://github.com/iamsrikanthnani/pluely/issues"
+    "url": "https://github.com/NEWUSER/ck-pluely/issues"
   },
   "keywords": [
     "ai-assistant",
@@ -95,5 +95,11 @@
     "tw-animate-css": "^1.3.6",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
-  }
+  },
+  "contributors": [
+    {
+      "name": "CKNB",
+      "url": "https://github.com/cknb6"
+    }
+  ]
 }

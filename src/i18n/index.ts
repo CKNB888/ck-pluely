@@ -22,7 +22,8 @@ const resolveSystemLanguage = (): string => {
     if (lang?.toLowerCase().startsWith("zh")) return "zh-CN";
     if (lang?.toLowerCase().startsWith("en")) return "en";
   }
-  return "en";
+  // ck-pluely: Chinese-first — unknown system language falls back to zh-CN.
+  return "zh-CN";
 };
 
 export const getStoredUiLanguage = (): string => {

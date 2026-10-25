@@ -4,15 +4,15 @@
 <dict>
   <!-- Microphone Access - Only for voice input, NOT for system audio capture -->
   <key>NSMicrophoneUsageDescription</key>
-  <string>Pluely needs access to your microphone for voice input functionality. System audio capture uses virtual audio devices and does not access your microphone.</string>
+  <string>CK Pluely 需要使用麦克风进行语音输入（系统音频采集不会使用麦克风）。CK Pluely needs the microphone for voice input.</string>
   
   <!-- Screen Capture -->
   <key>NSScreenCaptureUsageDescription</key>
-  <string>Pluely needs access to screen capture for screenshot functionality</string>
+  <string>CK Pluely 需要屏幕录制权限来截图并识别屏幕内容。CK Pluely needs screen capture for screenshots.</string>
   
   <!-- System Audio -->
   <key>NSAudioCaptureUsageDescription</key>
-  <string>Pluely needs access to system audio to process transcription and AI responses.</string>
+  <string>CK Pluely 需要采集系统音频（对方说话的声音）以实时转写并生成 AI 回答。CK Pluely needs system audio for live transcription.</string>
 
   <!-- Privacy - Audio Processing -->
   <key>NSPrivacyAccessedAPITypes</key>

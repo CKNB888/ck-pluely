@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Pluely",
-  "version": "0.1.9",
-  "identifier": "com.srikanthnani.pluely",
+  "productName": "CK Pluely",
+  "version": "1.0.0",
+  "identifier": "io.github.cknb6.ckpluely",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Pluely - AI Assistant",
+        "title": "CK Pluely - AI 实时助手",
         "width": 600,
         "height": 54,
         "decorations": false,
@@ -30,11 +30,13 @@
         "shadow": false
       }
     ],
-    "security": { "csp": null }
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
-    "createUpdaterArtifacts": true,
+    "createUpdaterArtifacts": false,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -43,15 +45,26 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": ["info.plist", "pluely.desktop"],
-    "macOS": { "minimumSystemVersion": "10.13" }
+    "resources": [
+      "info.plist",
+      "pluely.desktop"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15",
+      "signingIdentity": "-",
+      "entitlements": "entitlements.plist"
+    }
   },
   "plugins": {
     "sql": {
-      "preload": ["sqlite:pluely.db"]
+      "preload": [
+        "sqlite:pluely.db"
+      ]
     },
     "updater": {
-      "endpoints": ["https://pluely.com/api/update"],
+      "endpoints": [
+        "https://github.com/NEWUSER/ck-pluely/releases/latest/download/latest.json"
+      ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY2RDJBNUFFM0ZCREEyQjEKUldTeG9yMC9ycVhTWmlBRkovV2N5L3RudDhTTHFzM3QxSkF0R0doRGtvSUJKWktpdGp4cWRhcmcK",
       "windows": {
         "installMode": "passive"

@@ -1,5 +1,21 @@
 export const AI_PROVIDERS = [
   {
+    id: "groq",
+    curl: `curl https://api.groq.com/openai/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer {{API_KEY}}" \
+    -d '{
+      "model": "{{MODEL}}",
+      "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}, {"type": "image_url", "image_url": {"url": "data:image/png;base64,{{IMAGE}}"}}]}],
+      "temperature": 1,
+      "max_completion_tokens": 8192,
+      "top_p": 1,
+      "stream": true
+    }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
     id: "openai",
     curl: `curl https://api.openai.com/v1/chat/completions \\
   -H "Content-Type: application/json" \\
@@ -77,24 +93,6 @@ export const AI_PROVIDERS = [
     streaming: true,
   },
   {
-    id: "groq",
-    curl: `curl https://api.groq.com/openai/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer {{API_KEY}}" \
-    -d '{
-      "model": "{{MODEL}}",
-      "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}, {"type": "image_url", "image_url": {"url": "data:image/png;base64,{{IMAGE}}"}}]}],
-      "temperature": 1,
-      "max_completion_tokens": 8192,
-      "top_p": 1,
-      "stream": true,
-      "reasoning_effort": "medium",
-      "stop": null
-    }'`,
-    responseContentPath: "choices[0].message.content",
-    streaming: true,
-  },
-  {
     id: "perplexity",
     curl: `curl -X POST https://api.perplexity.ai/chat/completions \\
   -H "Authorization: Bearer {{API_KEY}}" \\
@@ -126,6 +124,96 @@ export const AI_PROVIDERS = [
     -d '{
     "model": "{{MODEL}}",
     "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}, {"type": "image_url", "image_url": {"url": "data:image/png;base64,{{IMAGE}}"}}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "deepseek",
+    curl: `curl https://api.deepseek.com/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "qwen-dashscope",
+    curl: `curl https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}, {"type": "image_url", "image_url": {"url": "data:image/png;base64,{{IMAGE}}"}}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "moonshot-kimi",
+    curl: `curl https://api.moonshot.cn/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "zhipu-glm",
+    curl: `curl https://open.bigmodel.cn/api/paas/v4/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "doubao-volcengine-ark",
+    curl: `curl https://ark.cn-beijing.volces.com/api/v3/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}, {"type": "image_url", "image_url": {"url": "data:image/png;base64,{{IMAGE}}"}}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "siliconflow",
+    curl: `curl https://api.siliconflow.cn/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer {{API_KEY}}" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}]}]
+  }'`,
+    responseContentPath: "choices[0].message.content",
+    streaming: true,
+  },
+  {
+    id: "lm-studio",
+    curl: `curl http://localhost:1234/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "{{MODEL}}",
+    "stream": true,
+    "messages": [{"role": "system", "content": "{{SYSTEM_PROMPT}}"}, {"role": "user", "content": [{"type": "text", "text": "{{TEXT}}"}]}]
   }'`,
     responseContentPath: "choices[0].message.content",
     streaming: true,

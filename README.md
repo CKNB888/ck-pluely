@@ -1,59 +1,56 @@
-# Pluely 中文版（多语言 + Bug 修复）
+# CK Pluely —— 中文优先的实时 AI 面试 / 上课答疑 / 会议助手
 
-**简体中文** | [English](./README.en.md)
+**简体中文** | [English](#english)
 
-> 本仓库是 [iamsrikanthnani/pluely](https://github.com/iamsrikanthnani/pluely) 开源版（GPL-3.0，v0.1.9 源码）的分支，增加了多语言界面（简体中文为主）并修复了一批 bug。上游 v1 起已闭源，本分支基于仓库中最新的开源代码。
+> **基于 [Pluely](https://github.com/iamsrikanthnani/pluely)（作者 Srikanth Nani，GPL-3.0）开源版 v0.1.9 二次开发。**
+> 维护者：**CKNB**（[github.com/cknb6](https://github.com/cknb6)）。仓库：<https://github.com/NEWUSER/ck-pluely>
+> 与上游 Pluely 使用不同的包标识（`io.github.cknb6.ckpluely`），可以同时安装。
 
-## 项目简介
+## 它能做什么
 
-Pluely 是一个基于 Tauri（Rust + React）的桌面 AI 助手：一个半透明悬浮窗，可以实时转录麦克风和系统音频、截图提问，并调用你自己的大模型和语音识别服务给出答案。悬浮窗开启了内容保护，共享屏幕和录屏时通常不可见（请务必先用自己的会议软件测试，例如腾讯会议）。
+一个半透明悬浮窗：持续采集**对方的声音（系统音频）→ 实时语音转文字 → 自动判断是否在提问 → 流式生成简洁回答**。悬浮窗开启内容保护，屏幕共享时通常不可见（务必先用自己的腾讯会议 / Zoom 自测）。
 
-- 自带 API 密钥即可使用：通过 curl 模板接入 OpenAI 兼容接口，例如 DeepSeek、通义千问等，以及任意语音识别服务
-- 系统音频实时转录 + 自动回答
-- 截图 / 框选截图提问
-- 全局快捷键，窗口置顶，程序坞/任务栏图标隐藏
-- 聊天记录保存在本机 SQLite
+### v1.0.0 新功能
+- **实时助手面板**（系统音频界面）
+  - 回答模式：`检测到问题自动回答`（默认）/ `每段都回答`（上游行为）/ `手动`（先攒着，点“立即回答”）
+  - 中文场景预设：**面试 / 上课答疑 / 会议**，也可继续用你自己的系统提示词
+  - **简历 / 笔记上下文**：粘贴简历、讲义、议程，每次回答都会带上
+- **更多模型渠道（自带 Key，本地保存，不内置任何密钥）**：Groq（首次启动默认，对话 + whisper-large-v3 语音识别）、OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Mistral、Cohere、Perplexity、OpenRouter、Ollama、**DeepSeek、通义千问（阿里百炼 DashScope）、Moonshot Kimi、智谱 GLM、豆包（火山方舟）、硅基流动 SiliconFlow、LM Studio**，以及自定义 OpenAI 兼容地址
+- **语音识别渠道**：Groq Whisper（去掉写死的 `language=en`，中文可正常识别）、**硅基流动 SenseVoice**、OpenAI Whisper 及上游已有渠道
+- **中文为第一语言**：系统语言无法识别时默认简体中文；设置里仍可切换 English（结构支持继续加语言）
+- macOS 权限提示改为中英双语；ad-hoc 签名；独立 entitlements
+- 关闭指向上游（已闭源 v1）的自动更新
 
-## 新增功能
+### 修复的 Bug（继承自中文版）
+#315 重复转录、#287/#292/#310 Windows 快捷键隐藏、快捷键事件触发两次、截图监听泄漏、截图遮罩暴露、设置损坏白屏、开关提示文字相反、多处硬编码英文报错等。详见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
 
-- **多语言界面**：基于 i18next / react-i18next，内置 English 和简体中文，覆盖全部界面文字（537 条）
-- **界面语言设置**：设置 → 界面语言，可选“跟随系统 / English / 简体中文”，默认跟随系统语言，多窗口同步
-- **中文排版**：CJK 字体回退（苹方、微软雅黑、思源黑体/Noto Sans CJK），长中文自动换行
-- **翻译完整性检查**：`npm run check:i18n`
-- **三平台 CI**：GitHub Actions 构建 Windows（msi/exe）、macOS（Apple Silicon / Intel dmg）、Linux（deb/rpm/AppImage）；推送 `v*-zh` 标签自动发布 Release
+## 下载与安装
+到 [Releases](https://github.com/NEWUSER/ck-pluely/releases) 下载 `ck-pluely_*`：
+- macOS：`aarch64`（Apple Silicon）/ `x64`（Intel）的 `.dmg`。**未公证**：首次请右键 → 打开，或终端执行
+  `xattr -cr "/Applications/CK Pluely.app"`；然后在 系统设置 → 隐私与安全性 中授予 **麦克风、屏幕与系统录音** 权限
+- Windows：`-setup.exe`（NSIS）或 `.msi`；SmartScreen 点“更多信息 → 仍要运行”
+- Linux：`.deb` / `.rpm` / `.AppImage`
 
-## 修复的 Bug
+## 快速上手（面试 / 上课）
+1. 设置 → AI 服务商选 **groq**，填入你在 console.groq.com 申请的 Key 和模型（例如 `llama-3.3-70b-versatile`，以 Groq 文档为准）
+2. 语音识别选 **groq**，模型填 `whisper-large-v3`
+3. 打开系统音频 → 在“实时助手”中选预设（面试 / 上课答疑 / 会议），粘贴简历或讲义
+4. 对方提问时自动出答案；不想自动就切到“手动”
 
-| 问题 | 修复 |
-| --- | --- |
-| [#315](https://github.com/iamsrikanthnani/pluely/issues/315) 转录结果出现两次 | `speech-detected` 监听器在异步注册完成前被清理时不会注销，导致同一段语音被转录、回答两次；同时清理 STT 超时定时器 |
-| [#287](https://github.com/iamsrikanthnani/pluely/issues/287) / [#292](https://github.com/iamsrikanthnani/pluely/issues/292) / [#310](https://github.com/iamsrikanthnani/pluely/issues/310) Windows 上 Ctrl+\ 无法隐藏窗口 | 前端把后端发来的“隐藏”状态取反了，导致第一次按下只是聚焦；同时修复隐藏后弹出面板无法再打开 |
-| 全局快捷键事件触发两次 | 多个异步初始化并发注册监听器，切换类快捷键（语音、系统音频）开了又立刻关；改为串行初始化 |
-| 截图结果监听器泄漏 | `captured-selection` 监听器同样存在异步清理竞态 |
-| 截图时暴露应用 | 框选截图遮罩没有开启内容保护，并且会让程序坞图标跳动/任务栏闪烁；已开启内容保护并去掉提醒 |
-| 设置损坏导致白屏 | 本地存储中选中的服务商 JSON 损坏时启动崩溃；改为容错并清除坏值 |
-| 开关提示文字相反 | “窗口置顶”“自动滚动”开关的 title 与 aria-label 描述相反 |
-
-## 下载 / 构建
-
-**下载**：到 [Releases](https://github.com/cknb6/pluely/releases) 下载对应系统的安装包。安装包**未签名**：
-
-- macOS：首次打开如提示“已损坏/无法验证开发者”，执行 `xattr -cr /Applications/Pluely.app` 后再打开
-- Windows：SmartScreen 提示时点“更多信息 → 仍要运行”
-
-**从源码构建**（需要 Node.js 20+、Rust stable，Linux 另需 WebKitGTK 等依赖，见 [Tauri 环境要求](https://v2.tauri.app/start/prerequisites/)）：
-
+## 从源码构建
 ```bash
 npm ci
-npm run tauri dev      # 开发运行
-npm run tauri build    # 打包安装包
+npm run tauri build          # 本机平台
+npm run check:i18n           # 中英文条目一致性检查
 ```
 
-## 贡献者
-
-- 原作者：[Srikanth Nani](https://github.com/iamsrikanthnani)
-- 多语言支持、简体中文翻译与 Bug 修复：[CKNB](https://github.com/cknb6)
-
 ## 许可证
+GPL-3.0（见 [LICENSE](./LICENSE)）。Copyright © Srikanth Nani（上游 Pluely）；修改部分 © CKNB。
 
-GPL-3.0，见 [LICENSE](./LICENSE)。更新日志见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
+---
+
+## English
+
+**CK Pluely** is a Chinese-first fork of [Pluely](https://github.com/iamsrikanthnani/pluely) by Srikanth Nani (GPL-3.0, open-source v0.1.9), maintained by **CKNB** ([github.com/cknb6](https://github.com/cknb6)). It installs alongside upstream (`io.github.cknb6.ckpluely`).
+
+New in 1.0.0: a real-time copilot panel (auto-answer detected questions / answer everything / manual), interview / class / meeting presets, resume & notes context, Groq as default channel, extra providers (DeepSeek, Qwen/DashScope, Kimi, GLM, Doubao/Ark, SiliconFlow, LM Studio, …), SiliconFlow SenseVoice STT, Groq STT language auto-detect, Chinese default UI with English available, upstream auto-update disabled. Unsigned builds: on macOS run `xattr -cr "/Applications/CK Pluely.app"`. Original upstream README: [README.en.md](./README.en.md).

@@ -1,8 +1,10 @@
-name: Release (zh)
+# ck-pluely release: tag vX.Y.Z → GitHub Release with ck-pluely_* installers
+# macOS (aarch64 + x86_64 dmg), Windows (NSIS exe + MSI), Linux (deb/rpm/AppImage).
+name: Release
 
 on:
   push:
-    tags: ["v*-zh*"]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -33,7 +35,7 @@ jobs:
         if: startsWith(matrix.platform, 'ubuntu')
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev libpulse-dev libssl-dev libxdo-dev
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev libpulse-dev libssl-dev libxdo-dev rpm
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -50,13 +52,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Pluely 中文版 ${{ github.ref_name }}"
+          releaseName: "CK Pluely ${{ github.ref_name }}"
+          assetNamePattern: "ck-pluely_[version]_[platform]_[arch][setup][ext]"
           releaseBody: |
-            Pluely 多语言（简体中文）+ Bug 修复版，基于上游开源版 v0.1.9。更新内容见 CHANGELOG.zh-CN.md。
+            CK Pluely —— 中文优先的实时 AI 会议 / 面试 / 课堂助手。更新内容见 RELEASE_NOTES.zh-CN.md。
 
-            ⚠️ 安装包未签名：macOS 如提示无法打开，请执行 `xattr -cr /Applications/Pluely.app`；Windows SmartScreen 请点“更多信息 → 仍要运行”。
+            ⚠️ 未经 Apple 公证（ad-hoc 签名）：macOS 首次打开请右键 → 打开，或执行 `xattr -cr "/Applications/CK Pluely.app"`；Windows SmartScreen 请点“更多信息 → 仍要运行”。
 
-            Unsigned builds of the multi-language fork by CKNB (https://github.com/cknb6).
+            Based on Pluely by Srikanth Nani (GPL-3.0). Maintained by CKNB (https://github.com/cknb6).
           releaseDraft: false
           prerelease: false
-          args: ${{ matrix.args }} --config {"bundle":{"createUpdaterArtifacts":false}}
+          args: ${{ matrix.args }}

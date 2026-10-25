@@ -1,3 +1,5 @@
+> **CK Pluely note:** this is the original upstream Pluely README kept for reference. See [README.md](./README.md) for the CK Pluely fork (maintained by CKNB, github.com/cknb6).
+
 # Pluely v1 🚀
 
 **English** | [简体中文](./README.md)
