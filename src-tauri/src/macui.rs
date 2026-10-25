@@ -66,7 +66,9 @@ fn set_level<R: Runtime>(window: &WebviewWindow<R>, level: i64) {
 /// 根据当前模式摆放主条，返回模式名
 pub fn place_main<R: Runtime>(window: &WebviewWindow<R>) -> &'static str {
     let m = mode();
-    let monitor = window.primary_monitor().ok().flatten();
+    let keep = m != "notch"
+        && crate::panel::BAR_POS_SAVED.load(std::sync::atomic::Ordering::Relaxed);
+    let monitor = if keep { None } else { window.primary_monitor().ok().flatten() };
     let size = window.outer_size().ok();
     if let (Some(mon), Some(sz)) = (monitor, size) {
         let mp = mon.position();

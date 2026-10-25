@@ -12,6 +12,7 @@ import {
   Chats,
   Responses,
   Onboarding,
+  Panel,
 } from "@/pages";
 import { DashboardLayout } from "@/layouts";
 
@@ -20,6 +21,7 @@ export default function AppRoutes() {
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/panel" element={<Panel />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

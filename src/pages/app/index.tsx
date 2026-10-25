@@ -6,7 +6,9 @@ import {
   StatusIndicator,
 } from "./components";
 import { useApp, useMacMode } from "@/hooks";
-import { SparklesIcon } from "lucide-react";
+import { SlidersHorizontalIcon } from "lucide-react";
+import { getCurrentWindow, PhysicalPosition } from "@tauri-apps/api/window";
+import { BAR_POS_KEY, getUiStyle, setUiStyle } from "@/lib/ui-style";
 import { invoke } from "@tauri-apps/api/core";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorLayout } from "@/layouts";
@@ -24,6 +26,42 @@ const App = () => {
     if (!localStorage.getItem(ONBOARDING_DONE_KEY)) {
       invoke("open_dashboard").catch(() => {});
     }
+  }, []);
+
+  // 界面样式：默认托盘面板；选了悬浮条就直接显示主条。悬浮条位置会被记住。
+  useEffect(() => {
+    const style = getUiStyle();
+    const win = getCurrentWindow();
+    const saved = localStorage.getItem(BAR_POS_KEY);
+    (async () => {
+      if (saved) {
+        try {
+          const { x, y } = JSON.parse(saved);
+          await win.setPosition(new PhysicalPosition(x, y));
+        } catch {
+          localStorage.removeItem(BAR_POS_KEY);
+        }
+      }
+      await invoke("ck_set_ui_style", { style, savedPos: !!saved }).catch(() => {});
+      await setUiStyle(style);
+      if (style === "bar") invoke("ck_panel_action", { action: "show_bar" }).catch(() => {});
+    })();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let un: (() => void) | undefined;
+    win
+      .onMoved(({ payload }) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          localStorage.setItem(BAR_POS_KEY, JSON.stringify({ x: payload.x, y: payload.y }));
+          invoke("ck_set_ui_style", { style: getUiStyle(), savedPos: true }).catch(() => {});
+        }, 400);
+      })
+      .then((f) => (un = f))
+      .catch(() => {});
+    return () => {
+      clearTimeout(timer);
+      un?.();
+    };
   }, []);
 
   const openDashboard = async () => {
@@ -50,12 +88,13 @@ const App = () => {
         }`}
       >
         <Card
+          data-tauri-drag-region
           className={`ck-enter w-full flex flex-row items-center gap-2 p-2 ${
             macMode === "notch"
               ? "ck-notch rounded-t-none rounded-b-2xl border-t-0"
               : macMode === "menubar"
-              ? "rounded-xl shadow-lg"
-              : ""
+              ? "ck-bar"
+              : "ck-bar"
           }`}
         >
           <SystemAudio {...systemAudio} />
@@ -86,11 +125,12 @@ const App = () => {
             <Completion isHidden={isHidden} />
             <Button
               size={"icon"}
-              className="cursor-pointer"
+              variant="ghost"
+              className="size-8 text-muted-foreground"
               title={t("Open Dev Space")}
               onClick={openDashboard}
             >
-              <SparklesIcon className="h-4 w-4" />
+              <SlidersHorizontalIcon className="size-4" />
             </Button>
           </div>
 

@@ -15,6 +15,8 @@ const H: f64 = 560.0;
 pub static TRAY_RECT: Mutex<Option<(f64, f64, f64, f64)>> = Mutex::new(None);
 /// 界面样式："panel"（菜单栏面板，默认）或 "bar"（悬浮条）
 static STYLE: Mutex<&'static str> = Mutex::new("panel");
+/// 用户拖动过悬浮条（位置已记住）时，显示时不再自动摆放
+pub static BAR_POS_SAVED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 pub fn style() -> &'static str {
     *STYLE.lock().unwrap_or_else(|e| e.into_inner())
@@ -161,7 +163,10 @@ pub fn setup_tray<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
 }
 
 #[tauri::command]
-pub fn ck_set_ui_style(app: AppHandle, style: String) {
+pub fn ck_set_ui_style(app: AppHandle, style: String, saved_pos: Option<bool>) {
+    if let Some(v) = saved_pos {
+        BAR_POS_SAVED.store(v, std::sync::atomic::Ordering::Relaxed);
+    }
     let s: &'static str = if style == "bar" { "bar" } else { "panel" };
     *STYLE.lock().unwrap_or_else(|e| e.into_inner()) = s;
     if s == "bar" {
