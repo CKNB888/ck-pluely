@@ -13,6 +13,12 @@ let globalEventListeners: {
   registrationError?: UnlistenFn;
 } = {};
 
+// Serializes listener setup. Without this, React StrictMode (or several
+// components using this hook) start overlapping async setups that each see
+// no existing listeners and register their own, so every shortcut event is
+// delivered twice (e.g. toggles start and immediately stop recording).
+let globalListenerSetup: Promise<void> = Promise.resolve();
+
 // Global debounce for screenshot events to prevent duplicates
 let lastScreenshotEventTime = 0;
 
@@ -252,7 +258,7 @@ export const useGlobalShortcuts = () => {
       }
     };
 
-    setupEventListeners();
+    globalListenerSetup = globalListenerSetup.then(setupEventListeners);
   }, []);
 
   return {
