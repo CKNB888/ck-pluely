@@ -89,7 +89,7 @@ export const ShortcutRecorder = ({
           setRecordedKeys(keys);
           setError("");
         } else {
-          setError("Must include at least one modifier (Cmd/Ctrl/Alt/Shift)");
+          setError(t("Must include at least one modifier (Cmd/Ctrl/Alt/Shift)"));
         }
       } else {
         if (!["control", "alt", "shift", "meta"].includes(mainKey)) {
@@ -149,7 +149,7 @@ export const ShortcutRecorder = ({
     if (!isMoveWindow) {
       // Validate with frontend
       if (!validateShortcutKey(shortcutKey)) {
-        setError("Invalid shortcut combination");
+        setError(t("Invalid shortcut combination"));
         return;
       }
 
@@ -160,11 +160,11 @@ export const ShortcutRecorder = ({
         });
 
         if (!isValid) {
-          setError("This shortcut combination is not supported");
+          setError(t("This shortcut combination is not supported"));
           return;
         }
       } catch (e) {
-        setError("Failed to validate shortcut");
+        setError(t("Failed to validate shortcut"));
         return;
       }
     }

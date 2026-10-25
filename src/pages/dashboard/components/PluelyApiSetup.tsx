@@ -144,7 +144,7 @@ export const PluelyApiSetup = () => {
 
   const handleActivateLicense = async () => {
     if (!licenseKey.trim()) {
-      setError("Please enter a license key");
+      setError(t("Please enter a license key"));
       return;
     }
 
@@ -221,7 +221,7 @@ export const PluelyApiSetup = () => {
       await loadLicenseStatus(); // Reload status
     } catch (err) {
       console.error("Failed to remove license:", err);
-      setError("Failed to remove license");
+      setError(t("Failed to remove license"));
     } finally {
       setIsLoading(false);
       await invoke("deactivate_license_api");
@@ -250,7 +250,7 @@ export const PluelyApiSetup = () => {
       });
     } catch (error) {
       console.error("Failed to save model selection:", error);
-      setError("Failed to save model selection.");
+      setError(t("Failed to save model selection."));
     }
   };
 

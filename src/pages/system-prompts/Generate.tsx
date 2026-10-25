@@ -33,7 +33,7 @@ export const GenerateSystemPrompt = ({
 
   const handleGenerate = async () => {
     if (!userPrompt.trim()) {
-      setError("Please describe what you want");
+      setError(t("Please describe what you want"));
       return;
     }
 
