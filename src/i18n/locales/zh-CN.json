@@ -559,7 +559,6 @@
   "Maintainer: CKNB": "维护者：CKNB",
   "No speech provider selected.": "未选择语音识别服务。",
   "Speech provider config not found.": "找不到语音识别服务配置。",
-  "Received empty transcription": "转写结果为空",
   "Failed to process speech": "语音处理失败",
   "Failed to setup speech listener": "语音监听初始化失败",
   "No AI provider selected.": "未选择 AI 服务商。",
@@ -635,5 +634,9 @@
   "Question detection": "问题识别灵敏度",
   "Conservative": "保守",
   "Standard": "标准",
-  "Sensitive": "灵敏"
+  "Sensitive": "灵敏",
+  "Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.": "音频过大（{{v0}} MB），上限为 25 MB，请缩短最长录音时长。",
+  "{{v0}}/{{v1}} API keys work.": "{{v0}}/{{v1}} 个 API Key 可用。",
+  "Failing: {{v0}}": "不可用：{{v0}}",
+  "API key — separate several keys with commas to rotate on rate limits": "API Key —— 多个 Key 用英文逗号分隔，遇到限流时自动轮换"
 }

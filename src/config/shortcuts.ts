@@ -16,9 +16,10 @@ export const DEFAULT_SHORTCUT_ACTIONS: ShortcutAction[] = [
     name: "Toggle Window",
     description: "Show/Hide the main window",
     defaultKey: {
-      macos: "cmd+backslash",
-      windows: "ctrl+backslash",
-      linux: "ctrl+backslash",
+      // v1.0.3: was Ctrl+\ / ⌘\, which DingTalk uses to toggle its sidebar.
+      macos: "cmd+alt+backslash",
+      windows: "ctrl+alt+backslash",
+      linux: "ctrl+alt+backslash",
     },
   },
   {
@@ -82,3 +83,7 @@ export const DEFAULT_SHORTCUT_ACTIONS: ShortcutAction[] = [
     },
   },
 ];
+
+/** Old defaults replaced in v1.0.3 (conflicted with DingTalk Ctrl+\\ / ⌘\\). */
+export const LEGACY_TOGGLE_WINDOW_KEYS = ["ctrl+backslash", "cmd+backslash"];
+export const SHORTCUTS_MIGRATION_KEY = "ck_shortcuts_migrated_v103";

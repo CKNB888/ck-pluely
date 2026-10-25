@@ -8,7 +8,7 @@ import {
   splitSseData,
 } from "./common.function";
 import { Message, TYPE_PROVIDER } from "@/types";
-import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
+import { ckFetch, extractProviderError, friendlyHttpError, withKeyRotation } from "./net";
 
 const STREAM_IDLE_TIMEOUT_MS = 90_000;
 import { invoke } from "@tauri-apps/api/core";
@@ -276,36 +276,42 @@ export async function* fetchAIResponse(params: {
       SYSTEM_PROMPT: enhancedSystemPrompt || "",
     };
 
-    bodyObj = deepVariableReplacer(bodyObj, allVariables);
-    let url = deepVariableReplacer(curlJson.url || "", allVariables);
-
-    const headers = deepVariableReplacer(curlJson.header || {}, allVariables);
-    headers["Content-Type"] = "application/json";
-
-    if (provider?.streaming) {
-      if (typeof bodyObj === "object" && bodyObj !== null) {
-        const streamKey = Object.keys(bodyObj).find(
-          (k) => k.toLowerCase() === "stream"
-        );
-        if (streamKey) {
-          bodyObj[streamKey] = true;
-        } else {
-          bodyObj.stream = true;
-        }
+    const templateBody = bodyObj;
+    // Build the request for one API key (several keys rotate on 401/429).
+    const build = (key: string | undefined) => {
+      const vars: Record<string, string> = { ...allVariables };
+      if (key !== undefined) vars.API_KEY = key;
+      const body = deepVariableReplacer(templateBody, vars);
+      if (provider?.streaming && typeof body === "object" && body !== null) {
+        const streamKey = Object.keys(body).find((k) => k.toLowerCase() === "stream");
+        body[streamKey ?? "stream"] = true;
       }
-    }
+      const headers = deepVariableReplacer(curlJson.header || {}, vars);
+      headers["Content-Type"] = "application/json";
+      return { url: deepVariableReplacer(curlJson.url || "", vars), headers, body };
+    };
 
-    // ck-pluely: was inverted (always used WebView fetch → CORS failures).
-    const fetchFunction = (u: string, i: RequestInit) => ckFetch(u, i);
-
+    const rawKey = (allVariables as Record<string, string>).API_KEY;
     let response;
     try {
-      response = await fetchFunction(url, {
-        method: curlJson.method || "POST",
-        headers,
-        body: curlJson.method === "GET" ? undefined : JSON.stringify(bodyObj),
-        signal,
-      });
+      response = await withKeyRotation(
+        `ai:${provider?.id ?? selectedProvider.provider}`,
+        rawKey,
+        (key, isLast) => {
+          const req = build(rawKey === undefined ? undefined : key);
+          return ckFetch(
+            req.url,
+            {
+              method: curlJson.method || "POST",
+              headers: req.headers,
+              body: curlJson.method === "GET" ? undefined : JSON.stringify(req.body),
+              signal,
+            },
+            2,
+            { retryRateLimit: isLast }
+          );
+        }
+      );
     } catch (fetchError) {
       // Check if aborted
       if (
@@ -381,7 +387,7 @@ export async function* fetchAIResponse(params: {
     while (true) {
       // Check if aborted
       if (signal?.aborted) {
-        reader.cancel();
+        reader.cancel().catch(() => {});
         return;
       }
 
@@ -419,7 +425,7 @@ export async function* fetchAIResponse(params: {
 
       // Check if aborted before processing
       if (signal?.aborted) {
-        reader.cancel();
+        reader.cancel().catch(() => {});
         return;
       }
 

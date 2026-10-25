@@ -1,15 +1,13 @@
 import { Header, Selection } from "@/components";
 import { LANGUAGES } from "@/lib";
-import { useApp } from "@/contexts";
 import { updateLanguage } from "@/lib/storage/response-settings.storage";
 import { useState, useEffect, useMemo } from "react";
-import { getResponseSettings } from "@/lib";
+import { getResponseSettings, DEFAULT_LANGUAGE } from "@/lib";
 
 import { t } from "@/i18n";
 
 export const LanguageSelector = () => {
-  const { hasActiveLicense } = useApp();
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("english");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(DEFAULT_LANGUAGE);
 
   useEffect(() => {
     const settings = getResponseSettings();
@@ -17,9 +15,6 @@ export const LanguageSelector = () => {
   }, []);
 
   const handleLanguageChange = (languageId: string) => {
-    if (!hasActiveLicense) {
-      return;
-    }
     setSelectedLanguage(languageId);
     updateLanguage(languageId);
   };
@@ -47,7 +42,6 @@ export const LanguageSelector = () => {
           onChange={handleLanguageChange}
           options={languageOptions}
           placeholder={t("Select a language")}
-          disabled={!hasActiveLicense}
         />
       </div>
     </div>

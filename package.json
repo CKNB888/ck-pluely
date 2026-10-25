@@ -1,7 +1,7 @@
 {
   "name": "ck-pluely",
   "private": false,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CK Pluely：中文优先的开源实时 AI 会议/面试/课堂助手（基于 Srikanth Nani 的 Pluely，GPL-3.0）",
   "author": {
     "name": "Srikanth Nani",
@@ -40,6 +40,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "test:live": "vitest run -c vitest.live.config.ts",
     "lint": "eslint src",
     "test": "vitest run"
   },

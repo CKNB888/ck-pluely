@@ -105,7 +105,7 @@ export const Providers = ({
             <div className="flex gap-2">
               <Input
                 type="password"
-                placeholder="**********"
+                placeholder={t("API key — separate several keys with commas to rotate on rate limits")}
                 value={getApiKeyValue()}
                 onChange={(value) => {
                   const apiKeyVar = findKeyAndValue("api_key");

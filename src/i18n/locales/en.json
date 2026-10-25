@@ -559,7 +559,6 @@
   "Maintainer: CKNB": "Maintainer: CKNB",
   "No speech provider selected.": "No speech provider selected.",
   "Speech provider config not found.": "Speech provider config not found.",
-  "Received empty transcription": "Received empty transcription",
   "Failed to process speech": "Failed to process speech",
   "Failed to setup speech listener": "Failed to setup speech listener",
   "No AI provider selected.": "No AI provider selected.",
@@ -635,5 +634,9 @@
   "Question detection": "Question detection",
   "Conservative": "Conservative",
   "Standard": "Standard",
-  "Sensitive": "Sensitive"
+  "Sensitive": "Sensitive",
+  "Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.": "Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.",
+  "{{v0}}/{{v1}} API keys work.": "{{v0}}/{{v1}} API keys work.",
+  "Failing: {{v0}}": "Failing: {{v0}}",
+  "API key — separate several keys with commas to rotate on rate limits": "API key — separate several keys with commas to rotate on rate limits"
 }

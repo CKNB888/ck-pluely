@@ -1,4 +1,9 @@
-import { STORAGE_KEYS, DEFAULT_SHORTCUT_ACTIONS } from "@/config";
+import {
+  STORAGE_KEYS,
+  DEFAULT_SHORTCUT_ACTIONS,
+  LEGACY_TOGGLE_WINDOW_KEYS,
+  SHORTCUTS_MIGRATION_KEY,
+} from "@/config";
 import {
   ShortcutsConfig,
   ShortcutBinding,
@@ -53,10 +58,22 @@ export const getShortcutsConfig = (): ShortcutsConfig => {
       const parsed = JSON.parse(stored);
       // Merge with defaults to ensure all default actions are present
       const defaults = getDefaultShortcutsConfig();
-      return {
+      const config: ShortcutsConfig = {
         bindings: { ...defaults.bindings, ...parsed.bindings },
         customActions: parsed.customActions || [],
       };
+      // v1.0.3 one-time migration: users still on the old Ctrl+\ default
+      // move to the new default (DingTalk owns Ctrl+\). Runs once, so a
+      // user who re-selects Ctrl+\ afterwards keeps it.
+      if (localStorage.getItem(SHORTCUTS_MIGRATION_KEY) !== "1") {
+        const tw = config.bindings.toggle_window;
+        if (tw && LEGACY_TOGGLE_WINDOW_KEYS.includes((tw.key || "").toLowerCase())) {
+          config.bindings.toggle_window = { ...tw, key: defaults.bindings.toggle_window.key };
+          setShortcutsConfig(config);
+        }
+        localStorage.setItem(SHORTCUTS_MIGRATION_KEY, "1");
+      }
+      return config;
     }
     return getDefaultShortcutsConfig();
   } catch (error) {

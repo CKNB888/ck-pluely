@@ -3,7 +3,7 @@
 import curl2Json from "@bany/curl-to-json";
 import { t } from "@/i18n";
 import { deepVariableReplacer } from "./common.function";
-import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
+import { ckFetch, splitApiKeys, maskKey, extractProviderError, friendlyHttpError } from "./net";
 
 const SUFFIXES = [
   /\/chat\/completions\/?$/,
@@ -61,6 +61,23 @@ export async function checkProvider(
   const vars = Object.fromEntries(
     Object.entries(variables || {}).map(([k, v]) => [k.toUpperCase(), v])
   );
+  // Several keys in one field: test each one and report which fail (masked).
+  const keys = splitApiKeys(vars.API_KEY);
+  if (keys.length > 1) {
+    const results = await Promise.all(
+      keys.map((k) => checkProvider(curl, { ...vars, API_KEY: k }, timeoutMs))
+    );
+    const okOnes = results.filter((r) => r.ok);
+    const bad = keys.filter((_, i) => !results[i].ok).map(maskKey);
+    return {
+      ok: okOnes.length > 0,
+      message:
+        t("{{v0}}/{{v1}} API keys work.", { v0: okOnes.length, v1: keys.length }) +
+        (bad.length ? " " + t("Failing: {{v0}}", { v0: bad.join(", ") }) : "") +
+        (okOnes[0] ? " " + okOnes[0].message : " " + results[0].message),
+      models: okOnes[0]?.models ?? [],
+    };
+  }
   let json: any;
   try {
     json = curl2Json(curl);

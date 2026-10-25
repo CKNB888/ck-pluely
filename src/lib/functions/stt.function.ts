@@ -4,7 +4,10 @@ import {
   getByPath,
   blobToBase64,
 } from "./common.function";
-import { ckFetch, extractProviderError, friendlyHttpError } from "./net";
+import { ckFetch, extractProviderError, friendlyHttpError, withKeyRotation } from "./net";
+import { cleanTranscript, isSilentClip, wavStats, STT_MAX_BYTES } from "./stt-post";
+
+const STT_TIMEOUT_MS = 30_000;
 import { invoke } from "@tauri-apps/api/core";
 
 import { TYPE_PROVIDER } from "@/types";
@@ -79,11 +82,6 @@ export async function fetchSTT(params: STTParams): Promise<string> {
     // Validate audio file
     const file = audio as File;
     if (file.size === 0) throw new Error(t("Audio file is empty"));
-    // maximum size of 10MB
-    // const maxSize = 10 * 1024 * 1024;
-    // if (file.size > maxSize) {
-    //   warnings.push("Audio exceeds 10MB limit");
-    // }
 
     // Build variable map
     const allVariables = {
@@ -95,114 +93,138 @@ export async function fetchSTT(params: STTParams): Promise<string> {
       ),
     };
 
-    // Prepare request
-    let url = deepVariableReplacer(curlJson.url || "", allVariables);
-    const headers = deepVariableReplacer(curlJson.header || {}, allVariables);
-    const formData = deepVariableReplacer(curlJson.form || {}, allVariables);
-
-    // To Check if API accepts Binary Data
-    const isBinaryUpload = provider.curl.includes("--data-binary");
-    // Fetch URL Params
-    const rawParams = curlJson.params || {};
-    // Decode Them
-    const decodedParams = Object.fromEntries(
-      Object.entries(rawParams).map(([key, value]) => [
-        key,
-        typeof value === "string" ? decodeURIComponent(value) : "",
-      ])
-    );
-    // Get the Parameters from allVariables
-    const replacedParams = deepVariableReplacer(decodedParams, allVariables);
-
-    // Add query parameters to URL
-    const queryString = new URLSearchParams(replacedParams).toString();
-    if (queryString) {
-      url += (url.includes("?") ? "&" : "?") + queryString;
+    // ck-pluely: skip clips that are too short / silent (Whisper invents
+    // "Thank you." or subtitle credits for them) and enforce the 25 MB limit.
+    const audioBuf = await audio.arrayBuffer();
+    if (audioBuf.byteLength > STT_MAX_BYTES) {
+      throw new Error(
+        t("Audio is too large ({{v0}} MB). The limit is 25 MB; shorten the maximum recording length.", {
+          v0: (audioBuf.byteLength / 1048576).toFixed(1),
+        })
+      );
     }
+    if (isSilentClip(wavStats(audioBuf))) return "";
 
-    let finalHeaders = { ...headers };
-    let body: FormData | string | Blob;
+    // Build the request for one API key (several keys rotate on 401/429).
+    const build = (key: string | undefined) => {
+      const vars: Record<string, string> = { ...allVariables };
+      if (key !== undefined) vars.API_KEY = key;
+      let url = deepVariableReplacer(curlJson.url || "", vars);
+      const headers = deepVariableReplacer(curlJson.header || {}, vars);
+      const rawParams = curlJson.params || {};
+      const decodedParams = Object.fromEntries(
+        Object.entries(rawParams).map(([k, value]) => [
+          k,
+          typeof value === "string" ? decodeURIComponent(value) : "",
+        ])
+      );
+      const queryString = new URLSearchParams(
+        deepVariableReplacer(decodedParams, vars)
+      ).toString();
+      if (queryString) url += (url.includes("?") ? "&" : "?") + queryString;
+      return { url, headers, formData: deepVariableReplacer(curlJson.form || {}, vars), vars };
+    };
 
+    const isBinaryUpload = provider.curl.includes("--data-binary");
     const isForm =
       provider.curl.includes("-F ") || provider.curl.includes("--form");
-    if (isForm) {
-      const form = new FormData();
-      const freshBlob = new Blob([await audio.arrayBuffer()], {
-        type: audio.type,
-      });
-      form.append("file", freshBlob, "audio.wav");
-      const headerKeys = Object.keys(headers).map((k) =>
-        k.toUpperCase().replace(/[-_]/g, "")
-      );
+    const ext = /webm/.test(audio.type)
+      ? "webm"
+      : /mp4|m4a|aac/.test(audio.type)
+        ? "m4a"
+        : /ogg/.test(audio.type)
+          ? "ogg"
+          : /mpeg|mp3/.test(audio.type)
+            ? "mp3"
+            : "wav";
 
-      for (const [key, val] of Object.entries(formData)) {
-        if (typeof val !== "string") {
-          if (
-            !val ||
-            headerKeys.includes(key.toUpperCase()) ||
-            key.toUpperCase() === "AUDIO"
-          )
+    const makeBody = (
+      headers: Record<string, string>,
+      formData: Record<string, unknown>,
+      vars: Record<string, string>,
+      audioB64: string
+    ): { body: FormData | string | Blob; headers: Record<string, string> } => {
+      const finalHeaders = { ...headers };
+      if (isForm) {
+        const form = new FormData();
+        form.append("file", new Blob([audioBuf], { type: audio.type }), `audio.${ext}`);
+        const headerKeys = Object.keys(headers).map((k) =>
+          k.toUpperCase().replace(/[-_]/g, "")
+        );
+        for (const [key, val] of Object.entries(formData)) {
+          if (typeof val !== "string") {
+            if (!val || headerKeys.includes(key.toUpperCase()) || key.toUpperCase() === "AUDIO")
+              continue;
+            form.append(key.toLowerCase(), val as string | Blob);
             continue;
-          form.append(key.toLowerCase(), val as string | Blob);
-          continue;
+          }
+          // Numeric keys come from curl2json's array-like parsing of -F.
+          if (!isNaN(parseInt(key, 10))) {
+            const [formKey, ...formValueParts] = val.split("=");
+            const formValue = formValueParts.join("=");
+            if (formKey.toLowerCase() === "file") continue;
+            if (!formValue || headerKeys.includes(formKey.toUpperCase().replace(/[-_]/g, "")))
+              continue;
+            form.append(formKey, formValue);
+          } else {
+            if (key.toLowerCase() === "file") continue;
+            if (!val || headerKeys.includes(key.toUpperCase()) || key.toUpperCase() === "AUDIO")
+              continue;
+            form.append(key.toLowerCase(), val);
+          }
         }
-
-        // Check if key is a number, which indicates array-like parsing from curl2json
-        if (!isNaN(parseInt(key, 10))) {
-          const [formKey, ...formValueParts] = val.split("=");
-          const formValue = formValueParts.join("=");
-
-          if (formKey.toLowerCase() === "file") continue; // Already handled by form.append('file', audio)
-
-          if (
-            !formValue ||
-            headerKeys.includes(formKey.toUpperCase().replace(/[-_]/g, ""))
-          )
-            continue;
-
-          form.append(formKey, formValue);
-        } else {
-          if (key.toLowerCase() === "file") continue; // Already handled by form.append('file', audio)
-          if (
-            !val ||
-            headerKeys.includes(key.toUpperCase()) ||
-            key.toUpperCase() === "AUDIO"
-          )
-            continue;
-          form.append(key.toLowerCase(), val as string | Blob);
-        }
+        delete finalHeaders["Content-Type"];
+        return { body: form, headers: finalHeaders };
       }
-      delete finalHeaders["Content-Type"];
-      body = form;
-    } else if (isBinaryUpload) {
-      // Deepgram-style: raw binary body
-      body = new Blob([await audio.arrayBuffer()], {
-        type: audio.type,
-      });
-    } else {
+      if (isBinaryUpload) {
+        return { body: new Blob([audioBuf], { type: audio.type }), headers: finalHeaders };
+      }
       // Google-style: JSON payload with base64
-      allVariables.AUDIO = await blobToBase64(audio);
       const dataObj = curlJson.data ? { ...curlJson.data } : {};
-      body = JSON.stringify(deepVariableReplacer(dataObj, allVariables));
-    }
+      return {
+        body: JSON.stringify(deepVariableReplacer(dataObj, { ...vars, AUDIO: audioB64 })),
+        headers: finalHeaders,
+      };
+    };
+    const audioB64 = !isForm && !isBinaryUpload ? await blobToBase64(audio) : "";
 
-    // ck-pluely: was inverted (always used WebView fetch → CORS failures).
-    const fetchFunction = (u: string, i: RequestInit) => ckFetch(u, i);
-
-    // Send request
+    // ck-pluely: the request itself times out (the caller's 30 s race used
+    // to leave the upload running in the background).
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), STT_TIMEOUT_MS);
+    const rawKey = allVariables.API_KEY;
     let response: Response;
     try {
-      response = await fetchFunction(url, {
-        method: curlJson.method || "POST",
-        headers: finalHeaders,
-        body: curlJson.method === "GET" ? undefined : body,
-      });
+      response = await withKeyRotation(
+        `stt:${provider.id ?? selectedProvider.provider}`,
+        rawKey,
+        (key, isLast) => {
+          const { url, headers, formData, vars } = build(rawKey === undefined ? undefined : key);
+          const req = makeBody(headers, formData, vars, audioB64);
+          return ckFetch(
+            url,
+            {
+              method: curlJson.method || "POST",
+              headers: req.headers,
+              body: curlJson.method === "GET" ? undefined : req.body,
+              signal: controller.signal,
+            },
+            2,
+            { retryRateLimit: isLast }
+          );
+        }
+      );
     } catch (e) {
+      if (controller.signal.aborted) {
+        throw new Error(t("Speech transcription timed out (30s)"));
+      }
       throw new Error(
         t("Network error: {{v0}}. Check your connection or proxy.", {
           v0: e instanceof Error ? e.message : String(e),
         })
       );
+    } finally {
+      clearTimeout(timer);
     }
 
     if (!response.ok) {
@@ -226,7 +248,7 @@ export async function fetchSTT(params: STTParams): Promise<string> {
     // Extract transcription
     const rawPath = provider.responseContentPath || "text";
     const path = rawPath.charAt(0).toLowerCase() + rawPath.slice(1);
-    const transcription = (getByPath(data, path) || "").trim();
+    const transcription = cleanTranscript(String(getByPath(data, path) || ""));
 
     if (!transcription) {
       // Silence / no speech: return nothing so it is never treated as speech.

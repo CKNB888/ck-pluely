@@ -216,5 +216,7 @@ export const LANGUAGES: LanguageOption[] = [
 ];
 
 export const DEFAULT_RESPONSE_LENGTH = "auto";
-export const DEFAULT_LANGUAGE = "english";
+// Answers default to Simplified Chinese; the language prompt is local-only, so
+// it is not gated behind a Pluely licence (own-API-key users could not change it).
+export const DEFAULT_LANGUAGE = "chinese";
 export const DEFAULT_AUTO_SCROLL = true;

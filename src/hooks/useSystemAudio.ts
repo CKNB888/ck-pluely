@@ -384,9 +384,8 @@ export function useSystemAudio() {
                   effectiveSystemPrompt,
                   previousMessages
                 );
-              } else {
-                setError(t("Received empty transcription"));
               }
+              // Empty = silence / filtered Whisper hallucination: ignore quietly.
             } catch (sttError: any) {
               console.error("STT Error:", sttError);
               setError(sttError.message || "Failed to transcribe audio");
