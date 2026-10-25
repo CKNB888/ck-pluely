@@ -620,9 +620,10 @@ export const useChatCompletion = (
 
   useEffect(() => {
     let unlisten: any;
+    let disposed = false;
 
     const setupListener = async () => {
-      unlisten = await listen("captured-selection", async (event: any) => {
+      const off = await listen("captured-selection", async (event: any) => {
         // Only process if this context initiated the screenshot
         if (!screenshotInitiatedByThisContext.current) {
           return;
@@ -654,11 +655,15 @@ export const useChatCompletion = (
           }, 100);
         }
       });
+      // Effect may have been cleaned up while awaiting listen()
+      if (disposed) off();
+      else unlisten = off;
     };
 
     setupListener();
 
     return () => {
+      disposed = true;
       if (unlisten) {
         unlisten();
       }
