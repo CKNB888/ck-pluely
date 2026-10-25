@@ -3,7 +3,77 @@
 // validates the URL scheme, retries transient failures, and falls back to the
 // WebView fetch only if the plugin itself fails to connect.
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { invoke, Channel } from "@tauri-apps/api/core";
 import { t } from "@/i18n";
+
+// --- Pooled native transport (src-tauri/src/net.rs) -------------------------
+// One shared HTTP/2 keep-alive client on the Rust side instead of a fresh
+// connection per request; the body streams back over a Channel.
+let nextId = 1;
+const isTauri = () => typeof window !== "undefined" && !!(window as any).__TAURI_INTERNALS__;
+
+async function bodyToPayload(init: RequestInit): Promise<{ text?: string; bytes?: Uint8Array; contentType?: string }> {
+  const b = init.body;
+  if (b == null) return {};
+  if (typeof b === "string") return { text: b };
+  // FormData / Blob / URLSearchParams / ArrayBuffer → bytes (+ multipart boundary)
+  const r = new Request("http://x/", { method: "POST", body: b as BodyInit });
+  return { bytes: new Uint8Array(await r.arrayBuffer()), contentType: r.headers.get("content-type") || undefined };
+}
+
+export async function nativeFetch(url: string, init: RequestInit & { signal?: AbortSignal | null; timeoutMs?: number }): Promise<Response> {
+  const id = nextId++;
+  const headers: [string, string][] = [];
+  new Headers(init.headers || {}).forEach((v, k) => headers.push([k, v]));
+  const p = await bodyToPayload(init);
+  if (p.contentType && !headers.some(([k]) => k === "content-type")) headers.push(["content-type", p.contentType]);
+  if (p.bytes) await invoke("ck_http_body", p.bytes, { headers: { "x-ck-id": String(id) } });
+  return new Promise<Response>((resolve, reject) => {
+    let ctrl!: ReadableStreamDefaultController<Uint8Array>;
+    let headDone = false;
+    const stream = new ReadableStream<Uint8Array>({
+      start: (c) => { ctrl = c; },
+      cancel: () => { invoke("ck_http_abort", { id }).catch(() => {}); },
+    });
+    const onAbort = () => {
+      invoke("ck_http_abort", { id }).catch(() => {});
+      const e = new DOMException("Aborted", "AbortError");
+      if (!headDone) reject(e); else try { ctrl.error(e); } catch { /* closed */ }
+    };
+    init.signal?.addEventListener("abort", onAbort, { once: true });
+    const ch = new Channel<any>();
+    ch.onmessage = (m: any) => {
+      if (m instanceof ArrayBuffer || ArrayBuffer.isView(m)) {
+        try { ctrl.enqueue(m instanceof ArrayBuffer ? new Uint8Array(m) : new Uint8Array((m as any).buffer)); } catch { /* closed */ }
+        return;
+      }
+      const ev = typeof m === "string" ? JSON.parse(m) : m;
+      if (ev.type === "Head") {
+        headDone = true;
+        const nullBody = ev.status === 204 || ev.status === 304 || (init.method || "GET").toUpperCase() === "HEAD";
+        resolve(new Response(nullBody ? null : stream, { status: ev.status, statusText: ev.statusText, headers: ev.headers }));
+      } else if (ev.type === "End") {
+        init.signal?.removeEventListener("abort", onAbort);
+        try { ctrl.close(); } catch { /* closed */ }
+      } else if (ev.type === "Error") {
+        init.signal?.removeEventListener("abort", onAbort);
+        const err = new Error(ev.message);
+        if (!headDone) reject(err); else try { ctrl.error(err); } catch { /* closed */ }
+      }
+    };
+    invoke("ck_http_fetch", {
+      req: { id, url, method: init.method || "GET", headers, body: p.text, rawBody: !!p.bytes, timeoutMs: init.timeoutMs },
+      onEvent: ch,
+    }).catch(reject);
+  });
+}
+
+/** Open connections to provider hosts ahead of the first question. */
+export function prewarm(urls: (string | undefined)[]) {
+  const list = Array.from(new Set(urls.filter((u): u is string => !!u && /^https?:/i.test(u))));
+  if (!list.length || !isTauri()) return;
+  invoke("ck_http_prewarm", { urls: list }).catch(() => {});
+}
 
 const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 
@@ -53,11 +123,16 @@ export async function ckFetch(
     try {
       let res: Response;
       try {
-        res = await tauriFetch(url, { ...init, connectTimeout: 10000 } as any);
+        res = isTauri() ? await nativeFetch(url, init) : await fetch(url, init);
       } catch (e: any) {
         if (init.signal?.aborted || e?.name === "AbortError") throw e;
-        // Plugin unavailable (e.g. browser dev) → WebView fetch.
-        res = await fetch(url, init);
+        // Pooled path failed to start → plugin path, then WebView fetch.
+        try {
+          res = await tauriFetch(url, { ...init, connectTimeout: 10000 } as any);
+        } catch (e2: any) {
+          if (init.signal?.aborted || e2?.name === "AbortError") throw e2;
+          res = await fetch(url, init);
+        }
       }
       const retryable =
         RETRY_STATUS.has(res.status) &&
@@ -140,4 +215,22 @@ export async function withKeyRotation(
     return res;
   }
   return res as Response;
+}
+
+/** First http(s) URL in a provider curl template, with {{VARS}} filled. */
+export function urlFromCurl(curl: string | undefined, vars: Record<string, string> = {}): string | undefined {
+  const m = (curl || "").match(/https?:\/\/[^\s"'\\]+/);
+  if (!m) return undefined;
+  const u = m[0].replace(/\{\{\s*([A-Z_0-9]+)\s*\}\}/gi, (_, k) => vars[k] ?? vars[k.toLowerCase()] ?? "x");
+  try { return new URL(u).origin + "/"; } catch { return undefined; }
+}
+
+let lastWarm = 0;
+let warmUrls: string[] = [];
+/** Remember the selected providers' hosts and warm them (throttled to 20 s). */
+export function prewarmProviders(urls?: (string | undefined)[], force = false) {
+  if (urls) warmUrls = urls.filter((u): u is string => !!u);
+  if (!force && Date.now() - lastWarm < 20000) return;
+  lastWarm = Date.now();
+  prewarm(warmUrls);
 }

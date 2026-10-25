@@ -11,6 +11,7 @@ import {
 } from "@/config";
 import { getPlatform, safeLocalStorage, trackAppStart } from "@/lib";
 import { getShortcutsConfig } from "@/lib/storage";
+import { prewarmProviders, urlFromCurl } from "@/lib/functions/net";
 import {
   getCustomizableState,
   setCustomizableState,
@@ -552,6 +553,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     ...SPEECH_TO_TEXT_PROVIDERS,
     ...customSttProviders,
   ];
+
+  // 预热所选服务商的连接（启动、切换服务商、窗口重新获得焦点时）
+  useEffect(() => {
+    const ai = allAiProviders.find((p) => p.id === selectedAIProvider.provider);
+    const stt = allSttProviders.find((p) => p.id === selectedSttProvider.provider);
+    prewarmProviders(
+      [urlFromCurl(ai?.curl, selectedAIProvider.variables), urlFromCurl(stt?.curl, selectedSttProvider.variables)],
+      true
+    );
+    const onFocus = () => prewarmProviders();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAIProvider, selectedSttProvider, customAiProviders, customSttProviders]);
 
   const onSetSelectedAIProvider = ({
     provider,

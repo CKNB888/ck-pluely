@@ -170,7 +170,7 @@ pub async fn ck_http_prewarm(urls: Vec<String>) -> Vec<i64> {
             out.push(-1);
             continue;
         };
-        let origin = format!("{}://{}/", url.scheme(), url.host_str().unwrap_or(""));
+        let origin = format!("{}/", url.origin().ascii_serialization());
         let t = Instant::now();
         let ok = CLIENT.head(&origin).timeout(Duration::from_secs(5)).send().await.is_ok();
         out.push(if ok { t.elapsed().as_millis() as i64 } else { -1 });

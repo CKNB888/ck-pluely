@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { prewarmProviders } from "@/lib/functions/net";
 import { useWindowResize, useGlobalShortcuts } from ".";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -742,6 +743,7 @@ export function useSystemAudio() {
   const startCapture = useCallback(async () => {
     try {
       setError("");
+      prewarmProviders(undefined, true);
 
       const hasAccess = await invoke<boolean>("check_system_audio_access");
       if (!hasAccess) {
