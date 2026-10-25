@@ -122,6 +122,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
             notes::ck_export_notes,
+            notes::ck_check_update,
+            window::ck_move_bar_to_screen,
+            window::ck_screen_count,
             local::commands::local_status,
             local::commands::local_set_settings,
             local::commands::local_download,

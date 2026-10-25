@@ -257,3 +257,56 @@ pub fn show_dashboard_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), Strin
     }
     Ok(())
 }
+
+/// ck-pluely v2: put the floating bar at the top centre of another screen.
+/// `target`: "cursor" (screen under the mouse), "primary", or "next".
+#[tauri::command]
+pub fn ck_move_bar_to_screen(app: tauri::AppHandle, target: String) -> Result<String, String> {
+    let w = app.get_webview_window("main").ok_or("悬浮条未创建")?;
+    let monitors = w.available_monitors().map_err(|e| e.to_string())?;
+    if monitors.is_empty() {
+        return Err("没有检测到显示器".into());
+    }
+    let current = w.current_monitor().ok().flatten();
+    let same = |a: &tauri::Monitor, b: &tauri::Monitor| a.position() == b.position() && a.size() == b.size();
+    let pick = match target.as_str() {
+        "primary" => w.primary_monitor().ok().flatten(),
+        "next" => {
+            let i = current
+                .as_ref()
+                .and_then(|c| monitors.iter().position(|m| same(m, c)))
+                .unwrap_or(0);
+            monitors.get((i + 1) % monitors.len()).cloned()
+        }
+        _ => {
+            let p = app.cursor_position().map_err(|e| e.to_string())?;
+            monitors
+                .iter()
+                .find(|m| {
+                    let (mp, ms) = (m.position(), m.size());
+                    p.x >= mp.x as f64
+                        && p.y >= mp.y as f64
+                        && p.x < (mp.x + ms.width as i32) as f64
+                        && p.y < (mp.y + ms.height as i32) as f64
+                })
+                .cloned()
+        }
+    }
+    .ok_or("找不到目标显示器")?;
+    let size = w.outer_size().map_err(|e| e.to_string())?;
+    let (mp, ms) = (pick.position(), pick.size());
+    let x = mp.x + (ms.width as i32 - size.width as i32) / 2;
+    let y = mp.y + (40.0 * pick.scale_factor()) as i32;
+    w.set_position(tauri::Position::Physical(tauri::PhysicalPosition { x, y }))
+        .map_err(|e| e.to_string())?;
+    Ok(pick.name().cloned().unwrap_or_else(|| format!("{}x{}", ms.width, ms.height)))
+}
+
+/// Number of connected screens (to hide the screen picker on one monitor).
+#[tauri::command]
+pub fn ck_screen_count(app: tauri::AppHandle) -> usize {
+    app.get_webview_window("main")
+        .and_then(|w| w.available_monitors().ok())
+        .map(|m| m.len())
+        .unwrap_or(1)
+}

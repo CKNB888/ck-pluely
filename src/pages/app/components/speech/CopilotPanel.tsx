@@ -1,5 +1,8 @@
 // ck-pluely: real-time copilot controls (answer mode, preset, resume/notes).
 import { useState } from "react";
+import { CLASS_SUBJECTS, CLASS_SUBJECT_KEY } from "@/lib/copilot";
+import { safeLocalStorage } from "@/lib/storage";
+import { setSubject } from "@/lib/class-session";
 import { Button } from "@/components";
 import { PenLineIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { t } from "@/i18n";
@@ -41,6 +44,12 @@ const PRESETS = [
 
 export const CopilotPanel = (p: Props) => {
   const [showNotes, setShowNotes] = useState(false);
+  const [subject, setSubjectState] = useState(() => safeLocalStorage.getItem(CLASS_SUBJECT_KEY) || "");
+  const pickSubject = (id: string) => {
+    setSubjectState(id);
+    safeLocalStorage.setItem(CLASS_SUBJECT_KEY, id);
+    setSubject(CLASS_SUBJECTS.find((s) => s.id === id)?.label ?? "");
+  };
   const chip = (active: boolean) =>
     cn(
       "px-2.5 py-1 rounded-md text-xs border transition-colors whitespace-nowrap",
@@ -95,6 +104,23 @@ export const CopilotPanel = (p: Props) => {
           </button>
         ))}
       </div>
+      {p.copilotPreset === "class" ? (
+        <div className="flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label="学科">
+          <span className="text-xs text-muted-foreground">学科</span>
+          {CLASS_SUBJECTS.map((x) => (
+            <button
+              key={x.id || "general"}
+              type="button"
+              role="radio"
+              aria-checked={subject === x.id}
+              className={chip(subject === x.id)}
+              onClick={() => pickSubject(x.id)}
+            >
+              {x.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {p.pendingTranscript ? (
         <div className="space-y-1.5">
           <p className="text-xs text-muted-foreground line-clamp-3 break-words">

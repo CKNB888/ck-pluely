@@ -89,6 +89,23 @@ export function ThemeProvider({
     };
   }, [theme]);
 
+  // ck-pluely v2: text size, shared by every window through localStorage
+  useEffect(() => {
+    const apply = () => {
+      const v = Number(localStorage.getItem("ck_font_scale") || "100");
+      const scale = Number.isFinite(v) ? Math.min(140, Math.max(85, v)) : 100;
+      window.document.documentElement.style.fontSize = `${scale}%`;
+    };
+    apply();
+    const onStorage = (e: StorageEvent) => e.key === "ck_font_scale" && apply();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("ck-font-scale", apply);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("ck-font-scale", apply);
+    };
+  }, []);
+
   // Apply transparency globally
   useEffect(() => {
     const root = window.document.documentElement;

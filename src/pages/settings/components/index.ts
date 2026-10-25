@@ -7,3 +7,4 @@ export * from "./PrivacyCheck";
 export * from "./UiStyle";
 export * from "./FullUninstall";
 export * from "./LocalSpeech";
+export * from "./Display";

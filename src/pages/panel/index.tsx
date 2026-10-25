@@ -18,6 +18,7 @@ import {
   SunIcon,
   TypeIcon,
 } from "lucide-react";
+import { Questions } from "./Questions";
 import logo from "@/assets/logo.svg";
 import { useApp, useTheme } from "@/contexts";
 import { getAllConversations } from "@/lib/database";
@@ -27,7 +28,7 @@ import { DEFAULT_SHORTCUT_ACTIONS } from "@/config";
 import { formatHotkey } from "@/lib/onboarding";
 import { getPlatform } from "@/lib/platform";
 
-type Tab = "home" | "history" | "status";
+type Tab = "home" | "questions" | "history" | "status";
 
 interface PrivacyStatus {
   os: string;
@@ -153,6 +154,7 @@ const PanelPage = () => {
 
   const model = selectedAIProvider?.variables?.model || selectedAIProvider?.variables?.MODEL;
   const protectedCount = privacy?.windows.filter((w) => w.method !== "none").length ?? 0;
+  const allProtected = !!privacy && privacy.windows.length > 0 && protectedCount === privacy.windows.length;
 
   return (
     <div className="ck-panel ck-enter flex h-screen w-screen flex-col overflow-hidden rounded-xl border bg-background text-foreground">
@@ -160,6 +162,19 @@ const PanelPage = () => {
         <div className="flex items-center gap-2">
           <img src={logo} alt="" className="size-[22px] rounded-[6px]" />
           <span className="text-[15px] font-semibold tracking-tight">CK Pluely</span>
+          {privacy ? (
+            <button
+              type="button"
+              onClick={() => setTab("status")}
+              title="共享屏幕时的隐私状态"
+              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                allProtected ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+              }`}
+            >
+              <ShieldCheckIcon className="size-3" />
+              {allProtected ? "共享不可见" : "部分可见"}
+            </button>
+          ) : null}
         </div>
         <div className="flex items-center gap-0.5">
           <IconButton label="一键隐藏全部窗口" onClick={() => act("hide_all")}>
@@ -183,10 +198,11 @@ const PanelPage = () => {
         </div>
       </header>
 
-      <nav className="mx-4 grid grid-cols-3 rounded-lg bg-muted p-0.5 text-[12px]">
+      <nav className="mx-4 grid grid-cols-4 rounded-lg bg-muted p-0.5 text-[12px]">
         {(
           [
             ["home", "常用"],
+            ["questions", "提问"],
             ["history", "记录"],
             ["status", "状态"],
           ] as [Tab, string][]
@@ -194,6 +210,8 @@ const PanelPage = () => {
           <button
             key={id}
             type="button"
+            role="tab"
+            aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={`rounded-md py-1 font-medium transition-colors ${
               tab === id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
@@ -271,6 +289,8 @@ const PanelPage = () => {
             ) : null}
           </div>
         ) : null}
+
+        {tab === "questions" ? <Questions /> : null}
 
         {tab === "history" ? (
           recent.length ? (

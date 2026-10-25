@@ -8,6 +8,7 @@ import {
   UiStyle,
   FullUninstall,
   LocalSpeech,
+  Display,
 } from "./components";
 import { PageLayout } from "@/layouts";
 
@@ -23,6 +24,8 @@ const Settings = () => {
 
       {/* Theme */}
       <Theme />
+
+      <Display />
 
       {/* Autostart Toggle */}
       <AutostartToggle />
