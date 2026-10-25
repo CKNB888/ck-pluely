@@ -202,9 +202,10 @@ mod tests {
             .send()
             .await
             .unwrap();
+        assert!(r.status().is_success(), "status {}", r.status());
         let mut first = 0;
         while let Some(c) = r.chunk().await.unwrap() {
-            if first == 0 && String::from_utf8_lossy(&c).contains("\"content\":\"") {
+            if first == 0 && !c.is_empty() && String::from_utf8_lossy(&c).contains("\"content\"") {
                 first = t.elapsed().as_millis();
             }
         }
@@ -219,7 +220,7 @@ mod tests {
         let ks = keys();
         let Some(key) = ks.first() else { return };
         let body = serde_json::json!({
-            "model": "llama-3.1-8b-instant", "stream": true, "max_tokens": 20,
+            "model": "openai/gpt-oss-20b", "stream": true, "max_tokens": 64, "reasoning_effort": "low",
             "messages": [{"role":"user","content":"用一句话解释什么是导数"}]
         });
         let mut fresh = Vec::new();
