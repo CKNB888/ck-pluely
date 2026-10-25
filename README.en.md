@@ -2,36 +2,34 @@
 
 [简体中文](./README.md) | **English**
 
-A real-time assistant for interviews, classes and meetings: it captures the other side's audio, transcribes it, detects questions and drafts short answers. Its windows use content protection so they stay hidden during screen sharing (test with your own meeting app first).
+A real-time assistant for interviews, classroom Q&A and meetings: it captures the other side's audio, transcribes it live, detects questions and answers briefly, conclusion first. Every window is content-protected so screen sharing does not show it. Fork of Pluely v0.1.9 (Srikanth Nani, GPL-3.0), maintained by CKNB — <https://github.com/CKNB888/ck-pluely>. Current version **v2.1.0** (macOS, Windows, Linux).
 
-Fork of Pluely v0.1.9 by Srikanth Nani (GPL-3.0), maintained by CKNB — <https://github.com/CKNB888/ck-pluely>. Bundle id `io.github.cknb6.ckpluely`; installs alongside upstream.
+## Features
+- Menu-bar / tray panel (Home, Questions, Notes, Status) or floating bar
+- Live transcription with Groq whisper (key rotation, rate-limit fallback) or on-device SenseVoice
+- Voiceprint: your own speech never triggers answers
+- Classroom mode: bold conclusion line, at most 3 points, ==highlights==, 10 subject presets, LaTeX and code
+- Question list with export; screenshot, voice and text questions; many chat providers
+- **v2.1.0** pooled HTTP/2 client with prewarm (Groq median time-to-first-token 863 → 397 ms), per-mode output caps and low reasoning effort (output tokens per answer 410 → 184), usage badge
+- **v2.1.0** backup and restore: `.ckbak` with manifest and SHA-256 checksums, diff preview, safety backup and rollback, optional password-encrypted API keys, automatic backup before upgrades
 
-## New in v2.0.0
+## Install / upgrade
+Download from [Releases](https://github.com/CKNB888/ck-pluely/releases): macOS `.dmg`/`.pkg` (`xattr -cr "/Applications/CK Pluely.app"` on first run), Windows `.exe`/`.msi`, Linux `.deb`/`.rpm`/`.AppImage`. Upgrades install over the old version; v2.1.0+ makes a pre-upgrade backup automatically (last 5 kept).
 
-- **Menu bar / tray panel** with four tabs (Home, Questions, Notes, Status) and a privacy badge in the header. The floating bar is still available in Settings.
-- **Offline speech recognition**: SenseVoice small model (about 240 MB, downloaded on demand). Used automatically when offline or rate limited; online recognition stays the first choice. Settings show whether your CPU, memory and disk are a good fit.
-- **Voiceprint**: optionally enroll your voice during onboarding (about 28 MB model). Your own speech no longer triggers answers and is labelled "Me".
-- **Class mode**: conclusion first, at most three points, under 150 characters; formulas rendered with LaTeX, code highlighted; optional subject hints.
-- **Question list**: questions heard in class or an interview are collected, can be marked answered, copied, and exported as Markdown notes or plain text.
-- **Display**: four font sizes; move the panel between monitors.
-- **Update check** against this repository (manual, never auto-downloads).
-- **Full uninstall** in Settings, in the Windows uninstaller and Linux package removal; a script for macOS.
+## Backup / uninstall
+Settings → Backup & restore. Uninstall: Settings → Full uninstall; Windows uninstaller; `apt purge` / `dnf remove`; macOS `scripts/uninstall-macos.command`.
 
-## Screenshots
+## Hotkeys
+Toggle `Ctrl+Alt+\` (`⌘⌥\`) · Screenshot `Ctrl+Alt+Shift+S` · Voice `Ctrl+Alt+Shift+R` · System audio `Ctrl+Alt+Shift+M` · Hide all `Ctrl+Alt+Shift+X` (`⌘⌥⇧H`) · Dashboard `Ctrl+Alt+Shift+D` · Focus input `Ctrl+Alt+Shift+I` · Move `Ctrl+Alt+Shift+arrows`.
 
-| | |
-|---|---|
-| <img src="docs/screenshots/v2/panel-home.webp" width="400"> | <img src="docs/screenshots/v2/panel-questions.webp" width="400"> |
-| <img src="docs/screenshots/v2/settings-local-speech.webp" width="400"> | <img src="docs/screenshots/v2/onboarding-voiceprint.webp" width="400"> |
+## Privacy
+Audio goes only to the speech provider you configure (or nowhere with local STT); screenshots only when you ask; history, voiceprint stay local; keys in the OS keychain; no telemetry or auto-update.
 
-## Install
+## Changelog
+See [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md) (Chinese), v1.0.0 → v2.1.0.
 
-Download from [Releases](https://github.com/CKNB888/ck-pluely/releases): macOS `.dmg`/`.pkg` (`aarch64` or `x64`), Windows `-setup.exe`/`.msi`, Linux `.deb`/`.rpm`/`.AppImage`. Builds are not notarized: on macOS run `xattr -cr "/Applications/CK Pluely.app"` once.
-
-## Uninstall
-
-Settings → Full uninstall; or the Windows uninstaller ("delete app data"); `apt purge` / `dnf remove` on Linux; `scripts/uninstall-macos.command` on macOS.
+## Sponsorship & Ads
+WeChat **1837620622**.
 
 ## License
-
-GPL-3.0, see [LICENSE](./LICENSE). Upstream © Srikanth Nani; modifications © CKNB.
+GPL-3.0.
