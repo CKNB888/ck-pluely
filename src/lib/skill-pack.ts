@@ -18,8 +18,7 @@ export const SKILL_PACK_LIMITS = {
 
 const clean = (s: unknown, max: number) =>
   typeof s === "string"
-    ? // eslint-disable-next-line no-control-regex
-      s.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max)
+    ? s.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max)
     : "";
 
 function parseSkillMd(text: string, fallbackName: string): SkillPrompt[] {

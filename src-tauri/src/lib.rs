@@ -77,6 +77,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_keychain::init())
         .plugin(tauri_plugin_shell::init()) // Add shell plugin
@@ -121,6 +122,7 @@ pub fn run() {
             meeting::ck_meeting_status,
             notes::ck_export_notes,
             notes::ck_check_update,
+            shortcuts::ck_click_through_status,
             net::ck_http_fetch,
             net::ck_http_body,
             net::ck_http_abort,

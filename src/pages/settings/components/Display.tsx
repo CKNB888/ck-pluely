@@ -1,8 +1,11 @@
 // ck-pluely v2: text size, which screen the floating bar uses, update check.
+import { check as checkSigned, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+import { getAutoUpdate, isBusy, setAutoUpdate } from "@/lib/auto-update";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Button, Header } from "@/components";
+import { Button, Header, Switch } from "@/components";
 
 const SCALES = [90, 100, 115, 130];
 
@@ -39,17 +42,47 @@ export const Display = () => {
     }
   };
 
+  const [autoUpd, setAutoUpd] = useState(getAutoUpdate());
+  const [signed, setSigned] = useState<Update | null>(null);
   const check = async () => {
     setChecking(true);
     setUpdMsg("");
+    setSigned(null);
     try {
-      const u = await invoke<UpdateInfo>("ck_check_update");
-      setUpd(u);
-      if (!u.newer) setUpdMsg(`已是最新版本（${u.version}）`);
-    } catch (e) {
-      setUpdMsg(String(e));
+      // 先用签名的应用内更新；拿不到 latest.json 时退回 GitHub 版本号比对
+      const found = await checkSigned();
+      if (found) {
+        setSigned(found);
+        setUpdMsg(`发现新版本 ${found.version}`);
+      } else {
+        const u = await invoke<UpdateInfo>("ck_check_update");
+        setUpd(u);
+        if (!u.newer) setUpdMsg(`已是最新版本（${u.version}）`);
+      }
+    } catch {
+      try {
+        const u = await invoke<UpdateInfo>("ck_check_update");
+        setUpd(u);
+        if (!u.newer) setUpdMsg(`已是最新版本（${u.version}）`);
+      } catch (e) {
+        setUpdMsg(String(e));
+      }
     }
     setChecking(false);
+  };
+  const install = async () => {
+    if (!signed) return;
+    if (await isBusy()) {
+      setUpdMsg("正在监听 / 上课中，下课后再更新（更新需要重启）");
+      return;
+    }
+    setUpdMsg("正在下载更新…记录和设置会保留");
+    try {
+      await signed.downloadAndInstall();
+      await relaunch();
+    } catch (e) {
+      setUpdMsg(`更新失败：${String(e)}`);
+    }
   };
 
   const seg = (active: boolean) =>
@@ -84,11 +117,27 @@ export const Display = () => {
           <p className="text-[11px] text-muted-foreground">投影时可把悬浮条放在只有你能看到的那块屏幕上。</p>
         </div>
       ) : null}
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[13px]">自动检查更新（启动时和每 6 小时，只提示不打扰）</span>
+        <Switch
+          checked={autoUpd}
+          onCheckedChange={(v) => {
+            setAutoUpdate(v);
+            setAutoUpd(v);
+          }}
+          aria-label="自动检查更新"
+          data-testid="auto-update"
+        />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-[13px]">版本更新</span>
         <div className="flex items-center gap-2">
           {updMsg ? <span className="text-[12px] text-muted-foreground" aria-live="polite">{updMsg}</span> : null}
-          {upd?.newer ? (
+          {signed ? (
+            <Button size="sm" onClick={install} data-testid="update-install">
+              安装 {signed.version} 并重启
+            </Button>
+          ) : upd?.newer ? (
             <Button size="sm" onClick={() => openUrl(upd.url).catch(() => {})}>
               下载 {upd.version}
             </Button>

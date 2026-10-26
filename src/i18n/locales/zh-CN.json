@@ -236,6 +236,8 @@
   "Help & Keyboard Shortcuts": "帮助与快捷键",
   "Hidden": "已隐藏",
   "Hide All Windows": "一键隐藏全部窗口",
+  "Click-through": "点击穿透",
+  "Let mouse clicks pass through the overlay to the meeting app (press again to restore)": "鼠标直接点到下面的会议软件（再按一次恢复）",
   "Hide Icon from Dock/Taskbar": "在程序坞/任务栏中隐藏图标",
   "Hide all windows now": "立即隐藏全部窗口",
   "Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.": "一键隐藏快捷键（默认 Ctrl+Alt+Shift+X / Cmd+Option+Shift+H）立刻隐藏全部 Pluely 窗口，再按一次恢复。",

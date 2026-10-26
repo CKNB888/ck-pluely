@@ -33,6 +33,16 @@ export const DEFAULT_SHORTCUT_ACTIONS: ShortcutAction[] = [
     },
   },
   {
+    id: "click_through",
+    name: "Click-through",
+    description: "Let mouse clicks pass through the overlay to the meeting app (press again to restore)",
+    defaultKey: {
+      macos: "cmd+alt+shift+t",
+      windows: "ctrl+alt+shift+t",
+      linux: "ctrl+alt+shift+t",
+    },
+  },
+  {
     id: "focus_input",
     name: "Refocus Input Box",
     description: "Bring Pluely forward and place the cursor in the input area",

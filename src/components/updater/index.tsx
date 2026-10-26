@@ -16,8 +16,16 @@ import {
   Markdown,
 } from "@/components";
 import { check, Update } from "@tauri-apps/plugin-updater";
+import { listen } from "@tauri-apps/api/event";
+import {
+  FIRST_CHECK_DELAY_MS,
+  UPDATE_INTERVAL_MS,
+  getAutoUpdate,
+  isBusy,
+} from "@/lib/auto-update";
 
-const CK_UPDATER_ENABLED = false;
+// ck-pluely v2.1.1：签名的 latest.json 由 CKNB888/ck-pluely 的 Release 工作流生成。
+const CK_UPDATER_ENABLED = true;
 import { relaunch } from "@tauri-apps/plugin-process";
 import { useWindowResize } from "@/hooks";
 
@@ -77,8 +85,16 @@ export const Updater = () => {
     }
   };
 
-  const downloadAndInstall = async () => {
+  const [busyWarn, setBusyWarn] = useState(false);
+
+  const downloadAndInstall = async (force = false) => {
     if (!update) return;
+    // 监听 / 会议中不安装（安装后要重启），除非老师明确点「仍然更新」
+    if (!force && (await isBusy())) {
+      setBusyWarn(true);
+      return;
+    }
+    setBusyWarn(false);
 
     try {
       setUpdateState("downloading");
@@ -129,9 +145,19 @@ export const Updater = () => {
     }
   };
 
-  // Check for updates on component mount
+  // 启动 1 分钟后检查一次，之后每 6 小时；设置里可关闭；设置页「检查更新」也会触发
   useEffect(() => {
-    checkForUpdates();
+    const run = () => {
+      if (getAutoUpdate()) void checkForUpdates();
+    };
+    const first = setTimeout(run, FIRST_CHECK_DELAY_MS);
+    const every = setInterval(run, UPDATE_INTERVAL_MS);
+    const un = listen("ck-check-update", () => void checkForUpdates());
+    return () => {
+      clearTimeout(first);
+      clearInterval(every);
+      void un.then((f) => f());
+    };
   }, []);
 
   // Handle window resizing when popover opens/closes
@@ -185,7 +211,7 @@ export const Updater = () => {
   };
 
   const getButtonOnClick = () => {
-    return updateState === "error" ? checkForUpdates : downloadAndInstall;
+    return updateState === "error" ? checkForUpdates : () => downloadAndInstall();
   };
 
   // Handle popover open/close with manual control
@@ -282,6 +308,14 @@ export const Updater = () => {
             {getButtonContent()}
           </Button>
 
+          {busyWarn ? (
+            <div className="space-y-2 text-center text-xs text-muted-foreground">
+              <p>正在监听 / 上课中。更新需要重启，建议下课后再装，记录和设置都会保留。</p>
+              <Button size="sm" variant="outline" onClick={() => downloadAndInstall(true)}>
+                仍然现在更新
+              </Button>
+            </div>
+          ) : null}
           <div className="text-center">
             <p className="text-xs text-muted-foreground">
               {t("Having trouble downloading?")}{" "}

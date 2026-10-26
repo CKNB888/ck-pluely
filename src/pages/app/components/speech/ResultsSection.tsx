@@ -1,3 +1,4 @@
+import { GlanceAnswer } from "@/components/Markdown/GlanceAnswer";
 import { ChatConversation } from "@/types";
 import { Markdown, Switch, CopyButton, TokenUsage } from "@/components";
 import { BotIcon, HeadphonesIcon, Loader2, PenLineIcon } from "lucide-react";
@@ -79,7 +80,7 @@ export const ResultsSection = ({
                 </div>
               ) : (
                 <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <Markdown>{lastAIResponse}</Markdown>
+                  <GlanceAnswer isStreaming={isAIProcessing}>{lastAIResponse}</GlanceAnswer>
                   {isAIProcessing && (
                     <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle" />
                   )}
@@ -111,7 +112,7 @@ export const ResultsSection = ({
                 </div>
               ) : (
                 <div className="prose prose-sm max-w-none dark:prose-invert text-sm">
-                  <Markdown>{lastAIResponse}</Markdown>
+                  <GlanceAnswer isStreaming={isAIProcessing}>{lastAIResponse}</GlanceAnswer>
                   {isAIProcessing && (
                     <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle" />
                   )}

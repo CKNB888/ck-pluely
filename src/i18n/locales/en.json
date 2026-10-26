@@ -236,6 +236,8 @@
   "Help & Keyboard Shortcuts": "Help & Keyboard Shortcuts",
   "Hidden": "Hidden",
   "Hide All Windows": "Hide All Windows",
+  "Click-through": "Click-through",
+  "Let mouse clicks pass through the overlay to the meeting app (press again to restore)": "Let mouse clicks pass through the overlay to the meeting app (press again to restore)",
   "Hide Icon from Dock/Taskbar": "Hide Icon from Dock/Taskbar",
   "Hide all windows now": "Hide all windows now",
   "Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.": "Hide-all hotkey (default Ctrl+Alt+Shift+X / Cmd+Option+Shift+H) hides every Pluely window instantly; press again to restore.",

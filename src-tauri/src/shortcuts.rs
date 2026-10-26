@@ -103,6 +103,7 @@ pub fn handle_shortcut_action<R: Runtime>(app: &AppHandle<R>, action_id: &str) {
         "toggle_window" => handle_toggle_window(app),
         "hide_all" => crate::privacy::toggle_hide_all(app),
         "focus_input" => handle_focus_input(app),
+        "click_through" => toggle_click_through(app),
         "move_window_up" => handle_move_window(app, "up"),
         "move_window_down" => handle_move_window(app, "down"),
         "move_window_left" => handle_move_window(app, "left"),
@@ -678,4 +679,23 @@ fn handle_move_window<R: Runtime>(app: &AppHandle<R>, direction: &str) {
 #[tauri::command]
 pub fn exit_app(app_handle: tauri::AppHandle) {
     app_handle.exit(0);
+}
+
+static CLICK_THROUGH: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// v2.1.1：悬浮条点击穿透（鼠标直接点到下面的会议软件），再按一次恢复。
+pub fn toggle_click_through<R: Runtime>(app: &AppHandle<R>) {
+    use std::sync::atomic::Ordering;
+    let on = !CLICK_THROUGH.load(Ordering::SeqCst);
+    if let Some(w) = app.get_webview_window("main") {
+        if w.set_ignore_cursor_events(on).is_ok() {
+            CLICK_THROUGH.store(on, Ordering::SeqCst);
+            let _ = app.emit("ck-click-through", on);
+        }
+    }
+}
+
+#[tauri::command]
+pub fn ck_click_through_status() -> bool {
+    CLICK_THROUGH.load(std::sync::atomic::Ordering::SeqCst)
 }

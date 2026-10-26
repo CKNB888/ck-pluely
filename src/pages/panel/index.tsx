@@ -376,6 +376,7 @@ const PanelPage = () => {
               <dl className="mt-2 space-y-1 text-[12px]">
                 {[
                   ["一键隐藏", "hide_all"],
+                  ["点击穿透", "click_through"],
                   ["显示悬浮条", "toggle_window"],
                   ["打开控制台", "toggle_dashboard"],
                 ].map(([l, id]) => (

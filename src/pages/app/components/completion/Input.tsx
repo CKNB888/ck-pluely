@@ -1,3 +1,4 @@
+import { GlanceAnswer } from "@/components/Markdown/GlanceAnswer";
 import { Loader2, XIcon } from "lucide-react";
 import {
   Popover,
@@ -170,7 +171,7 @@ export const Input = ({
                   <span className="text-sm">{t("Generating response...")}</span>
                 </div>
               )}
-              {response && <Markdown>{response}</Markdown>}
+              {response && <GlanceAnswer isStreaming={isLoading}>{response}</GlanceAnswer>}
 
               {/* Conversation History - Separate scroll, no auto-scroll */}
               {keepEngaged && conversationHistory.length > 1 && (

@@ -68,11 +68,11 @@ jobs:
 
       - run: npm ci
 
-      # Updater artifacts need the maintainer's signing key, so they are
-      # disabled here; this keeps the workflow working on forks and PRs.
+      # Updater artifacts need the maintainer's signing key, which PRs from
+      # forks don't get: switch them off for this build only.
       - uses: tauri-apps/tauri-action@v0
         with:
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} --config '{"bundle":{"createUpdaterArtifacts":false}}'
 
       - uses: actions/upload-artifact@v4
         with:

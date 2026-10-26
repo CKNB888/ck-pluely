@@ -12,6 +12,8 @@
   ],
   "permissions": [
     "core:default",
+    "updater:default",
+    "process:allow-restart",
     "opener:default",
     "dialog:allow-save",
     "dialog:allow-open",
