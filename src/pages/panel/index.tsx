@@ -1,11 +1,10 @@
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   AudioLinesIcon,
-  ChevronRightIcon,
   EyeOffIcon,
   GithubIcon,
   KeyboardIcon,
@@ -20,11 +19,12 @@ import {
   TypeIcon,
 } from "lucide-react";
 import { Questions } from "./Questions";
+import { ModelPicker } from "./ModelPicker";
 import logo from "@/assets/logo.svg";
-import { useApp, useTheme } from "@/contexts";
+import { useTheme } from "@/contexts";
 import { getAllConversations } from "@/lib/database";
 import type { ChatConversation } from "@/types";
-import { providerLabel, relativeTime, REPO_URL, setUiStyle } from "@/lib/ui-style";
+import { PENDING_NAV_KEY, relativeTime, REPO_URL, setUiStyle } from "@/lib/ui-style";
 import { DEFAULT_SHORTCUT_ACTIONS } from "@/config";
 import { formatHotkey } from "@/lib/onboarding";
 import { getPlatform } from "@/lib/platform";
@@ -40,6 +40,13 @@ interface PrivacyStatus {
 }
 
 const act = (action: string) => invoke("ck_panel_action", { action }).catch(() => {});
+
+/** Open the dashboard on a given page (settings, a conversation…). */
+export const goto = (path: string) => {
+  localStorage.setItem(PENDING_NAV_KEY, path);
+  void emit("ck-navigate", path).catch(() => {});
+  act("dashboard");
+};
 
 const IconButton = ({
   label,
@@ -83,20 +90,6 @@ const Tile = ({
   </button>
 );
 
-const Row = ({ label, value, onClick }: { label: string; value: string; onClick?: () => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-[13px] transition-colors hover:bg-accent/60"
-  >
-    <span className="text-muted-foreground">{label}</span>
-    <span className="flex min-w-0 items-center gap-1 truncate font-medium">
-      <span className="truncate">{value}</span>
-      {onClick ? <ChevronRightIcon className="size-3.5 shrink-0 text-muted-foreground" /> : null}
-    </span>
-  </button>
-);
-
 const methodText: Record<string, string> = {
   exclude: "共享画面中不可见",
   monitor: "共享画面中显示为黑块",
@@ -118,7 +111,6 @@ const hotkey = (id: string) => {
 };
 
 const PanelPage = () => {
-  const { selectedAIProvider, selectedSttProvider } = useApp();
   const { theme, setTheme } = useTheme();
   const [tab, setTab] = useState<Tab>("home");
   const [listening, setListening] = useState(false);
@@ -170,7 +162,6 @@ const PanelPage = () => {
     theme === "dark" ||
     (theme === "system" && window.matchMedia?.("(prefers-color-scheme: dark)").matches);
 
-  const model = selectedAIProvider?.variables?.model || selectedAIProvider?.variables?.MODEL;
   const protectedCount = privacy?.windows.filter((w) => w.method !== "none").length ?? 0;
   const allProtected = !!privacy && privacy.windows.length > 0 && protectedCount === privacy.windows.length;
 
@@ -304,12 +295,8 @@ const PanelPage = () => {
             </div>
 
             <section className="overflow-hidden rounded-lg border bg-card divide-y">
-              <Row
-                label="对话模型"
-                value={`${providerLabel(selectedAIProvider?.provider)}${model ? ` · ${model}` : ""}`}
-                onClick={() => act("dashboard")}
-              />
-              <Row label="语音识别" value={providerLabel(selectedSttProvider?.provider)} onClick={() => act("dashboard")} />
+              <ModelPicker kind="ai" onMore={() => goto("/dev-space")} />
+              <ModelPicker kind="stt" onMore={() => goto("/dev-space")} />
             </section>
 
             {recent[0] ? (
@@ -320,7 +307,7 @@ const PanelPage = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => act("dashboard")}
+                  onClick={() => goto(`/chats/view/${recent[0].id}`)}
                   className="w-full rounded-lg border bg-card px-3 py-2.5 text-left transition-colors hover:bg-accent/60"
                 >
                   <div className="truncate text-[13px] font-medium">{recent[0].title || "未命名对话"}</div>
@@ -342,7 +329,7 @@ const PanelPage = () => {
                 <li key={c.id}>
                   <button
                     type="button"
-                    onClick={() => act("dashboard")}
+                    onClick={() => goto(`/chats/view/${c.id}`)}
                     className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-accent/60"
                   >
                     <span className="min-w-0">
@@ -406,7 +393,7 @@ const PanelPage = () => {
       <footer className="flex items-center justify-between border-t px-2 py-1.5 text-[12px]">
         <button
           type="button"
-          onClick={() => act("dashboard")}
+          onClick={() => goto("/settings")}
           className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
           <SlidersHorizontalIcon className="size-3.5" />

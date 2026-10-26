@@ -49,3 +49,6 @@ export const relativeTime = (ts: number, now = Date.now()) => {
   const t = new Date(ts);
   return `${t.getMonth() + 1}月${t.getDate()}日`;
 };
+
+/** ck-pluely v2.1.1: page the dashboard should open next (set by the menu-bar panel). */
+export const PENDING_NAV_KEY = "ck_pending_nav";

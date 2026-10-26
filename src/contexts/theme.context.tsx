@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { STORAGE_KEYS } from "@/config/";
+import { emit, listen } from "@tauri-apps/api/event";
 
 type Theme = "dark" | "light" | "system";
 
@@ -53,7 +54,14 @@ export function ThemeProvider({
     };
 
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    // ck-pluely v2.1.1: theme changed in another window (e.g. the menu-bar panel).
+    const un = listen<string>("ck-theme-changed", (e) => {
+      if (e.payload === "dark" || e.payload === "light" || e.payload === "system") setTheme(e.payload);
+    });
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      un.then((f) => f()).catch(() => {});
+    };
   }, [storageKey]);
 
   useEffect(() => {
@@ -132,6 +140,7 @@ export function ThemeProvider({
     setTheme: (newTheme: Theme) => {
       localStorage.setItem(storageKey, newTheme);
       setTheme(newTheme);
+      void emit("ck-theme-changed", newTheme).catch(() => {});
     },
     isSystemThemeDark,
     transparency,

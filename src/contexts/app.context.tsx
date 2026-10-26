@@ -12,6 +12,9 @@ import {
 import { getPlatform, safeLocalStorage, trackAppStart } from "@/lib";
 import { getShortcutsConfig } from "@/lib/storage";
 import { prewarmProviders, urlFromCurl } from "@/lib/functions/net";
+import { recallProvider, rememberProvider } from "@/lib/provider-memory";
+import { emit } from "@tauri-apps/api/event";
+let notifyTimer: ReturnType<typeof setTimeout> | undefined;
 import {
   getCustomizableState,
   setCustomizableState,
@@ -163,7 +166,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const getActiveLicenseStatus = async () => {
     const response: { is_active: boolean; is_dev_license: boolean } =
       await invoke("validate_license_api");
-    setHasActiveLicense(response.is_active);
+    setHasActiveLicense(response?.is_active ?? false);
 
     if (response?.is_dev_license) {
       setPluelyApiEnabled(false);
@@ -171,7 +174,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     // Check if the auto configs are enabled
     const autoConfigsEnabled = localStorage.getItem("auto-configs-enabled");
-    if (response.is_active && !autoConfigsEnabled) {
+    if (response?.is_active && !autoConfigsEnabled) {
       setScreenshotConfiguration({
         mode: "auto",
         autoPrompt: "Analyze the screenshot and provide insights",
@@ -198,6 +201,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     syncLicenseState();
   }, [localFeaturesUnlocked]);
+
+  const notifyOtherWindows = () => {
+    // Give the keychain/localStorage save a moment, then tell other windows to reload.
+    clearTimeout(notifyTimer);
+    notifyTimer = setTimeout(() => {
+      void emit("ck-settings-changed", { from: getCurrentWindow().label }).catch(() => {});
+    }, 400);
+  };
 
   // Function to load AI, STT, system prompt and screenshot config data from storage
   const loadData = () => {
@@ -457,6 +468,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // ck-pluely v2.1.1: the menu-bar panel, the bar and the dashboard are separate
+  // webviews; a provider/model change in one is broadcast so the next request
+  // in every window uses it (storage events do not cross WebView windows reliably).
+  useEffect(() => {
+    const un = listen<{ from: string }>("ck-settings-changed", (e) => {
+      if (e.payload?.from !== getCurrentWindow().label) setTimeout(loadData, 300);
+    });
+    return () => {
+      un.then((f) => f()).catch(() => {});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Listen to storage events for real-time sync (e.g., multi-tab)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -523,6 +547,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Sync selected AI to localStorage
   useEffect(() => {
     if (selectedAIProvider.provider) {
+      rememberProvider("ai", selectedAIProvider.provider, selectedAIProvider.variables);
       void saveSelectedWithSecrets(
         "ai",
         STORAGE_KEYS.SELECTED_AI_PROVIDER,
@@ -534,6 +559,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // Sync selected STT to localStorage
   useEffect(() => {
     if (selectedSttProvider.provider) {
+      rememberProvider("stt", selectedSttProvider.provider, selectedSttProvider.variables);
       void saveSelectedWithSecrets(
         "stt",
         STORAGE_KEYS.SELECTED_STT_PROVIDER,
@@ -597,6 +623,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       provider,
       variables,
     }));
+    // Switching to a provider set up before: bring back its model and keys.
+    if (provider && Object.keys(variables || {}).length === 0) {
+      void recallProvider("ai", provider).then((v) => {
+        if (Object.keys(v).length)
+          setSelectedAIProvider((prev) => (prev.provider === provider ? { ...prev, variables: { ...v, ...prev.variables } } : prev));
+      });
+    }
+    notifyOtherWindows();
   };
 
   // Setter for selected STT with validation
@@ -613,6 +647,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
 
     setSelectedSttProvider((prev) => ({ ...prev, provider, variables }));
+    if (provider && Object.keys(variables || {}).length === 0) {
+      void recallProvider("stt", provider).then((v) => {
+        if (Object.keys(v).length)
+          setSelectedSttProvider((prev) => (prev.provider === provider ? { ...prev, variables: { ...v, ...prev.variables } } : prev));
+      });
+    }
+    notifyOtherWindows();
   };
 
   // Toggle handlers

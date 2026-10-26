@@ -1,10 +1,29 @@
 import { Sidebar } from "@/components";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { listen } from "@tauri-apps/api/event";
+import { PENDING_NAV_KEY } from "@/lib/ui-style";
 import { ONBOARDING_DONE_KEY } from "@/lib/onboarding";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorLayout } from "./ErrorLayout";
 
 export const DashboardLayout = () => {
+  const navigate = useNavigate();
+  // ck-pluely v2.1.1: the menu-bar panel opens a specific page / conversation here.
+  useEffect(() => {
+    const go = () => {
+      const p = localStorage.getItem(PENDING_NAV_KEY);
+      if (p) {
+        localStorage.removeItem(PENDING_NAV_KEY);
+        navigate(p);
+      }
+    };
+    go();
+    const un = listen("ck-navigate", go);
+    return () => {
+      un.then((f) => f()).catch(() => {});
+    };
+  }, [navigate]);
   // 首次启动：先走新手引导
   if (!localStorage.getItem(ONBOARDING_DONE_KEY)) {
     return <Navigate to="/onboarding" replace />;

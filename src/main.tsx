@@ -25,6 +25,15 @@ async function preUpgradeBackup() {
 const currentWindow = getCurrentWindow();
 const windowLabel = currentWindow.label;
 
+// ck-pluely v2.1.1: the WebView's right-click menu is a native menu that screen
+// sharing CAN see. Turn it off in the panel and the bar; the dashboard keeps it
+// only inside text fields (copy / paste).
+window.addEventListener("contextmenu", (e) => {
+  const t = e.target as HTMLElement | null;
+  const editable = !!t?.closest?.("input, textarea, [contenteditable=true]");
+  if (windowLabel !== "dashboard" || !editable) e.preventDefault();
+});
+
 // Render different components based on window label
 if (windowLabel.startsWith("capture-overlay-")) {
   const monitorIndex = parseInt(windowLabel.split("-")[2], 10) || 0;

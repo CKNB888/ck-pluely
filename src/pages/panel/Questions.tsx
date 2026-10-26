@@ -22,6 +22,8 @@ export const Questions = () => {
   const [msg, setMsg] = useState("");
   const [saved, setSaved] = useState("");
   const [copied, setCopied] = useState("");
+  // Inline confirm: a native confirm() dialog is not capture-protected and would blur-hide the panel.
+  const [confirmNew, setConfirmNew] = useState(false);
 
   useEffect(() => {
     let un: (() => void) | undefined;
@@ -124,16 +126,21 @@ export const Questions = () => {
         <button
           type="button"
           className={btn}
+          data-testid="new-class"
           onClick={() => {
-            if (!s.entries.length || window.confirm("开始新的一节课？当前记录会被清空，请先导出。")) {
+            if (!s.entries.length || confirmNew) {
               newSession(s.subject);
               setSaved("");
               setMsg("");
+              setConfirmNew(false);
+            } else {
+              setConfirmNew(true);
+              setMsg("当前记录会被清空（请先导出），再点一次「确认清空」开始新的一节课。");
             }
           }}
         >
           <PlusIcon />
-          新的一节课
+          {confirmNew ? "确认清空" : "新的一节课"}
         </button>
       </div>
       {msg ? (
