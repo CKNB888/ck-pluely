@@ -6,7 +6,23 @@ import {
   wavStats,
   isSilentClip,
 } from "@/lib/functions/stt-post";
-import { splitApiKeys, maskKey, withKeyRotation, retryAfterMs } from "@/lib/functions/net";
+import {
+  splitApiKeys,
+  maskKey,
+  withKeyRotation,
+  retryAfterMs,
+  resetKeyState,
+  coolingKeys,
+  setRoundRobin,
+  cooldownMs,
+} from "@/lib/functions/net";
+
+const mem = new Map<string, string>();
+(globalThis as { localStorage?: unknown }).localStorage ??= {
+  getItem: (k: string) => mem.get(k) ?? null,
+  setItem: (k: string, v: string) => void mem.set(k, v),
+  removeItem: (k: string) => void mem.delete(k),
+};
 
 vi.mock("@tauri-apps/plugin-http", () => ({ fetch: vi.fn() }));
 
@@ -78,6 +94,33 @@ describe("multiple API keys", () => {
   it("returns the last error when every key fails", async () => {
     const r = await withKeyRotation("u", "x,y", async () => new Response("", { status: 429 }));
     expect(r.status).toBe(429);
+  });
+  it("rests a failing key and skips it while others work", async () => {
+    resetKeyState();
+    let t = 1_000_000;
+    const seen: string[] = [];
+    const run = async (k: string) => {
+      seen.push(k);
+      return new Response("", { status: k === "a" ? 429 : 200 });
+    };
+    await withKeyRotation("c", "a,b", run, () => t);
+    expect(seen).toEqual(["a", "b"]);
+    expect(coolingKeys("c", t)).toEqual(["a"]);
+    seen.length = 0;
+    setRoundRobin(true);
+    await withKeyRotation("c", "a,b", run, () => t);
+    expect(seen).toEqual(["b"]);
+    t += 61_000;
+    seen.length = 0;
+    await withKeyRotation("c", "a,b", run, () => t);
+    expect(seen[0]).toBe("a");
+    setRoundRobin(false);
+  });
+  it("cooldown lengths follow the error", () => {
+    expect(cooldownMs(new Response("", { status: 429, headers: { "retry-after": "5" } }))).toBe(20000);
+    expect(cooldownMs(new Response("", { status: 429 }))).toBe(60000);
+    expect(cooldownMs(new Response("", { status: 402 }))).toBe(1800000);
+    expect(cooldownMs(new Response("", { status: 401 }))).toBe(600000);
   });
   it("reads Retry-After", () => {
     expect(retryAfterMs(new Response("", { headers: { "retry-after": "2" } }), 500)).toBe(2000);

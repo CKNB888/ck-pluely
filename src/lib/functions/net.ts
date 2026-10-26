@@ -180,7 +180,49 @@ export function extractProviderError(text: string): string {
 // worked is remembered per provider so later requests start with it.
 
 const keyCursor = new Map<string, number>();
-const ROTATE_STATUS = new Set([401, 403, 429]);
+const ROTATE_STATUS = new Set([401, 402, 403, 429]);
+/** scope|key → epoch ms until which the key is skipped. */
+const keyCooldown = new Map<string, number>();
+const ROUND_ROBIN_KEY = "ck_key_round_robin";
+
+export function getRoundRobin(): boolean {
+  try {
+    return globalThis.localStorage?.getItem(ROUND_ROBIN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+export function setRoundRobin(on: boolean) {
+  try {
+    globalThis.localStorage?.setItem(ROUND_ROBIN_KEY, on ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+}
+
+/** How long a key rests after an error: 429 → Retry-After (min 20 s, default 60 s); 402 quota → 30 min; 401/403 → 10 min. */
+export function cooldownMs(res: Response): number {
+  if (res.status === 429) {
+    const ra = Number(res.headers.get("retry-after"));
+    return Number.isFinite(ra) && ra > 0 ? Math.min(Math.max(ra * 1000, 20000), 15 * 60000) : 60000;
+  }
+  if (res.status === 402) return 30 * 60000;
+  return 10 * 60000;
+}
+
+/** Keys currently resting, for the settings UI (masked by the caller). */
+export function coolingKeys(scope: string, now = Date.now()): string[] {
+  const out: string[] = [];
+  for (const [k, until] of keyCooldown) {
+    if (until > now && k.startsWith(scope + "|")) out.push(k.slice(scope.length + 1));
+  }
+  return out;
+}
+
+export function resetKeyState() {
+  keyCursor.clear();
+  keyCooldown.clear();
+}
 
 export function splitApiKeys(value: string | undefined): string[] {
   const parts = (value || "").split(/[\s,;]+/).map((k) => k.trim()).filter(Boolean);
@@ -193,25 +235,44 @@ export function maskKey(key: string): string {
   return `${m ? m[1] : ""}****${key.slice(-4)}`;
 }
 
+/**
+ * Several keys per provider: the field may hold keys separated by commas,
+ * spaces or new lines. A key that fails with 401/402/403/429 rests for a
+ * cooldown and the next one is tried at once; resting keys are skipped while
+ * any other key is available. With round-robin on, each request starts at the
+ * next key; otherwise the last working key is reused. Keys are never logged.
+ */
 export async function withKeyRotation(
   scope: string,
   rawKey: string | undefined,
-  run: (key: string, isLast: boolean) => Promise<Response>
+  run: (key: string, isLast: boolean) => Promise<Response>,
+  now: () => number = Date.now
 ): Promise<Response> {
   const keys = splitApiKeys(rawKey);
   if (keys.length <= 1) return run(keys[0] ?? rawKey ?? "", true);
   const start = (keyCursor.get(scope) ?? 0) % keys.length;
+  const ring = keys.map((_, i) => (start + i) % keys.length);
+  const t = now();
+  const ready = ring.filter((i) => (keyCooldown.get(scope + "|" + keys[i]) ?? 0) <= t);
+  const resting = ring
+    .filter((i) => !ready.includes(i))
+    .sort((a, b) => (keyCooldown.get(scope + "|" + keys[a]) ?? 0) - (keyCooldown.get(scope + "|" + keys[b]) ?? 0));
+  const order = [...ready, ...resting];
   let res: Response | undefined;
-  for (let i = 0; i < keys.length; i++) {
-    const idx = (start + i) % keys.length;
-    const isLast = i === keys.length - 1;
+  for (let n = 0; n < order.length; n++) {
+    const idx = order[n];
+    const isLast = n === order.length - 1;
     res = await run(keys[idx], isLast);
-    if (!isLast && ROTATE_STATUS.has(res.status)) {
-      res.body?.cancel().catch(() => {});
-      keyCursor.set(scope, (idx + 1) % keys.length);
-      continue;
+    if (ROTATE_STATUS.has(res.status)) {
+      keyCooldown.set(scope + "|" + keys[idx], now() + cooldownMs(res));
+      if (!isLast) {
+        res.body?.cancel().catch(() => {});
+        continue;
+      }
+      return res;
     }
-    keyCursor.set(scope, idx);
+    keyCooldown.delete(scope + "|" + keys[idx]);
+    keyCursor.set(scope, getRoundRobin() ? (idx + 1) % keys.length : idx);
     return res;
   }
   return res as Response;

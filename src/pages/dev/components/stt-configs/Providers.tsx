@@ -1,3 +1,5 @@
+import { KeyList } from "@/components";
+import { splitApiKeys } from "@/lib/functions/net";
 import { ProviderCheck } from "../shared/ProviderCheck";
 import { Button, Header, Input, Selection, TextInput } from "@/components";
 import { UseSettingsReturn } from "@/types";
@@ -98,6 +100,21 @@ export const Providers = ({
               }
             )}
           />
+
+          {splitApiKeys(getApiKeyValue()).length > 0 ? (
+            <KeyList
+              value={getApiKeyValue()}
+              scope={`stt:${selectedSttProvider?.provider ?? ""}`}
+              onChange={(v) => {
+                const apiKeyVar = findKeyAndValue("api_key");
+                if (!apiKeyVar || !selectedSttProvider) return;
+                onSetSelectedSttProvider({
+                  ...selectedSttProvider,
+                  variables: { ...selectedSttProvider.variables, [apiKeyVar.key]: v },
+                });
+              }}
+            />
+          ) : null}
 
           <div className="space-y-2">
             <div className="flex gap-2">
