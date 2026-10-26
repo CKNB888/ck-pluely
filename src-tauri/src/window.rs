@@ -17,7 +17,8 @@ pub fn setup_main_window(app: &mut App) -> Result<(), Box<dyn std::error::Error>
         })
         .ok_or("No window found")?;
 
-    position_window_top_center(&window, TOP_OFFSET)?;
+    // 记住的位置优先；原显示器不在 / 跑到屏外时回到主屏顶部居中
+    crate::winpos::restore(&window, Some(TOP_OFFSET));
 
     // Set window as non-focusable on Windows
     // #[cfg(target_os = "windows")]
@@ -29,6 +30,7 @@ pub fn setup_main_window(app: &mut App) -> Result<(), Box<dyn std::error::Error>
 }
 
 /// Positions a window at the top center of the screen with a specified Y offset
+#[allow(dead_code)]
 pub fn position_window_top_center(
     window: &WebviewWindow,
     y_offset: i32,
@@ -217,6 +219,7 @@ pub fn create_dashboard_window<R: Runtime>(
         .visible(false);
 
     let window = base_builder.build()?;
+    crate::winpos::restore(&window, None);
 
     // Set up close event handler - hide window instead of destroying it
     setup_dashboard_close_handler(&window);

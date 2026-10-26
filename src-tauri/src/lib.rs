@@ -9,6 +9,7 @@ mod privacy;
 mod shortcuts;
 mod startup;
 mod window;
+mod winpos;
 use std::sync::{Arc, Mutex};
 use tauri::Manager;
 #[cfg(target_os = "macos")]
@@ -116,6 +117,11 @@ pub fn run() {
                     privacy::harden(&w);
                 }
             }
+            if matches!(event, tauri::WindowEvent::Moved(_) | tauri::WindowEvent::Resized(_)) {
+                if let Some(w) = window.app_handle().get_webview_window(window.label()) {
+                    winpos::record(&w);
+                }
+            }
         })
         .invoke_handler(tauri::generate_handler![
             privacy::privacy_status,
@@ -123,6 +129,7 @@ pub fn run() {
             notes::ck_export_notes,
             notes::ck_check_update,
             shortcuts::ck_click_through_status,
+            winpos::ck_reset_window_positions,
             net::ck_http_fetch,
             net::ck_http_body,
             net::ck_http_abort,

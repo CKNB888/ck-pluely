@@ -118,6 +118,17 @@ export const Display = () => {
         </div>
       ) : null}
       <div className="flex items-center justify-between gap-3">
+        <span className="text-[13px]">窗口位置（拖动后自动记住，下次启动恢复）</span>
+        <Button
+          variant="outline"
+          size="sm"
+          data-testid="reset-window-pos"
+          onClick={() => invoke("ck_reset_window_positions").catch(() => {})}
+        >
+          复位
+        </Button>
+      </div>
+      <div className="flex items-center justify-between gap-3">
         <span className="text-[13px]">自动检查更新（启动时和每 6 小时，只提示不打扰）</span>
         <Switch
           checked={autoUpd}

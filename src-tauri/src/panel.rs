@@ -119,7 +119,10 @@ pub fn show_panel<R: Runtime>(app: &AppHandle<R>) {
     let Ok(w) = ensure_panel(app) else { return };
     FOCUSED_SINCE_SHOW.store(false, Ordering::SeqCst);
     let tray = *TRAY_RECT.lock().unwrap_or_else(|e| e.into_inner());
-    if let Ok(Some(mon)) = w.primary_monitor() {
+    // 用户拖动过面板 → 用记住的位置；否则（或该显示器已不在）锚定菜单栏 / 托盘图标
+    if crate::winpos::restore(&w, None) {
+    } else if let Ok(Some(mon)) = w.primary_monitor() {
+        crate::winpos::suppress();
         let scale = mon.scale_factor();
         let (mp, ms) = (mon.position(), mon.size());
         let (x, y) = panel_origin(

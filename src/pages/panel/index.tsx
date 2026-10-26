@@ -167,7 +167,16 @@ const PanelPage = () => {
 
   return (
     <div className="ck-panel ck-enter flex h-screen w-screen flex-col overflow-hidden rounded-xl border bg-background text-foreground">
-      <header className="flex items-center justify-between px-4 pb-2 pt-3.5">
+      <header
+        className="flex cursor-grab items-center justify-between px-4 pb-2 pt-3.5 active:cursor-grabbing"
+        data-testid="panel-drag"
+        title="按住拖动面板"
+        onMouseDown={(e) => {
+          // 只在空白处 / 标题上按下才拖动，按钮照常点击
+          if (e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
+          getCurrentWindow().startDragging().catch(() => {});
+        }}
+      >
         <div className="flex items-center gap-2">
           <img src={logo} alt="" className="size-[22px] rounded-[6px]" />
           <span className="text-[15px] font-semibold tracking-tight">CK Pluely</span>
