@@ -64,6 +64,7 @@
   "Auto-detect": "Auto-detect",
   "Auto-detect Mode": "Auto-detect Mode",
   "Auto-listen on launch": "Auto-listen on launch",
+  "Also open my microphone": "Also open my microphone (ask by voice)",
   "Automatically open Pluely when your system starts": "Automatically open CK Pluely when your system starts",
   "Bad request (HTTP 400). Check the model name and request parameters.": "Bad request (HTTP 400). Check the model name and request parameters.",
   "Balanced for typical conversations": "Balanced for typical conversations",

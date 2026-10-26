@@ -1,3 +1,4 @@
+import { shouldAutoMic } from "@/lib/auto-listen";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useWindowResize } from "./useWindow";
 import { useGlobalShortcuts } from "@/hooks";
@@ -979,6 +980,16 @@ export const useCompletion = () => {
     return () => {
       unlisten.then((fn) => fn());
     };
+  }, []);
+
+  // v2.1.1：自动监听时老师麦克风也自动打开（设置里可关）
+  useEffect(() => {
+    if (!shouldAutoMic()) return;
+    const timer = setTimeout(() => {
+      setEnableVAD(true);
+      setMicOpen(true);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleRecording = useCallback(() => {

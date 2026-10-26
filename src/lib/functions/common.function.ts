@@ -11,6 +11,8 @@ export function getByPath(obj: any, path: string): any {
 
 export function setByPath(obj: any, path: string, value: any): void {
   const keys = path.split(".");
+  // 路径来自可导入的服务商配置：禁止原型污染
+  if (keys.some((k) => k === "__proto__" || k === "constructor" || k === "prototype")) return;
   let current = obj;
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i].replace(/\[(\d+)\]/g, ".$1");

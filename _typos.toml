@@ -1,0 +1,4 @@
+[default.extend-words]
+# variable names, not typos
+iy = "iy"
+thr = "thr"
