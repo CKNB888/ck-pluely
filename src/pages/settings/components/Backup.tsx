@@ -56,7 +56,7 @@ export const Backup = () => {
   const [autos, setAutos] = useState<{ path: string; name: string; bytes: number; createdAt: number }[]>([]);
 
   useEffect(() => {
-    listAutoBackups().then(setAutos).catch(() => setAutos([]));
+    listAutoBackups().then((v) => setAutos(Array.isArray(v) ? v : [])).catch(() => setAutos([]));
   }, [done, msg]);
 
   const pwProblem = withKeys && (pw.length < 6 ? "口令至少 6 位" : pw !== pw2 ? "两次口令不一致" : "");

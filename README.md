@@ -21,6 +21,13 @@
 | 打开即监听（v2.1.0） | 自动识别腾讯会议、钉钉、飞书、企业微信、Zoom、Teams 等，优先只采集会议软件的声音；面板显示「正在监听：腾讯会议」 |
 | 备份与恢复（v2.1.0） | `.ckbak` 单文件，校验 + 差异预览 + 失败回滚，可加密包含 API Key；升级前自动备份 |
 | 隐私 | 内容保护、隐私状态指示、一键隐藏全部窗口 |
+| 多 Key 轮换（v2.1.1） | 每个服务商可填多个 Key，限流 / 额度用完 / 认证失败自动换下一个 |
+| 面板切模型（v2.1.1） | 菜单栏面板直接切换服务商、对话模型和语音识别，立即生效 |
+| 提示词库与技能包（v2.1.1） | 内置课堂、会议、面试、翻译等提示词；可导入 .json 或 SKILL.md 文字技能包（不运行脚本） |
+| 扫一眼版式（v2.1.1） | 先结论、再 2–4 条要点，细节折叠；流式输出不跳动；字号、透明度可调 |
+| 网页会议与老师麦克风（v2.1.1） | 识别浏览器里的会议网页；自动监听时可同时打开麦克风 |
+| 点击穿透（v2.1.1） | ⌘⌥⇧T / Ctrl+Alt+Shift+T 让鼠标穿过悬浮条点到会议软件 |
+| 自动更新（v2.1.1） | 签名校验的应用内更新，启动和每 6 小时检查，可关闭；监听 / 上课中不安装，数据全部保留 |
 | 完全卸载 | 应用内一键删除；各平台卸载程序同步清理 |
 
 ## 界面截图
@@ -29,7 +36,9 @@
 |---|---|
 | <img src="docs/screenshots/v2/panel-home.webp" width="400"><br>面板：常用 | <img src="docs/screenshots/v2/panel-questions.webp" width="400"><br>面板：提问列表 |
 | <img src="docs/screenshots/v2/panel-questions-dark.webp" width="400"><br>深色模式 | <img src="docs/screenshots/v2/settings-local-speech.webp" width="400"><br>本地语音识别与配置建议 |
-| <img src="docs/screenshots/v2/settings-display.webp" width="400"><br>显示：字号、屏幕、检查更新 | <img src="docs/screenshots/v2/onboarding-voiceprint.webp" width="400"><br>首次引导：录入你的声音 |
+| <img src="docs/screenshots/v2/settings-display.webp" width="400"><br>显示：字号、屏幕、自动更新 | <img src="docs/screenshots/v2/onboarding-voiceprint.webp" width="400"><br>首次引导：录入你的声音 |
+| <img src="docs/screenshots/v2/panel-models.webp" width="400"><br>面板：切换模型 | <img src="docs/screenshots/v2/prompts-builtin.webp" width="400"><br>内置提示词库 |
+| <img src="docs/screenshots/v2/prompts-skill-import.webp" width="400"><br>导入技能包 | |
 
 ## 安装
 
@@ -65,7 +74,7 @@
 
 ## 升级
 
-直接安装新版本覆盖即可，记录与设置保留。v2.1.0 起，首次启动新版本时会在改写任何数据前自动导出一份升级前备份（保留最近 5 份，可在「设置 → 备份与恢复」中查看）。
+v2.1.1 起应用内自动更新：发现新版本时只在角落显示提示，到「设置 → 显示」点击安装即可（签名校验，记录、设置、Key 全部保留；正在监听时不会安装）。也可以直接下载新安装包覆盖安装。v2.1.0 起，首次启动新版本时会在改写任何数据前自动导出一份升级前备份（保留最近 5 份，可在「设置 → 备份与恢复」中查看）。
 
 ## 备份与恢复
 
@@ -104,6 +113,7 @@
 
 每个版本的详细改动见 [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)。
 
+- **v2.1.1** 多 Key 轮换、面板切模型、提示词库与技能包、扫一眼版式、网页会议、点击穿透、应用内自动更新
 - **v2.1.0** 打开即监听（自动识别会议软件）、修复启动无反应、备份与恢复、更快更省、课堂要点优先
 - **v2.0.0** 本地识别、声纹、上课模式、提问列表
 - **v1.0.7** 菜单栏面板、新图标、界面重写
