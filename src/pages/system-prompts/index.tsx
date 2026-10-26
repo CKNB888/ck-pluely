@@ -26,6 +26,7 @@ import { DeleteSystemPrompt } from "./Delete";
 import { CreateEditDialog } from "./CreateEditDialog";
 import { PluelyPrompts } from "./PluelyPrompts";
 import { BuiltinPrompts } from "./BuiltinPrompts";
+import { SkillPackImport } from "./SkillPackImport";
 import { useState } from "react";
 import { PageLayout } from "@/layouts";
 
@@ -301,6 +302,7 @@ const SystemPrompts = () => {
 
       {/* Pluely Default Prompts */}
       <BuiltinPrompts onUse={useBuiltinPrompt} userSelected={selectedPromptId !== null} />
+      <SkillPackImport onCreate={createPrompt} />
       {!CK_HIDE_UPSTREAM_PAID && <PluelyPrompts />}
     </PageLayout>
   );
