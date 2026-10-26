@@ -181,7 +181,20 @@ export const useSystemPrompts = () => {
     [prompts, setSystemPrompt]
   );
 
+  /** Use a built-in prompt: deselect the user's own prompt. */
+  const useBuiltinPrompt = useCallback(
+    (text: string) => {
+      setSystemPrompt(text);
+      setSelectedPromptId(null);
+      safeLocalStorage.setItem(STORAGE_KEYS.SYSTEM_PROMPT, text);
+      safeLocalStorage.removeItem(STORAGE_KEYS.SELECTED_SYSTEM_PROMPT_ID);
+      safeLocalStorage.removeItem("selected_pluely_prompt");
+    },
+    [setSystemPrompt]
+  );
+
   return {
+    useBuiltinPrompt,
     prompts,
     isLoading,
     error,

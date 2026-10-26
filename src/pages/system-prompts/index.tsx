@@ -25,6 +25,7 @@ import {
 import { DeleteSystemPrompt } from "./Delete";
 import { CreateEditDialog } from "./CreateEditDialog";
 import { PluelyPrompts } from "./PluelyPrompts";
+import { BuiltinPrompts } from "./BuiltinPrompts";
 import { useState } from "react";
 import { PageLayout } from "@/layouts";
 
@@ -40,6 +41,7 @@ const SystemPrompts = () => {
     updatePrompt,
     selectedPromptId,
     handleSelectPrompt,
+    useBuiltinPrompt,
     clearError,
   } = useSystemPrompts();
 
@@ -298,6 +300,7 @@ const SystemPrompts = () => {
       />
 
       {/* Pluely Default Prompts */}
+      <BuiltinPrompts onUse={useBuiltinPrompt} userSelected={selectedPromptId !== null} />
       {!CK_HIDE_UPSTREAM_PAID && <PluelyPrompts />}
     </PageLayout>
   );
